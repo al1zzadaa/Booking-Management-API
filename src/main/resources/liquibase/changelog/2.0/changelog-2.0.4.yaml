@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-user-status-default-to-not-verified
+      author: sadigalizada
+
+      changes:
+        - addDefaultValue:
+            tableName: users
+            columnName: is_active
+            defaultValue: NOT_VERIFIED
+
+      rollback:
+        - addDefaultValue:
+            tableName: users
+            columnName: status
+            defaultValue: ACTIVE

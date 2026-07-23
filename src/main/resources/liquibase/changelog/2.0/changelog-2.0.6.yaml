@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: make-transaction-reference-id-nullable
+      author: sadigalizada
+      changes:
+        - dropNotNullConstraint:
+            tableName: transactions
+            columnName: reference_id
+            columnDataType: BIGINT
+
+      rollback:
+        - addNotNullConstraint:
+            tableName: transactions
+            columnName: reference_id
+            columnDataType: BIGINT

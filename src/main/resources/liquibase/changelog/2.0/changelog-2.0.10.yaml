@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-uk-airline-name-model-country
+      author: sadigalizada
+      changes:
+        - addUniqueConstraint:
+            tableName: airlines
+            columnNames: airline_name, model, country
+            constraintName: uk_airline_name_model_country
+
+      rollback:
+        - dropUniqueConstraint:
+            tableName: airlines
+            constraintName: uk_airline_name_model_country

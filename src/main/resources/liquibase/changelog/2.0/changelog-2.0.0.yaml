@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-people-number-to-booking
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: people_number
+                  type: INTEGER
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropColumn:
+            tableName: booking
+            columnName: people_number

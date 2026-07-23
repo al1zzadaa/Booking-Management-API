@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-ticket-class-to-fare-baggage
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: fare_baggage
+            columns:
+              - column:
+                  name: ticket_class
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropColumn:
+            tableName: fare_baggage
+            columnName: ticket_class

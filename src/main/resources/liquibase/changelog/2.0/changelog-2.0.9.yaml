@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraint-airline-name
+      author: sadigalizada
+      changes:
+        - addUniqueConstraint:
+            tableName: airlines
+            columnNames: airline_name
+            constraintName: uk_airline_name
+
+      rollback:
+        - dropUniqueConstraint:
+            tableName: airlines
+            constraintName: uk_airline_name

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename-fare-to-hand-luggage
+      author: sadigalizada
+      changes:
+        - renameColumn:
+            tableName: fare_baggage
+            oldColumnName: fare
+            newColumnName: hand_luggage
+            columnDataType: INT
+
+      rollback:
+        - renameColumn:
+            tableName: fare_baggage
+            oldColumnName: hand_luggage
+            newColumnName: fare
+            columnDataType: INT

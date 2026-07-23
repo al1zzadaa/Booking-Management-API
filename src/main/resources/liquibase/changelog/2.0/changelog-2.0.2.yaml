@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: change-notifications-account-to-user
+      author: sadigalizada
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: notifications
+            constraintName: fk_notifications_account
+
+        - renameColumn:
+            tableName: notifications
+            oldColumnName: account_id
+            newColumnName: user_id
+            columnDataType: BIGINT
+
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_notifications_user
+
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: notifications
+            constraintName: fk_notifications_user
+
+        - renameColumn:
+            tableName: notifications
+            oldColumnName: user_id
+            newColumnName: account_id
+            columnDataType: BIGINT
+
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: account_id
+            referencedTableName: accounts
+            referencedColumnNames: id
+            constraintName: fk_notifications_account

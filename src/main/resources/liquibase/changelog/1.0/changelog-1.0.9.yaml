@@ -1,0 +1,107 @@
+databaseChangeLog:
+  # ChangeSet for PromoCodeEntity
+  - changeSet:
+      id: create-promo-codes
+      author: sadigalizada
+      changes:
+        - createTable:
+            tableName: promo_codes
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_promo_codes
+              - column:
+                  name: code
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uc_promo_codes_code
+              - column:
+                  name: discount_value
+                  type: DECIMAL(19, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: discount_type
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usage_limit
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used_count
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            tableName: promo_codes
+
+  # ChangeSet for UserPromoCodeEntity
+  - changeSet:
+      id: create-user-promo-codes
+      author: sadigalizada
+      changes:
+        - createTable:
+            tableName: user_promo_codes
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_promo_codes
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_upc_user
+                    references: users(id)
+              - column:
+                  name: promo_code_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_upc_promo_code
+                    references: promo_codes(id)
+              - column:
+                  name: used_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: user_promo_codes

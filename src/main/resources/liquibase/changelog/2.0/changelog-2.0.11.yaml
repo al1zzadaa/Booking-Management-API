@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-token-type
+      author: sadigalizada
+
+      changes:
+        - addColumn:
+            tableName: email_verification_tokens
+            columns:
+              - column:
+                  name: token_type
+                  type: VARCHAR(30)
+                  defaultValue: EMAIL_VERIFICATION
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropColumn:
+            tableName: email_verification_tokens
+            columnName: token_type

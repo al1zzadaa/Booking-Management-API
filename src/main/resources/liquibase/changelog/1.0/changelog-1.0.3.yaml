@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-fare-baggage
+      author: sadigalizada
+      changes:
+        - createTable:
+            tableName: fare_baggage
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_fare_baggage
+              - column:
+                  name: airline_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_fare_baggage_airline
+                    references: airlines(id)
+              - column:
+                  name: baggage
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: fare
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(19, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_date
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            tableName: fare_baggage

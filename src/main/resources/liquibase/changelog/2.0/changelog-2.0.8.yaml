@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-is-active-to-airlines
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: airlines
+            columns:
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+      rollback:
+        - dropColumn:
+            tableName: airlines
+            columnName: is_active

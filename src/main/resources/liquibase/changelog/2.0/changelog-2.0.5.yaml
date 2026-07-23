@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: account-balance-default-zero
+      author: sadigalizada
+      changes:
+        - addDefaultValue:
+            tableName: accounts
+            columnName: balance
+            defaultValueNumeric: 0.00
+      rollback:
+        - dropDefaultValue:
+            tableName: accounts
+            columnName: balance
