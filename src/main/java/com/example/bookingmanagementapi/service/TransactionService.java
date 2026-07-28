@@ -1,9 +1,6 @@
 package com.example.bookingmanagementapi.service;
 
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
-import com.example.bookingmanagementapi.dto.request.TransactionRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateTransactionRequest;
-import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
+import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import org.springframework.data.domain.Page;
@@ -29,5 +26,5 @@ public interface TransactionService {
 
     void withdraw(WithdrawRequest withdrawRequest);
 
-    void deposit(PaymentRequest paymentRequest);
+    void deposit(DepositRequest depositRequest);
 }

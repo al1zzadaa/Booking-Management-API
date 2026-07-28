@@ -1,5 +1,6 @@
 package com.example.bookingmanagementapi.controller;
 
+import com.example.bookingmanagementapi.dto.request.DepositRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
 import com.example.bookingmanagementapi.service.TransactionService;
@@ -14,8 +15,8 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/deposit")
-    public void deposit(@RequestBody PaymentRequest paymentRequest) {
-        transactionService.deposit(paymentRequest);
+    public void deposit(@RequestBody DepositRequest depositRequest) {
+        transactionService.deposit(depositRequest);
     }
 
     @PostMapping("/withdraw")

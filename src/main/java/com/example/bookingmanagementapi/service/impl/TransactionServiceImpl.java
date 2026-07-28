@@ -1,9 +1,6 @@
 package com.example.bookingmanagementapi.service.impl;
 
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
-import com.example.bookingmanagementapi.dto.request.TransactionRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateTransactionRequest;
-import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
+import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
@@ -16,6 +13,7 @@ import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
+import com.example.bookingmanagementapi.repository.TicketRepository;
 import com.example.bookingmanagementapi.repository.TransactionRepository;
 import com.example.bookingmanagementapi.service.TransactionService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
@@ -37,6 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionMapper transactionMapper;
     private final ValidationUtil validationUtil;
     private final AccountRepository accountRepository;
+    private final TicketRepository ticketRepository;
 
 
     @Override
@@ -88,11 +87,16 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(null);
 
         BigDecimal balance = accountEntity.getBalance();
+//        BigDecimal amount = paymentRequest.getAmount();
+//
+//        if (paymentRequest.getCurrency().equals(Currency.USD)) {
+//            amount = convertFromUsd(amount, accountEntity.getCurrency());
+//        }
 
         BigDecimal amountToWithdraw =
                 accountEntity.getCurrency() == Currency.USD
                         ? ticket.getPrice()
-                        : convertToUsd(ticket.getPrice(), accountEntity.getCurrency());
+                        : convertFromUsd(ticket.getPrice(), accountEntity.getCurrency());
 
 
         if (balance.compareTo(amountToWithdraw) < 0) {
@@ -105,7 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
         );
 
         TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(amountToWithdraw)
+                .amount(ticket.getPrice())
                 .account(accountEntity)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
@@ -114,8 +118,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .description("Payment for ticket")
                 .referenceId(ticket.getId())
                 .build();
-
-//        withdraw(ticket.getPrice());
 
         transactionRepository.save(transactionEntity);
     }
@@ -154,7 +156,7 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal refundAmount = amount;
 
         if (account.getCurrency() != Currency.USD) {
-            refundAmount = convertToUsd(amount, account.getCurrency());
+            refundAmount = convertFromUsd(amount, account.getCurrency());
         }
 
         account.setBalance(account.getBalance().add(refundAmount));
@@ -181,13 +183,18 @@ public class TransactionServiceImpl implements TransactionService {
         AccountEntity accountEntity = accountRepository.findById(withdrawRequest.getAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        if (accountEntity.getBalance().compareTo(withdrawRequest.getAmount()) < 0) {
+        BigDecimal balance = accountEntity.getBalance();
+
+        if (balance.compareTo(withdrawRequest.getAmount()) < 0) {
             throw new InsufficientBalanceException("Not enough balance to  withdraw");
         }
 
-        convertToUsd(withdrawRequest.getAmount(), accountEntity.getCurrency());
+        BigDecimal amountToWithdraw =
+                accountEntity.getCurrency() == Currency.USD
+                        ? withdrawRequest.getAmount()
+                        : convertFromUsd(withdrawRequest.getAmount(), accountEntity.getCurrency());
 
-        accountEntity.setBalance(accountEntity.getBalance().subtract(withdrawRequest.getAmount()));
+        accountEntity.setBalance(accountEntity.getBalance().subtract(amountToWithdraw));
 
         accountRepository.save(accountEntity);
 
@@ -198,6 +205,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .description("Withdraw")
                 .referenceType(ReferenceType.ACCOUNT)
                 .paymentStatus(PaymentStatus.SUCCESS)
+                .referenceId(accountEntity.getId())
                 .build();
 
         transactionRepository.save(transactionEntity);
@@ -205,14 +213,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public void deposit(PaymentRequest paymentRequest) {
+    public void deposit(DepositRequest depositRequest) {
 
-        validationUtil.validateId(paymentRequest.getAccountId());
+        validationUtil.validateId(depositRequest.getAccountId());
 
-        AccountEntity accountEntity = accountRepository.findById(paymentRequest.getAccountId())
+        AccountEntity accountEntity = accountRepository.findById(depositRequest.getAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        BigDecimal deposit = paymentRequest.getAmount();
+        BigDecimal deposit = depositRequest.getAmount();
 
         if (!accountEntity.getCurrency().equals(Currency.USD)) {
             deposit = convertFromUsd(deposit, accountEntity.getCurrency());
@@ -225,12 +233,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         TransactionEntity transactionEntity = TransactionEntity.builder()
                 .account(accountEntity)
-                .amount(paymentRequest.getAmount())
+                .amount(depositRequest.getAmount())
                 .type(TransactionType.DEPOSIT)
                 .description("Deposit")
-                .paymentMethod(paymentRequest.getPaymentMethod())
+                .paymentMethod(depositRequest.getPaymentMethod())
                 .referenceType(ReferenceType.ACCOUNT)
                 .paymentStatus(PaymentStatus.SUCCESS)
+                .referenceId(accountEntity.getId())
                 .build();
 
         transactionRepository.save(transactionEntity);

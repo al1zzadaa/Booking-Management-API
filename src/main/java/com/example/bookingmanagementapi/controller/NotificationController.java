@@ -18,30 +18,30 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @PostMapping
-    void create(NotificationRequest notificationRequest){
-        notificationService.create(notificationRequest);
-    }
+//    @PostMapping
+//    void create(NotificationRequest notificationRequest){
+//        notificationService.create(notificationRequest);
+//    }
 
-    @GetMapping("/{id}")
-    NotificationResponse getById(@PathVariable Long id){
-        return notificationService.getById(id);
-    }
+//    @GetMapping("/{id}")
+//    NotificationResponse getById(@PathVariable Long id){
+//        return notificationService.getById(id);
+//    }
 
-    @GetMapping("/user/{userId}")
-    Page<NotificationResponse> getAll(@PathVariable Long userId,  Pageable pageable){
-        return notificationService.getAll(userId,  pageable);
-    }
+//    @GetMapping("/user/{userId}")
+//    Page<NotificationResponse> getAll(@PathVariable Long userId,  Pageable pageable){
+//        return notificationService.getAll(userId,  pageable);
+//    }
 
-    @PutMapping("/{id}")
-    void update(@PathVariable Long id, @RequestBody UpdateNotificationRequest updateNotificationRequest){
-        notificationService.update(id, updateNotificationRequest);
-    }
+//    @PutMapping("/{id}")
+//    void update(@PathVariable Long id, @RequestBody UpdateNotificationRequest updateNotificationRequest){
+//        notificationService.update(id, updateNotificationRequest);
+//    }/
 
-    @DeleteMapping("/{id}")
-    void delete(@PathVariable Long id){
-        notificationService.delete(id);
-    }
+//    @DeleteMapping("/{id}")
+//    void delete(@PathVariable Long id){
+//        notificationService.delete(id);
+//    }
 
     @PostMapping("/send/{userId}")
     void send(@PathVariable Long userId, NotificationRequest notificationRequest){

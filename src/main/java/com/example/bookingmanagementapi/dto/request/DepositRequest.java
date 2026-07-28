@@ -10,15 +10,15 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class PaymentRequest {
+public class DepositRequest {
 
     @NotNull
     private Long accountId;
 
     @NotNull
     private PaymentMethods paymentMethod;
-//
-//    private Currency currency;
-//    private BigDecimal amount;
 
+    private Currency currency;
+
+    private BigDecimal amount;
 }

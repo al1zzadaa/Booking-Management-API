@@ -4,10 +4,13 @@ import com.example.bookingmanagementapi.dto.request.FavoriteFlightRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateFavoriteFlightRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse;
 import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FavoriteFlightMapper;
 import com.example.bookingmanagementapi.repository.FavoriteFlightRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FavoriteFlightService;
+import com.example.bookingmanagementapi.service.UserService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +26,18 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     private final FavoriteFlightRepository favoriteFlightRepository;
     private final FavoriteFlightMapper favoriteFlightMapper;
     private final ValidationUtil validationUtil;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
     public void addFavoriteFlight(FavoriteFlightRequest favoriteFlightRequest) {
 
+        UserEntity userEntity = userRepository.findById(favoriteFlightRequest.getUserId())
+                .orElseThrow(null);
+
         FavoriteFlightEntity favoriteFlightEntity = favoriteFlightMapper.toEntity(favoriteFlightRequest);
+
+        favoriteFlightEntity.setUser(userEntity);
 
         favoriteFlightRepository.save(favoriteFlightEntity);
     }

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @Getter
@@ -21,7 +22,8 @@ public class UserResponse {
     private String phoneNumber;
     private LocalDate dateOfBirth;
     private UserStatus isActive;
-    private Roles role;
+    private Set<Roles> roles;
+    private LocalDateTime emailVerifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

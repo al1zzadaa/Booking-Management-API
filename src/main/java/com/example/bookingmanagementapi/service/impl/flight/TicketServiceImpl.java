@@ -12,6 +12,7 @@ import com.example.bookingmanagementapi.exception.SeatNotAvailable;
 import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.TicketMapper;
 import com.example.bookingmanagementapi.repository.*;
+import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.TicketService;
 import com.example.bookingmanagementapi.service.TransactionService;
 import com.example.bookingmanagementapi.service.specifications.TicketSpecification;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -40,6 +42,7 @@ public class TicketServiceImpl implements TicketService {
     private final UserRepository userRepository;
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
+    private final NotificationService notificationService;
     @Value("${percent10}")
     private Integer percent10;
     @Value("${percent20}")
@@ -74,7 +77,6 @@ public class TicketServiceImpl implements TicketService {
         SeatEntity seatEntity = seatRepository.findById(ticketRequest.getSeatId())
                 .orElseThrow(() -> new NotFoundException("seat not found"));
 
-
         if (!accountEntity.getUser().getId().equals(userEntity.getId())) {
             throw new ValidationException("account not owned by user");
         }
@@ -94,24 +96,22 @@ public class TicketServiceImpl implements TicketService {
                         new NotFoundException("Fare baggage policy not found"));
 
 
-        TicketEntity ticket = new TicketEntity();
-
-        ticket.setUser(userEntity);
-        ticket.setAccount(accountEntity);
-        ticket.setFlight(flightEntity);
-        ticket.setSeat(seatEntity);
-        ticket.setPrice(policy.getPrice().add(flightEntity.getBasePrice()));
-        ticket.setFareBaggage(policy);
-        ticket.setStatus(TicketStatus.RESERVED);
-
-        System.out.println("Before: " + seatEntity.getIsAvailable());
+        TicketEntity ticket = TicketEntity.builder()
+                .user(userEntity)
+                .account(accountEntity)
+                .flight(flightEntity)
+                .seat(seatEntity)
+                .price(policy.getPrice().add(flightEntity.getBasePrice()))
+                .fareBaggage(policy)
+                .status(TicketStatus.RESERVED)
+                .build();
 
         seatEntity.setIsAvailable(false);
+        ticketRepository.save(ticket);
 
-        System.out.println("After: " + seatEntity.getIsAvailable());
+        notificationService.sendBookingNotification(userEntity.getId());
 
     }
-
 
     @Transactional
     @Override
@@ -125,6 +125,8 @@ public class TicketServiceImpl implements TicketService {
         ticket.setStatus(TicketStatus.CONFIRMED);
 
         ticketRepository.save(ticket);
+
+        notificationService.sendTicketPaymentNotification(ticket);
     }
 
     @Override
@@ -136,13 +138,14 @@ public class TicketServiceImpl implements TicketService {
         TicketEntity ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new NotFoundException("ticket not found"));
 
-
         BigDecimal refund = calculateRefund(ticketId);
 
         transactionService.refund(ticket, refund);
 
         ticket.setStatus(TicketStatus.CANCELLED);
         ticket.getSeat().setIsAvailable(true);
+
+        notificationService.sendCancellationNotification(ticket);
     }
 
 
@@ -163,22 +166,28 @@ public class TicketServiceImpl implements TicketService {
         }
 
         long daysLeft = ChronoUnit.DAYS.between(now, departure);
+        BigDecimal res = getBigDecimal(daysLeft, refund);
 
-        BigDecimal cancellationFee;
+        return refund.subtract(res);
+    }
+
+    private BigDecimal getBigDecimal(long daysLeft, BigDecimal refund) {
+        int cancellationFee;
 
         if (daysLeft >= 30) {
-            cancellationFee = BigDecimal.valueOf(percent10);
+            cancellationFee = percent10;
         } else if (daysLeft >= 15) {
-            cancellationFee = BigDecimal.valueOf(percent20);
+            cancellationFee = percent20;
         } else if (daysLeft >= 7) {
-            cancellationFee = BigDecimal.valueOf(percent30);
+            cancellationFee = percent30;
         } else if (daysLeft >= 3) {
-            cancellationFee = BigDecimal.valueOf(percent50);
+            cancellationFee = percent50;
         } else {
-            cancellationFee = BigDecimal.valueOf(percent70);
+            cancellationFee = percent70;
         }
 
-        return refund.subtract(cancellationFee);
+        return refund.multiply(BigDecimal.valueOf(cancellationFee)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
     }
 
 

@@ -2,9 +2,7 @@ package com.example.bookingmanagementapi.entity;
 
 import com.example.bookingmanagementapi.enums.NotificationType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,6 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name = "notifications")
 public class NotificationEntity {
 
@@ -35,6 +35,7 @@ public class NotificationEntity {
     private String message;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean read = false;
 
     @CreationTimestamp

@@ -1,24 +1,17 @@
 package com.example.bookingmanagementapi.service.impl;
 
-import com.example.bookingmanagementapi.dto.request.ForgotPasswordRequest;
-import com.example.bookingmanagementapi.dto.request.ResetPasswordRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateUserRequest;
 import com.example.bookingmanagementapi.dto.request.UserRequest;
 import com.example.bookingmanagementapi.dto.response.UserResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
-import com.example.bookingmanagementapi.entity.EmailVerificationTokenEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.Roles;
-import com.example.bookingmanagementapi.enums.TokenType;
 import com.example.bookingmanagementapi.enums.UserStatus;
-import com.example.bookingmanagementapi.exception.InvalidTokenException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
-import com.example.bookingmanagementapi.exception.TokenExpiredException;
 import com.example.bookingmanagementapi.mapper.UserMapper;
 import com.example.bookingmanagementapi.repository.EmailVerificationTokenRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.AccountService;
-import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.EmailVerificationService;
 import com.example.bookingmanagementapi.service.UserService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
@@ -30,8 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 @Service
@@ -108,6 +99,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+//        Set<Roles> roles = userEntity.getRoles();
 
         return userMapper.toDto(userEntity);
     }

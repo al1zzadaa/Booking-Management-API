@@ -1,6 +1,7 @@
 package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.NotificationRequest;
+import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.*;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,6 +34,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
     @Value("${subscription.size}")
     private int size;
     @Value("${subscription.page}")
@@ -39,9 +42,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 
     @Override
-    public void subscribe(Long accountId, Long planId) {
+    public void subscribe(Long userId, Long planId, PaymentRequest paymentRequest) {
 
-        AccountEntity account = accountRepository.findById(accountId).orElseThrow(null);
+        UserEntity account = userRepository.findById(userId).orElseThrow(null);
 
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(null);
@@ -54,67 +57,67 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new SubscriptionException("You can change subscription after 3 days");
         }
 
-        if (account.getBalance().compareTo(subscriptionPlanEntity.getPrice()) < 0) {
-            throw new InsufficientBalanceException("Not enough balance");
-        }
-
-        BigDecimal price = account.getBalance();
-
-        if (account.getCurrency().equals(Currency.USD)){
-            price = account.getBalance().multiply(BigDecimal.valueOf(17)).divide(BigDecimal.valueOf(10));
-        }else if (account.getCurrency().equals(Currency.EUR)){
-            price = account.getBalance().multiply(BigDecimal.valueOf(2));
-        }
-
-        account.setBalance(
-               price.subtract(subscriptionPlanEntity.getPrice())
-        );
-
-
-
-        TransactionEntity tx = TransactionEntity.builder()
-                .type(TransactionType.PAYMENT)
-                .amount(subscriptionPlanEntity.getPrice())
-                .description("Payment for subscription")
-                .referenceId(subscriptionPlanEntity.getId())
-                .account(account)
-                .createdAt(LocalDateTime.now())
-                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
-                .referenceType(ReferenceType.SUBSCRIPTION)
-                .paymentStatus(PaymentStatus.PENDING)
-                .build();
+//        if (paymentRequest.getAccountId().compareTo(subscriptionPlanEntity.getPrice()) < 0) {
+//            throw new InsufficientBalanceException("Not enough balance");
+//        }
+//
+//        BigDecimal price = account.getBalance();
+//
+//        if (account.getCurrency().equals(Currency.USD)){
+//            price = account.getBalance().multiply(BigDecimal.valueOf(17)).divide(BigDecimal.valueOf(10));
+//        }else if (account.getCurrency().equals(Currency.EUR)){
+//            price = account.getBalance().multiply(BigDecimal.valueOf(2));
+//        }
+//
+//        account.setBalance(
+//               price.subtract(subscriptionPlanEntity.getPrice())
+//        );
+//
+//
+//
+//        TransactionEntity tx = TransactionEntity.builder()
+//                .type(TransactionType.PAYMENT)
+//                .amount(subscriptionPlanEntity.getPrice())
+//                .description("Payment for subscription")
+//                .referenceId(subscriptionPlanEntity.getId())
+//                .account(account)
+//                .createdAt(LocalDateTime.now())
+//                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
+//                .referenceType(ReferenceType.SUBSCRIPTION)
+//                .paymentStatus(PaymentStatus.PENDING)
+//                .build();
 //        tx.setAccount(userEntity.getAccount());
 //        tx.setAmount(subscriptionPlanEntity.getPrice());
 //        tx.setDescription("Subscribed to subscription");
-
-        transactionRepository.save(tx);
-
-
-        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByAccountId(accountId);
-        subscriptionEntity.setAccount(account);
-        subscriptionEntity.setSubscriptionPlan(subscriptionPlanEntity);
-        subscriptionEntity.setStartDate(LocalDateTime.now().toLocalDate());
-        subscriptionEntity.setEndDate(
-                LocalDateTime.now().toLocalDate()
-                        .plusDays(subscriptionPlanEntity.getDurationDays())
-        );
-        subscriptionEntity.setIsActive(true);
-
-        accountRepository.save(account);
-        subscriptionRepository.save(subscriptionEntity);
+//
+//        transactionRepository.save(tx);
 
 
+//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByAccountId(accountId);
+//        subscriptionEntity.setAccount(account);
+//        subscriptionEntity.setSubscriptionPlan(subscriptionPlanEntity);
+//        subscriptionEntity.setStartDate(LocalDateTime.now().toLocalDate());
+//        subscriptionEntity.setEndDate(
+//                LocalDateTime.now().toLocalDate()
+//                        .plusDays(subscriptionPlanEntity.getDurationDays())
+//        );
+//        subscriptionEntity.setIsActive(true);
+//
+//        accountRepository.save(account);
+//        subscriptionRepository.save(subscriptionEntity);
+//
+//
         //TODO method
-        NotificationRequest notificationRequest = new NotificationRequest();
-
-        notificationRequest.setNotificationType(NotificationType.SUBSCRIBE);
-        notificationRequest.setTitle("Subscription notification");
-        notificationRequest.setIsRead(false);
-        notificationRequest.setMessage("Subscription activated");
-
-        notificationService.create(notificationRequest);
-
-        notificationService.send(accountId, notificationRequest);
+//        NotificationRequest notificationRequest = new NotificationRequest();
+//
+//        notificationRequest.setNotificationType(NotificationType.SUBSCRIBE);
+//        notificationRequest.setTitle("Subscription notification");
+//        notificationRequest.setIsRead(false);
+//        notificationRequest.setMessage("Subscription activated");
+//
+//        notificationService.create(notificationRequest);
+//
+//        notificationService.send(, notificationRequest);
     }
 
     @Override
@@ -137,7 +140,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription canceled");
 
-        notificationService.create(notificationRequest);
+//        notificationService.create(notificationRequest);
 
         subscriptionRepository.save(subscriptionEntity);
     }
@@ -201,7 +204,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription renewed");
 
-        notificationService.create(notificationRequest);
+//        notificationService.create(notificationRequest);
 
         subscriptionRepository.save(subscriptionEntity);
     }
@@ -244,7 +247,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription auto renew enabled");
 
-        notificationService.create(notificationRequest);
+//        notificationService.create(notificationRequest);
 
         subscriptionRepository.save(subscriptionEntity);
     }
@@ -262,7 +265,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription auto renew disabled");
 
-        notificationService.create(notificationRequest);
+//        notificationService.create(notificationRequest);
 
         subscriptionRepository.save(subscriptionEntity);
     }
