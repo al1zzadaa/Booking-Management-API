@@ -27,4 +27,7 @@ public interface UserService {
     void unblockUser(Long userId);
 
     UserResponse getCurrentUser(Long userId);
+
+    void validateUserCanBook(Long userId);
+
 }

@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.MailRequest;
 import com.example.bookingmanagementapi.dto.request.NotificationRequest;
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
 import com.example.bookingmanagementapi.entity.NotificationEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
@@ -126,9 +125,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendBookingNotification(Long userId){
         NotificationRequest notification = NotificationRequest.builder()
                 .notificationType(NotificationType.BOOKING)
-                .title("Booking Ticket")
+                .title("Booking")
                 .isRead(false)
-                .message("Booking Ticket has been booked")
+                .message("Booking is successful")
                 .build();
 
         send(userId, notification);
@@ -138,7 +137,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendTicketPaymentNotification(TicketEntity ticket) {
         NotificationRequest notification = NotificationRequest.builder()
                 .notificationType(NotificationType.PAYMENT)
-                .title("Ticket Payment")
+                .title("Payment")
                 .isRead(false)
                 .message("Payment was successful")
                 .build();
@@ -150,7 +149,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendCancellationNotification(TicketEntity ticket) {
         NotificationRequest notification = NotificationRequest.builder()
                 .notificationType(NotificationType.CANCELLED)
-                .title("Ticket Cancellation")
+                .title("Cancellation")
                 .isRead(false)
                 .message("Cancellation was successful")
                 .build();

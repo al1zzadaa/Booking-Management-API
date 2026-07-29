@@ -13,5 +13,6 @@ public class BookingRequest {
     private Long room;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-    private Integer peopleNumber;
+    private Integer adultNumber;
+    private Integer childrenNumber;
 }

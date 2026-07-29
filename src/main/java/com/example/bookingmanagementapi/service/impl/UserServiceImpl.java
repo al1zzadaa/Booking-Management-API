@@ -8,6 +8,9 @@ import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.Roles;
 import com.example.bookingmanagementapi.enums.UserStatus;
 import com.example.bookingmanagementapi.exception.NotFoundException;
+import com.example.bookingmanagementapi.exception.UserBlockedException;
+import com.example.bookingmanagementapi.exception.UserDeletedException;
+import com.example.bookingmanagementapi.exception.UserNotVerifiedException;
 import com.example.bookingmanagementapi.mapper.UserMapper;
 import com.example.bookingmanagementapi.repository.EmailVerificationTokenRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
@@ -142,5 +145,23 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public void validateUserCanBook(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (user.getIsActive().equals(UserStatus.DELETED)) {
+            throw new UserBlockedException("User is deleted");
+        }
+
+        if (user.getIsActive().equals(UserStatus.BLOCKED)) {
+            throw new UserDeletedException("This user is blocked");
+        }
+
+        if (user.getIsActive().equals(UserStatus.NOT_VERIFIED)) {
+            throw new UserNotVerifiedException("This user is not verified");
+        }
     }
 }
