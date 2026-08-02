@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
 public class NotificationRequest {
     private String message;
     private NotificationType notificationType;
-    private Boolean isRead;
     private String title;
 }

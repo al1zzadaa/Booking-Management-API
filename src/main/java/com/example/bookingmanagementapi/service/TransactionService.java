@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
+import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,13 @@ public interface TransactionService {
 
     void payForTicket(TicketEntity ticket, PaymentRequest paymentRequest);
 
-    void refund(TicketEntity ticketId,  BigDecimal amount);
+    void refundTicket(TicketEntity ticketId, BigDecimal amount);
+
+    void refundBooking(BookingEntity booking, BigDecimal amount);
 
     void withdraw(WithdrawRequest withdrawRequest);
 
     void deposit(DepositRequest depositRequest);
+
+    void payForBooking(BookingEntity booking, PaymentRequest paymentRequest);
 }

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-account-id-to-bookings
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: bookings
+            baseColumnNames: account_id
+            constraintName: fk_bookings_account
+            referencedTableName: accounts
+            referencedColumnNames: id
+
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: bookings
+            constraintName: fk_bookings_account
+
+        - dropColumn:
+            tableName: bookings
+            columnName: account_id

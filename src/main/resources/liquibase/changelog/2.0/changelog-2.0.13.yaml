@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove-room-id-unique-constraint
+      author: sadigalizada
+      changes:
+        - dropUniqueConstraint:
+            tableName: bookings
+            constraintName: bookings_room_id_key
+
+      rollback:
+        - addUniqueConstraint:
+            tableName: bookings
+            columnNames: room_id
+            constraintName: bookings_room_id_key

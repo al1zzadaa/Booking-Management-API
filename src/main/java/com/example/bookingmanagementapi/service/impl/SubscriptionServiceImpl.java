@@ -137,7 +137,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         notificationRequest.setNotificationType(NotificationType.CANCELLED);
         notificationRequest.setTitle("Subscription notification");
-        notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription canceled");
 
 //        notificationService.create(notificationRequest);
@@ -201,7 +200,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         notificationRequest.setNotificationType(NotificationType.RENEW);
         notificationRequest.setTitle("Subscription notification");
-        notificationRequest.setIsRead(false);
+//        notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription renewed");
 
 //        notificationService.create(notificationRequest);
@@ -244,7 +243,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         notificationRequest.setNotificationType(NotificationType.RENEW);
         notificationRequest.setTitle("Subscription notification");
-        notificationRequest.setIsRead(false);
+//        notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription auto renew enabled");
 
 //        notificationService.create(notificationRequest);
@@ -262,7 +261,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         notificationRequest.setNotificationType(NotificationType.RENEW);
         notificationRequest.setTitle("Subscription notification");
-        notificationRequest.setIsRead(false);
+//        notificationRequest.setIsRead(false);
         notificationRequest.setMessage("Subscription auto renew disabled");
 
 //        notificationService.create(notificationRequest);

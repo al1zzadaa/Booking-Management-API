@@ -23,11 +23,6 @@ public class TicketController {
         ticketService.book(ticketRequest);
     }
 
-    @PostMapping("/{ticketId}")
-    public void cancelTicket(@RequestBody Long ticketId){
-        ticketService.cancel(ticketId);
-    }
-
     @GetMapping("/{id}")
     public TicketResponse getTicketById(@PathVariable Long id){
         return ticketService.findById(id);

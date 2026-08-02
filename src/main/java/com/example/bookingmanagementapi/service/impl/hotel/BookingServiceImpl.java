@@ -2,37 +2,27 @@ package com.example.bookingmanagementapi.service.impl.hotel;
 
 import com.example.bookingmanagementapi.dto.filter.BookingFilter;
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
+import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateBookingRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
-import com.example.bookingmanagementapi.entity.BookingEntity;
-import com.example.bookingmanagementapi.entity.HotelEntity;
-import com.example.bookingmanagementapi.entity.RoomEntity;
-import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Hotels;
-import com.example.bookingmanagementapi.exception.CapacityException;
-import com.example.bookingmanagementapi.exception.HotelException;
-import com.example.bookingmanagementapi.exception.RoomException;
-import com.example.bookingmanagementapi.exception.ValidationException;
+import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.BookingMapper;
-import com.example.bookingmanagementapi.repository.BookingRepository;
-import com.example.bookingmanagementapi.repository.HotelRepository;
-import com.example.bookingmanagementapi.repository.RoomRepository;
-import com.example.bookingmanagementapi.repository.UserRepository;
-import com.example.bookingmanagementapi.service.BookingService;
-import com.example.bookingmanagementapi.service.NotificationService;
-import com.example.bookingmanagementapi.service.UserService;
+import com.example.bookingmanagementapi.repository.*;
+import com.example.bookingmanagementapi.service.*;
+import com.example.bookingmanagementapi.service.impl.TicketAndBookingLogicsImpl;
 import com.example.bookingmanagementapi.service.specifications.BookingSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,18 +35,34 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ValidationUtil validationUtil;
     private final NotificationService notificationService;
+    private final AccountRepository accountRepository;
+    private final TransactionService transactionService;
     private final UserService userService;
-    @Value("${adultPrice}")
-    private Integer adultPrice;
-    @Value("${childPrice}")
-    private Integer childPrice;
+    private final TicketAndBookingLogics ticketAndBookingLogics;
+//    @Value("${adultPrice}")
+//    private Integer adultPrice;
+//    @Value("${childPrice}")
+//    private Integer childPrice;
+//    @Value("${percent10}")
+//    private Integer percent10;
+//    @Value("${percent20}")
+//    private Integer percent20;
+//    @Value("${percent30}")
+//    private Integer percent30;
+//    @Value("${percent50}")
+//    private Integer percent50;
+//    @Value("${percent70}")
+//    private Integer percent70;
 
     @Override
     public void bookHotel(BookingRequest booking) {
 
         validationUtil.validateId(booking.getUserId());
+        validationUtil.validateId(booking.getAccountId());
 
         UserEntity userEntity = userRepository.findById(booking.getUserId()).orElseThrow(null);
+
+        AccountEntity accountEntity = accountRepository.findById(booking.getAccountId()).orElseThrow(null);
 
         HotelEntity hotelEntity = hotelRepository.findById(booking.getHotel()).orElseThrow(null);
 
@@ -73,8 +79,11 @@ public class BookingServiceImpl implements BookingService {
             throw new HotelException("Hotel is closed or under renovation");
         }
 
-        if (bookingRepository.existsByRoomIdAndCheckInLessThanAndCheckOutGreaterThan(booking.getRoom(), booking.getCheckIn(), booking.getCheckOut())){
-            throw new RoomException("Room has already been booked");
+        if (bookingRepository.existsByRoomIdAndCheckInLessThanAndCheckOutGreaterThan(
+                        booking.getRoom(),
+                        booking.getCheckOut(),
+                        booking.getCheckIn())) {
+            throw new RoomException("Room is not available for these dates");
         }
 
 
@@ -87,16 +96,18 @@ public class BookingServiceImpl implements BookingService {
         int childNumber = booking.getChildrenNumber();
         BigDecimal pricePerNight = roomEntity.getPricePerNight();
 
-        BigDecimal price = getTotalPrice(days, adultNumber, childNumber, pricePerNight);
+        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, childNumber, pricePerNight);
 
         BookingEntity bookingEntity = BookingEntity.builder()
                 .user(userEntity)
+                .account(accountEntity)
                 .hotel(hotelEntity)
                 .room(roomEntity)
                 .checkIn(booking.getCheckIn())
                 .checkOut(booking.getCheckOut())
                 .bookingStatus(BookingStatus.PENDING)
                 .totalPrice(price)
+                .peopleNumber(adultNumber + childNumber)
                 .build();
 
 
@@ -105,14 +116,79 @@ public class BookingServiceImpl implements BookingService {
         notificationService.sendBookingNotification(userEntity.getId());
     }
 
-    private BigDecimal getTotalPrice(Integer days, Integer adultNumber, Integer childNumber, BigDecimal pricePerNight) {
+    @Transactional
+    @Override
+    public void payBooking(Long bookingId, PaymentRequest request) {
 
-        BigDecimal adultTotal = BigDecimal.valueOf(adultPrice).multiply(BigDecimal.valueOf(adultNumber));
-        BigDecimal childTotal = BigDecimal.valueOf(childPrice).multiply(BigDecimal.valueOf(childNumber));
-        BigDecimal priceForDays = BigDecimal.valueOf(days).multiply(pricePerNight);
+        BookingEntity booking = bookingRepository.findById(bookingId)
+                .orElseThrow(null);
 
-        return adultTotal.add(childTotal).add(priceForDays);
+        transactionService.payForBooking(booking, request);
+
+        booking.setBookingStatus(BookingStatus.CONFIRMED);
+
+        bookingRepository.save(booking);
+
+        notificationService.sendBookingPaymentNotification(booking);
     }
+
+    @Override
+    @Transactional
+    public void cancel(Long bookingId) {
+
+        validationUtil.validateId(bookingId);
+
+        BookingEntity booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("ticket not found"));
+
+
+        if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
+            throw new ValidationException("booking not paid");
+        }
+
+        BigDecimal refund = calculateRefund(bookingId);
+
+        transactionService.refundBooking(booking, refund);
+
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+
+
+        notificationService.sendBookingCancellationNotification(booking);
+    }
+
+
+    private BigDecimal calculateRefund(Long bookingId) {
+        validationUtil.validateId(bookingId);
+
+        BookingEntity booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+
+        return ticketAndBookingLogics.calculateRefund(
+                booking.getTotalPrice(),
+                booking.getCheckIn(),
+                "Booking has already started"
+        );
+    }
+//    private @NonNull BigDecimal calculateRefund(Long bookingId) {
+//        validationUtil.validateId(bookingId);
+//
+//       BookingEntity booking = bookingRepository.findById(bookingId)
+//               .orElseThrow(() -> new NotFoundException("ticket not found"));
+//
+//        BigDecimal refund = booking.getTotalPrice();
+//
+//        LocalDateTime departure = booking.getCheckIn();
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        if (departure.isBefore(now)) {
+//            throw new IllegalStateException("Booking has already ended");
+//        }
+//
+//        long daysLeft = ChronoUnit.DAYS.between(now, departure);
+//        BigDecimal res = ticketAndBookingLogics.getBigDecimal(daysLeft, refund);
+//
+//        return refund.subtract(res);
+//    }
 
     @Override
     public void updateBooking(UpdateBookingRequest updateBookingRequest, Long id) {

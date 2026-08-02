@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.filter.BookingFilter;
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
+import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateBookingRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import lombok.NonNull;
@@ -23,4 +24,7 @@ public interface BookingService {
 
     void cancelBooking(Long bookingId);
 
+    void payBooking(Long bookingId, PaymentRequest request);
+
+    void cancel(Long bookingId);
 }

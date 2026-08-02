@@ -5,6 +5,7 @@ import com.example.bookingmanagementapi.dto.request.UpdateNotificationRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
 import com.example.bookingmanagementapi.entity.NotificationEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.List;

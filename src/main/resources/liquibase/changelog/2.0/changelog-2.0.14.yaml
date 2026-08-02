@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove-seat-id-unique-constraint-from-tickets
+      author: sadigalizada
+      changes:
+        - dropUniqueConstraint:
+            tableName: tickets
+            constraintName: tickets_seat_id_key
+
+      rollback:
+        - addUniqueConstraint:
+            tableName: tickets
+            columnNames: seat_id
+            constraintName: tickets_seat_id_key

@@ -4,6 +4,7 @@ import com.example.bookingmanagementapi.dto.request.NotificationRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateNotificationRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
+import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,5 +33,11 @@ public interface NotificationService {
 
     void sendTicketPaymentNotification(TicketEntity ticket);
 
-    void sendCancellationNotification(TicketEntity ticket);
+    void sendBookingPaymentNotification(BookingEntity booking);
+
+    void sendTicketCancellationNotification(TicketEntity ticket);
+
+    void sendBookingCancellationNotification(BookingEntity booking);
+
+
 }

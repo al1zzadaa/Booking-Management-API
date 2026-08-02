@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.service.impl;
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
+import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import com.example.bookingmanagementapi.entity.TransactionEntity;
 import com.example.bookingmanagementapi.enums.Currency;
@@ -13,7 +14,6 @@ import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
-import com.example.bookingmanagementapi.repository.TicketRepository;
 import com.example.bookingmanagementapi.repository.TransactionRepository;
 import com.example.bookingmanagementapi.service.TransactionService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
@@ -35,8 +35,10 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionMapper transactionMapper;
     private final ValidationUtil validationUtil;
     private final AccountRepository accountRepository;
-    private final TicketRepository ticketRepository;
-
+    private static final BigDecimal USD_TO_AZN = BigDecimal.valueOf(1.7);
+    private static final BigDecimal USD_TO_TRY = BigDecimal.valueOf(43);
+    private static final BigDecimal USD_TO_RUB = BigDecimal.valueOf(80);
+    private static final BigDecimal EUR_TO_USD = BigDecimal.valueOf(1.14);
 
     @Override
     public void createTransaction(TransactionRequest transactionRequest) {
@@ -79,38 +81,19 @@ public class TransactionServiceImpl implements TransactionService {
         return responses.map(transactionMapper::toDto);
     }
 
+
     @Transactional
     @Override
     public void payForTicket(TicketEntity ticket, PaymentRequest paymentRequest) {
 
-        AccountEntity accountEntity = accountRepository.findById(paymentRequest.getAccountId())
-                .orElseThrow(null);
-
-        BigDecimal balance = accountEntity.getBalance();
-//        BigDecimal amount = paymentRequest.getAmount();
-//
-//        if (paymentRequest.getCurrency().equals(Currency.USD)) {
-//            amount = convertFromUsd(amount, accountEntity.getCurrency());
-//        }
-
-        BigDecimal amountToWithdraw =
-                accountEntity.getCurrency() == Currency.USD
-                        ? ticket.getPrice()
-                        : convertFromUsd(ticket.getPrice(), accountEntity.getCurrency());
-
-
-        if (balance.compareTo(amountToWithdraw) < 0) {
-            //TODO
-            throw new InsufficientBalanceException("Not enough balance");
-        }
-
-        accountEntity.setBalance(
-                accountEntity.getBalance().subtract(amountToWithdraw)
+        AccountEntity account = ticketAndBookingPaymentDuplicate(
+                paymentRequest.getAccountId(),
+                ticket.getPrice()
         );
 
         TransactionEntity transactionEntity = TransactionEntity.builder()
                 .amount(ticket.getPrice())
-                .account(accountEntity)
+                .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
                 .paymentMethod(paymentRequest.getPaymentMethod())
@@ -122,42 +105,33 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transactionEntity);
     }
 
-
-//    private BigDecimal convertAmount(BigDecimal price, Currency currency) {
+//    private BigDecimal convertToUsd(BigDecimal amount, Currency currency) {
 //        return switch (currency) {
-//            case AZN -> price.divide(BigDecimal.valueOf(1.7), 2, RoundingMode.HALF_UP);
-//            case EUR -> price.multiply(BigDecimal.valueOf(1.14)).setScale(2, RoundingMode.HALF_UP);
+//            case USD -> amount;
+//            case AZN -> amount.divide(BigDecimal.valueOf(1.7), 2, RoundingMode.HALF_UP);
+//            case EUR -> amount.multiply(BigDecimal.valueOf(1.14)).setScale(2, RoundingMode.HALF_UP);
+//            default -> BigDecimal.ZERO;
+//        };
+//    }
+//
+//    private BigDecimal convertFromUsd(BigDecimal amount, Currency currency) {
+//        return switch (currency) {
+//            case USD -> amount;
+//            case AZN -> amount.multiply(BigDecimal.valueOf(1.7)).setScale(2, RoundingMode.HALF_UP);
+//            case EUR -> amount.divide(BigDecimal.valueOf(1.14), 2, RoundingMode.HALF_UP);
 //            default -> BigDecimal.ZERO;
 //        };
 //    }
 
-    private BigDecimal convertToUsd(BigDecimal amount, Currency currency) {
-        return switch (currency) {
-            case USD -> amount;
-            case AZN -> amount.divide(BigDecimal.valueOf(1.7), 2, RoundingMode.HALF_UP);
-            case EUR -> amount.multiply(BigDecimal.valueOf(1.14)).setScale(2, RoundingMode.HALF_UP);
-            default -> BigDecimal.ZERO;
-        };
-    }
-
-    private BigDecimal convertFromUsd(BigDecimal amount, Currency currency) {
-        return switch (currency) {
-            case USD -> amount;
-            case AZN -> amount.multiply(BigDecimal.valueOf(1.7)).setScale(2, RoundingMode.HALF_UP);
-            case EUR -> amount.divide(BigDecimal.valueOf(1.14), 2, RoundingMode.HALF_UP);
-            default -> BigDecimal.ZERO;
-        };
-    }
-
     @Transactional
-    public void refund(TicketEntity ticket, BigDecimal amount) {
+    public void refundTicket(TicketEntity ticket, BigDecimal amount) {
         AccountEntity account = ticket.getAccount();
 
-        BigDecimal refundAmount = amount;
-
-        if (account.getCurrency() != Currency.USD) {
-            refundAmount = convertFromUsd(amount, account.getCurrency());
-        }
+        BigDecimal refundAmount = convert(
+                amount,
+                Currency.USD,
+                account.getCurrency()
+        );
 
         account.setBalance(account.getBalance().add(refundAmount));
 
@@ -169,6 +143,32 @@ public class TransactionServiceImpl implements TransactionService {
                 .referenceId(ticket.getId())
                 .paymentStatus(PaymentStatus.REFUNDED)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
+                .build();
+
+        transactionRepository.save(transactionEntity);
+    }
+
+
+    @Transactional
+    public void refundBooking(BookingEntity booking, BigDecimal amount) {
+        AccountEntity account = booking.getAccount();
+
+        BigDecimal refundAmount = convert(
+                amount,
+                Currency.USD,
+                account.getCurrency()
+        );
+
+        account.setBalance(account.getBalance().add(refundAmount));
+
+        TransactionEntity transactionEntity = TransactionEntity.builder()
+                .account(booking.getAccount())
+                .amount(refundAmount)
+                .type(TransactionType.REFUND)
+                .description("Refund")
+                .referenceId(booking.getId())
+                .paymentStatus(PaymentStatus.REFUNDED)
+                .referenceType(ReferenceType.HOTEL_BOOKING)
                 .build();
 
         transactionRepository.save(transactionEntity);
@@ -189,10 +189,11 @@ public class TransactionServiceImpl implements TransactionService {
             throw new InsufficientBalanceException("Not enough balance to  withdraw");
         }
 
-        BigDecimal amountToWithdraw =
-                accountEntity.getCurrency() == Currency.USD
-                        ? withdrawRequest.getAmount()
-                        : convertFromUsd(withdrawRequest.getAmount(), accountEntity.getCurrency());
+        BigDecimal amountToWithdraw = convert(
+                withdrawRequest.getAmount(),
+                withdrawRequest.getCurrency(),
+                accountEntity.getCurrency()
+        );
 
         accountEntity.setBalance(accountEntity.getBalance().subtract(amountToWithdraw));
 
@@ -222,10 +223,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         BigDecimal deposit = depositRequest.getAmount();
 
-        if (!accountEntity.getCurrency().equals(Currency.USD)) {
-            deposit = convertFromUsd(deposit, accountEntity.getCurrency());
+        if (!depositRequest.getCurrency().equals(accountEntity.getCurrency())) {
+            deposit = convert(
+                    deposit,
+                    depositRequest.getCurrency(),
+                    accountEntity.getCurrency()
+            );
         }
-
 
         accountEntity.setBalance(accountEntity.getBalance().add(deposit));
 
@@ -245,5 +249,107 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transactionEntity);
     }
 
+    @Transactional
+    @Override
+    public void payForBooking(BookingEntity booking, PaymentRequest paymentRequest) {
 
+        AccountEntity account = ticketAndBookingPaymentDuplicate(
+                paymentRequest.getAccountId(),
+                booking.getTotalPrice());
+
+        TransactionEntity transactionEntity = TransactionEntity.builder()
+                .amount(booking.getTotalPrice())
+                .account(account)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .referenceType(ReferenceType.HOTEL_BOOKING)
+                .paymentMethod(paymentRequest.getPaymentMethod())
+                .type(TransactionType.PAYMENT)
+                .description("Payment for booking")
+                .referenceId(booking.getId())
+                .build();
+
+        transactionRepository.save(transactionEntity);
+    }
+
+
+    private AccountEntity ticketAndBookingPaymentDuplicate(Long accountId, BigDecimal amountInUsd) {
+
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        BigDecimal amountToWithdraw = convert(
+                amountInUsd,
+                Currency.USD,
+                account.getCurrency()
+        );
+
+
+        if (account.getBalance().compareTo(amountToWithdraw) < 0) {
+            throw new InsufficientBalanceException("Not enough balance");
+        }
+
+        account.setBalance(
+                account.getBalance().subtract(amountToWithdraw)
+        );
+
+        return account;
+    }
+
+    private BigDecimal convert(BigDecimal amount, Currency from, Currency to) {
+
+        if (from == to) {
+            return amount;
+        }
+
+        // Convert source currency to USD
+        BigDecimal amountInUsd = switch (from) {
+            case USD -> amount;
+
+            case AZN -> amount.divide(
+                    USD_TO_AZN,
+                    2,
+                    RoundingMode.HALF_UP
+            );
+
+            case EUR -> amount.multiply(
+                    EUR_TO_USD
+            ).setScale(2, RoundingMode.HALF_UP);
+
+            case TR -> amount.divide(
+                    USD_TO_TRY,
+                    2,
+                    RoundingMode.HALF_UP
+            );
+
+            case RUB -> amount.divide(
+                    USD_TO_RUB,
+                    2,
+                    RoundingMode.HALF_UP
+            );
+        };
+
+
+        // Convert USD to target currency
+        return switch (to) {
+            case USD -> amountInUsd;
+
+            case AZN -> amountInUsd.multiply(
+                    USD_TO_AZN
+            ).setScale(2, RoundingMode.HALF_UP);
+
+            case EUR -> amountInUsd.divide(
+                    EUR_TO_USD,
+                    2,
+                    RoundingMode.HALF_UP
+            );
+
+            case TR -> amountInUsd.multiply(
+                    USD_TO_TRY
+            ).setScale(2, RoundingMode.HALF_UP);
+
+            case RUB -> amountInUsd.multiply(
+                    USD_TO_RUB
+            ).setScale(2, RoundingMode.HALF_UP);
+        };
+    }
 }

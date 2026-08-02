@@ -27,6 +27,10 @@ public class BookingEntity {
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountEntity account;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "hotel_id", nullable = false)
     private HotelEntity hotel;
 

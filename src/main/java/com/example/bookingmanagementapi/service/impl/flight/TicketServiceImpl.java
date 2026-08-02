@@ -13,20 +13,17 @@ import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.TicketMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.NotificationService;
+import com.example.bookingmanagementapi.service.TicketAndBookingLogics;
 import com.example.bookingmanagementapi.service.TicketService;
 import com.example.bookingmanagementapi.service.TransactionService;
+import com.example.bookingmanagementapi.service.impl.TicketAndBookingLogicsImpl;
 import com.example.bookingmanagementapi.service.specifications.TicketSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -43,16 +40,17 @@ public class TicketServiceImpl implements TicketService {
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
-    @Value("${percent10}")
-    private Integer percent10;
-    @Value("${percent20}")
-    private Integer percent20;
-    @Value("${percent30}")
-    private Integer percent30;
-    @Value("${percent50}")
-    private Integer percent50;
-    @Value("${percent70}")
-    private Integer percent70;
+    private final TicketAndBookingLogics ticketAndBookingLogics;
+//    @Value("${percent10}")
+//    private Integer percent10;
+//    @Value("${percent20}")
+//    private Integer percent20;
+//    @Value("${percent30}")
+//    private Integer percent30;
+//    @Value("${percent50}")
+//    private Integer percent50;
+//    @Value("${percent70}")
+//    private Integer percent70;
 
 
 
@@ -138,57 +136,55 @@ public class TicketServiceImpl implements TicketService {
         TicketEntity ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new NotFoundException("ticket not found"));
 
+        if (ticket.getStatus() != TicketStatus.CONFIRMED) {
+            throw new ValidationException("ticket not paid");
+        }
+
         BigDecimal refund = calculateRefund(ticketId);
 
-        transactionService.refund(ticket, refund);
+        transactionService.refundTicket(ticket, refund);
 
         ticket.setStatus(TicketStatus.CANCELLED);
         ticket.getSeat().setIsAvailable(true);
 
-        notificationService.sendCancellationNotification(ticket);
+        notificationService.sendTicketCancellationNotification(ticket);
     }
 
 
 
-    private @NonNull BigDecimal calculateRefund(Long ticketId) {
+    private BigDecimal calculateRefund(Long ticketId) {
         validationUtil.validateId(ticketId);
 
         TicketEntity ticket = ticketRepository.findById(ticketId)
                 .orElseThrow();
 
-        BigDecimal refund = ticket.getPrice();
-
-        LocalDateTime departure = ticket.getFlight().getDepartureTime();
-        LocalDateTime now = LocalDateTime.now();
-
-        if (departure.isBefore(now)) {
-            throw new IllegalStateException("Flight has already departed");
-        }
-
-        long daysLeft = ChronoUnit.DAYS.between(now, departure);
-        BigDecimal res = getBigDecimal(daysLeft, refund);
-
-        return refund.subtract(res);
+        return ticketAndBookingLogics.calculateRefund(
+                ticket.getPrice(),
+                ticket.getFlight().getDepartureTime(),
+                "Flight has already departed"
+        );
     }
 
-    private BigDecimal getBigDecimal(long daysLeft, BigDecimal refund) {
-        int cancellationFee;
-
-        if (daysLeft >= 30) {
-            cancellationFee = percent10;
-        } else if (daysLeft >= 15) {
-            cancellationFee = percent20;
-        } else if (daysLeft >= 7) {
-            cancellationFee = percent30;
-        } else if (daysLeft >= 3) {
-            cancellationFee = percent50;
-        } else {
-            cancellationFee = percent70;
-        }
-
-        return refund.multiply(BigDecimal.valueOf(cancellationFee)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
-    }
+//    private @NonNull BigDecimal calculateRefund(Long ticketId) {
+//        validationUtil.validateId(ticketId);
+//
+//        TicketEntity ticket = ticketRepository.findById(ticketId)
+//                .orElseThrow();
+//
+//        BigDecimal refund = ticket.getPrice();
+//
+//        LocalDateTime departure = ticket.getFlight().getDepartureTime();
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        if (departure.isBefore(now)) {
+//            throw new IllegalStateException("Flight has already departed");
+//        }
+//
+//        long daysLeft = ChronoUnit.DAYS.between(now, departure);
+//        BigDecimal res = ticketAndBookingLogics.getBigDecimal(daysLeft, refund);
+//
+//        return refund.subtract(res);
+//    }
 
 
     @Override
