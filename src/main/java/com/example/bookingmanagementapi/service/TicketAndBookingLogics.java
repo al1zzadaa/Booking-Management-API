@@ -1,5 +1,7 @@
 package com.example.bookingmanagementapi.service;
 
+import com.example.bookingmanagementapi.entity.RoomEntity;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,5 +19,5 @@ public interface TicketAndBookingLogics {
             Integer days,
             Integer adultNumber,
             Integer childNumber,
-            BigDecimal pricePerNight);
+            RoomEntity roomEntity);
 }

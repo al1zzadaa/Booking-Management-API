@@ -38,6 +38,12 @@ public class RoomEntity {
     @Column(nullable = false)
     private BigDecimal pricePerNight;
 
+    @Column(name = "adult_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal adultPrice;
+
+    @Column(name = "child_discount_percent", nullable = false, precision = 5, scale = 2)
+    private BigDecimal childDiscountPercent;
+
     @Column(name = "capacity",   nullable = false)
     private Integer capacity;
 

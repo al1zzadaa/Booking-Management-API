@@ -1,5 +1,6 @@
 package com.example.bookingmanagementapi.service.impl;
 
+import com.example.bookingmanagementapi.entity.RoomEntity;
 import com.example.bookingmanagementapi.service.TicketAndBookingLogics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,12 +68,29 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
     }
 
     @Override
-    public BigDecimal getTotalPrice(Integer days, Integer adultNumber, Integer childNumber, BigDecimal pricePerNight) {
+    public BigDecimal getTotalPrice(Integer days,
+                                    Integer adultNumber,
+                                    Integer childNumber,
+                                    RoomEntity room) {
 
-        BigDecimal adultTotal = BigDecimal.valueOf(adultPrice).multiply(BigDecimal.valueOf(adultNumber));
-        BigDecimal childTotal = BigDecimal.valueOf(childPrice).multiply(BigDecimal.valueOf(childNumber));
-        BigDecimal priceForDays = BigDecimal.valueOf(days).multiply(pricePerNight);
+        BigDecimal adultTotal = room.getAdultPrice()
+                .multiply(BigDecimal.valueOf(adultNumber));
 
-        return adultTotal.add(childTotal).add(priceForDays);
+        BigDecimal childPrice = room.getAdultPrice()
+                .multiply(
+                        BigDecimal.valueOf(100)
+                                .subtract(room.getChildDiscountPercent())
+                )
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        BigDecimal childTotal = childPrice
+                .multiply(BigDecimal.valueOf(childNumber));
+
+        BigDecimal roomTotal = room.getPricePerNight()
+                .multiply(BigDecimal.valueOf(days));
+
+        return roomTotal
+                .add(adultTotal)
+                .add(childTotal);
     }
 }

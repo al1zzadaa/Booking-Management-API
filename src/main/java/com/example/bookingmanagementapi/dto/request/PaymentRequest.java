@@ -17,6 +17,9 @@ public class PaymentRequest {
 
     @NotNull
     private PaymentMethods paymentMethod;
+
+
+    private String promoCode;
 //
 //    private Currency currency;
 //    private BigDecimal amount;

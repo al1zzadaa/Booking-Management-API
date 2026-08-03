@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-pricing-fields-to-rooms
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: rooms
+            columns:
+              - column:
+                  name: adult_price
+                  type: DECIMAL(10,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: child_discount_percent
+                  type: DECIMAL(5,2)
+                  defaultValueNumeric: 25.00
+                  constraints:
+                    nullable: false

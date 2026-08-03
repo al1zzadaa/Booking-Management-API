@@ -27,7 +27,7 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
 
         UserEntity user =  userRepository.findById(userId).orElseThrow();
 
-        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(promoCode);
+        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(promoCode).orElseThrow();
 
         //TODO notification
 

@@ -41,16 +41,6 @@ public class TicketServiceImpl implements TicketService {
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final TicketAndBookingLogics ticketAndBookingLogics;
-//    @Value("${percent10}")
-//    private Integer percent10;
-//    @Value("${percent20}")
-//    private Integer percent20;
-//    @Value("${percent30}")
-//    private Integer percent30;
-//    @Value("${percent50}")
-//    private Integer percent50;
-//    @Value("${percent70}")
-//    private Integer percent70;
 
 
 

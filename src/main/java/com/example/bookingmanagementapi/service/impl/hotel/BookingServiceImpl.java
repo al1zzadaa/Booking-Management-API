@@ -94,9 +94,9 @@ public class BookingServiceImpl implements BookingService {
         int days = booking.getCheckOut().getDayOfMonth() - booking.getCheckIn().getDayOfMonth();
         int adultNumber = booking.getAdultNumber();
         int childNumber = booking.getChildrenNumber();
-        BigDecimal pricePerNight = roomEntity.getPricePerNight();
+//        BigDecimal pricePerNight = roomEntity.getPricePerNight();
 
-        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, childNumber, pricePerNight);
+        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, childNumber, roomEntity);
 
         BookingEntity bookingEntity = BookingEntity.builder()
                 .user(userEntity)

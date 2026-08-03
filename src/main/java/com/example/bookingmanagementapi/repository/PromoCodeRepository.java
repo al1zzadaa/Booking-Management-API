@@ -4,7 +4,9 @@ import com.example.bookingmanagementapi.entity.PromoCodeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface PromoCodeRepository extends JpaRepository<PromoCodeEntity, Long> {
-    PromoCodeEntity findByCode(String code);
+    Optional<PromoCodeEntity> findByCode(String code);
 }
