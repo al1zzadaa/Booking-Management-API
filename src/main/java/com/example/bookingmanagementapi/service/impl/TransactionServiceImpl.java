@@ -12,11 +12,13 @@ import com.example.bookingmanagementapi.enums.ReferenceType;
 import com.example.bookingmanagementapi.enums.TransactionType;
 import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
+import com.example.bookingmanagementapi.exception.PaymentAlreadyCompletedException;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.PromoCodeService;
 import com.example.bookingmanagementapi.service.TransactionService;
+import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final PromoCodeService promoCodeService;
     private final BookingRepository bookingRepository;
     private final TicketRepository ticketRepository;
+    private final UserPromoCodeService userPromoCodeService;
 
     @Override
     public void createTransaction(TransactionRequest transactionRequest) {
@@ -81,10 +84,20 @@ public class TransactionServiceImpl implements TransactionService {
         return responses.map(transactionMapper::toDto);
     }
 
+    private void validateNotAlreadyPaid(Long referenceId, ReferenceType referenceType) {
+        if (transactionRepository.existsByReferenceIdAndReferenceTypeAndPaymentStatus(
+                referenceId,
+                referenceType,
+                PaymentStatus.SUCCESS)) {
+            throw new PaymentAlreadyCompletedException("Payment is already paid");
+        }
+    }
 
     @Transactional
     @Override
     public void payForTicket(TicketEntity ticket, PaymentRequest paymentRequest) {
+
+        validateNotAlreadyPaid(ticket.getId(), ReferenceType.FLIGHT_TICKET);
 
         AccountEntity account = ticketAndBookingPaymentDuplicate(
                 paymentRequest.getAccountId(),
@@ -112,6 +125,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        applyUserPromoCode(ticket.getUser().getId(), paymentRequest.getPromoCode());
     }
 
 
@@ -245,6 +260,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void payForBooking(BookingEntity booking, PaymentRequest paymentRequest) {
 
+        validateNotAlreadyPaid(booking.getId(), ReferenceType.HOTEL_BOOKING);
+
         AccountEntity account = ticketAndBookingPaymentDuplicate(
                 paymentRequest.getAccountId(),
                 booking.getTotalPrice(),
@@ -270,6 +287,15 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        applyUserPromoCode(booking.getUser().getId(), paymentRequest.getPromoCode());
+    }
+
+    private void applyUserPromoCode(Long userId, String promoCode){
+        userPromoCodeService.applyPromoCode(
+                userId,
+                promoCode
+        );
     }
 
 

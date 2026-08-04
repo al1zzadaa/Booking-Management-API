@@ -25,17 +25,21 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
     @Override
     public void applyPromoCode(Long userId, String promoCode) {
 
+        if (promoCode == null || promoCode.isBlank()) {
+            return;
+        }
+
         UserEntity user =  userRepository.findById(userId).orElseThrow();
 
         PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(promoCode).orElseThrow();
 
         //TODO notification
-
-        UserPromoCodeEntity userPromoCodeEntity = new UserPromoCodeEntity();
-        userPromoCodeEntity.setUser(user);
-        userPromoCodeEntity.setPromoCode(promoCodeEntity);
-        userPromoCodeEntity.setUsedAt(LocalDateTime.now());
-
-        userPromoCodeRepository.save(userPromoCodeEntity);
+        userPromoCodeRepository.save(
+                UserPromoCodeEntity.builder()
+                        .user(user)
+                        .promoCode(promoCodeEntity)
+                        .usedAt(LocalDateTime.now())
+                        .build()
+        );
     }
 }

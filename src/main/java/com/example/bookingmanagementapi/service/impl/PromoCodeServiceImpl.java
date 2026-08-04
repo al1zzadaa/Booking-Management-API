@@ -10,6 +10,7 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.PromoCodeMapper;
 import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.service.PromoCodeService;
+import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
     private final PromoCodeMapper promoCodeMapper;
     private final PromoCodeRepository promoCodeRepository;
+    private final UserPromoCodeService userPromoCodeService;
 
     @Override
     public void create(PromoCodeRequest promoCodeResuest) {

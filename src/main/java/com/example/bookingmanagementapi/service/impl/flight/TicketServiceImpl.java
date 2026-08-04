@@ -41,7 +41,7 @@ public class TicketServiceImpl implements TicketService {
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final TicketAndBookingLogics ticketAndBookingLogics;
-
+    private final BookingRepository bookingRepository;
 
 
     @Override

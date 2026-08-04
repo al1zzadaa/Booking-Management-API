@@ -1,9 +1,7 @@
 package com.example.bookingmanagementapi.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_promo_codes")
+@Builder
+@AllArgsConstructor
 public class UserPromoCodeEntity {
 
     @Id

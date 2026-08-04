@@ -8,6 +8,7 @@ import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Hotels;
+import com.example.bookingmanagementapi.enums.ReferenceType;
 import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.BookingMapper;
 import com.example.bookingmanagementapi.repository.*;
