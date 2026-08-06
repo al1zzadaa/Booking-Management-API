@@ -33,11 +33,11 @@ public interface NotificationService {
 
     void sendTicketPaymentNotification(TicketEntity ticket);
 
-    void sendBookingPaymentNotification(BookingEntity booking);
+    void sendBookingPaymentNotification(Long userId);
 
     void sendTicketCancellationNotification(TicketEntity ticket);
 
-    void sendBookingCancellationNotification(BookingEntity booking);
+    void sendBookingCancellationNotification(Long  userId);
 
 
 }

@@ -2,9 +2,7 @@ package com.example.bookingmanagementapi.entity;
 
 import com.example.bookingmanagementapi.enums.LoyaltyType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,6 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name = "loyalty_points")
 public class LoyaltyPointEntity {
     @Id

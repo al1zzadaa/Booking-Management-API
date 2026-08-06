@@ -117,7 +117,6 @@ public class NotificationServiceImpl implements NotificationService {
         emailService.sendTextEmail(mailRequest);
 
         notificationRepository.save(notification);
-
     }
 
     @Override
@@ -159,9 +158,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendBookingPaymentNotification(BookingEntity booking) {
+    public void sendBookingPaymentNotification(Long userId) {
         notifyUser(
-                booking.getUser().getId(),
+                userId,
                 NotificationType.PAYMENT,
                 "Payment",
                 "Payment was successful"
@@ -178,8 +177,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendBookingCancellationNotification(BookingEntity booking) {
-        notifyUser(booking.getUser().getId(),
+    public void sendBookingCancellationNotification(Long userId) {
+        notifyUser(userId,
                 NotificationType.CANCELLED,
                 "Cancellation",
                 "Cancellation was successful"

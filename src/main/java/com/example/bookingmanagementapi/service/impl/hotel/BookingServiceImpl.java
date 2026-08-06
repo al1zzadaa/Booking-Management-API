@@ -9,6 +9,8 @@ import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Hotels;
 import com.example.bookingmanagementapi.enums.ReferenceType;
+import com.example.bookingmanagementapi.event.BookingCancelledEvent;
+import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.BookingMapper;
 import com.example.bookingmanagementapi.repository.*;
@@ -18,6 +20,7 @@ import com.example.bookingmanagementapi.service.specifications.BookingSpecificat
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,20 +43,8 @@ public class BookingServiceImpl implements BookingService {
     private final TransactionService transactionService;
     private final UserService userService;
     private final TicketAndBookingLogics ticketAndBookingLogics;
-//    @Value("${adultPrice}")
-//    private Integer adultPrice;
-//    @Value("${childPrice}")
-//    private Integer childPrice;
-//    @Value("${percent10}")
-//    private Integer percent10;
-//    @Value("${percent20}")
-//    private Integer percent20;
-//    @Value("${percent30}")
-//    private Integer percent30;
-//    @Value("${percent50}")
-//    private Integer percent50;
-//    @Value("${percent70}")
-//    private Integer percent70;
+    private final LoyaltyPointService loyaltyPointService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void bookHotel(BookingRequest booking) {
@@ -95,7 +86,6 @@ public class BookingServiceImpl implements BookingService {
         int days = booking.getCheckOut().getDayOfMonth() - booking.getCheckIn().getDayOfMonth();
         int adultNumber = booking.getAdultNumber();
         int childNumber = booking.getChildrenNumber();
-//        BigDecimal pricePerNight = roomEntity.getPricePerNight();
 
         BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, childNumber, roomEntity);
 
@@ -128,9 +118,17 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setBookingStatus(BookingStatus.CONFIRMED);
 
-        bookingRepository.save(booking);
+//        bookingRepository.save(booking);
 
-        notificationService.sendBookingPaymentNotification(booking);
+        loyaltyPointService.earnPoints(
+                booking.getUser().getId(),
+                booking.getTotalPrice(),
+                "Points earned from hotel payment");
+
+//        notificationService.sendBookingPaymentNotification(booking);
+        eventPublisher.publishEvent(
+                new BookingPaymentEvent(booking.getUser().getId())
+        );
     }
 
     @Override
@@ -147,18 +145,26 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("booking not paid");
         }
 
-        BigDecimal refund = calculateRefund(bookingId);
+        BigDecimal refund = calculateBookingRefund(bookingId);
 
         transactionService.refundBooking(booking, refund);
 
         booking.setBookingStatus(BookingStatus.CANCELLED);
 
+        loyaltyPointService.cancelPoints(
+                booking.getUser().getId(),
+                booking.getTotalPrice(),
+                "Points removed due to booking cancellation"
+        );
 
-        notificationService.sendBookingCancellationNotification(booking);
+//        notificationService.sendBookingCancellationNotification(booking.getUser().getId());
+        eventPublisher.publishEvent(
+                new BookingCancelledEvent(booking.getUser().getId())
+        );
     }
 
 
-    private BigDecimal calculateRefund(Long bookingId) {
+    private BigDecimal calculateBookingRefund(Long bookingId) {
         validationUtil.validateId(bookingId);
 
         BookingEntity booking = bookingRepository.findById(bookingId)

@@ -12,7 +12,6 @@ import com.example.bookingmanagementapi.exception.TokenExpiredException;
 import com.example.bookingmanagementapi.repository.EmailVerificationTokenRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.EmailService;
-import com.example.bookingmanagementapi.service.EmailVerificationService;
 import com.example.bookingmanagementapi.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

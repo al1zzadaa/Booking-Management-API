@@ -21,13 +21,18 @@ public class LoyaltyPointsController {
     }
 
     @PostMapping("/delete-points")
-    public void spendPoints(@RequestBody LoyaltyPointRequest loyaltyPointRequest) {
-        loyaltyPointService.spendPoints(loyaltyPointRequest);
+    public void removePoints(@RequestBody LoyaltyPointRequest loyaltyPointRequest) {
+        loyaltyPointService.removePoints(loyaltyPointRequest);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/history/{id}")
     public List<LoyaltyPointResponse> getPointsByUser(@PathVariable Long id) {
         return loyaltyPointService.getHistory(id);
+    }
+
+    @GetMapping("/{userId}")
+    public Integer getPoints(@PathVariable Long userId){
+        return loyaltyPointService.getPoints(userId);
     }
 
 }

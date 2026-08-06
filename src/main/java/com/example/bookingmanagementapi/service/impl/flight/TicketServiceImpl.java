@@ -1,29 +1,29 @@
 package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.TicketFilter;
+import com.example.bookingmanagementapi.dto.request.LoyaltyPointRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.TicketStatus;
+import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.SeatNotAvailable;
 import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.TicketMapper;
 import com.example.bookingmanagementapi.repository.*;
-import com.example.bookingmanagementapi.service.NotificationService;
-import com.example.bookingmanagementapi.service.TicketAndBookingLogics;
-import com.example.bookingmanagementapi.service.TicketService;
-import com.example.bookingmanagementapi.service.TransactionService;
-import com.example.bookingmanagementapi.service.impl.TicketAndBookingLogicsImpl;
+import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.service.specifications.TicketSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -41,7 +41,9 @@ public class TicketServiceImpl implements TicketService {
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
     private final TicketAndBookingLogics ticketAndBookingLogics;
-    private final BookingRepository bookingRepository;
+    private final LoyaltyPointService loyaltyPointService;
+    private final ApplicationEventPublisher eventPublisher;
+
 
 
     @Override
@@ -114,7 +116,16 @@ public class TicketServiceImpl implements TicketService {
 
         ticketRepository.save(ticket);
 
-        notificationService.sendTicketPaymentNotification(ticket);
+        loyaltyPointService.earnPoints(
+                ticket.getUser().getId(),
+                ticket.getPrice(),
+                "Points earned from ticket payment");
+
+//        notificationService.sendTicketPaymentNotification(ticket);
+
+        eventPublisher.publishEvent(
+                new BookingPaymentEvent(ticket.getUser().getId())
+        );
     }
 
     @Override
@@ -130,7 +141,7 @@ public class TicketServiceImpl implements TicketService {
             throw new ValidationException("ticket not paid");
         }
 
-        BigDecimal refund = calculateRefund(ticketId);
+        BigDecimal refund = calculateTicketRefund(ticketId);
 
         transactionService.refundTicket(ticket, refund);
 
@@ -142,7 +153,7 @@ public class TicketServiceImpl implements TicketService {
 
 
 
-    private BigDecimal calculateRefund(Long ticketId) {
+    private BigDecimal calculateTicketRefund(Long ticketId) {
         validationUtil.validateId(ticketId);
 
         TicketEntity ticket = ticketRepository.findById(ticketId)
