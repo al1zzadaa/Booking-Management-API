@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,6 +39,9 @@ public class SeatEntity {
 
     @Enumerated(EnumType.STRING)
     private Tickets ticketClass;
+
+    @Column(nullable = false)
+    private BigDecimal price;
 
     @Column(name = "is_available")
     private Boolean isAvailable = true;

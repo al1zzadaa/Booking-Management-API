@@ -1,10 +1,8 @@
 package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.MailRequest;
-import com.example.bookingmanagementapi.dto.request.ResetPasswordRequest;
 import com.example.bookingmanagementapi.entity.EmailVerificationTokenEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
-import com.example.bookingmanagementapi.enums.TokenType;
 import com.example.bookingmanagementapi.enums.UserStatus;
 import com.example.bookingmanagementapi.exception.InvalidTokenException;
 import com.example.bookingmanagementapi.exception.NotFoundException;

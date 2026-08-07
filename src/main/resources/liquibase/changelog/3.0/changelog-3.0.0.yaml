@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-price-to-seats
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: seats
+            columns:
+              - column:
+                  name: price
+                  type: DECIMAL(19,2)
+
+  - changeSet:
+      id: set-default-seat-price
+      author: sadigalizada
+      changes:
+        - update:
+            tableName: seats
+            columns:
+              - column:
+                  name: price
+                  valueNumeric: 100.00
+
+  - changeSet:
+      id: make-seat-price-not-null
+      author: sadigalizada
+      changes:
+        - addNotNullConstraint:
+            tableName: seats
+            columnName: price
+            columnDataType: DECIMAL(19,2)
+
+  - changeSet:
+      id: remove-flight-price
+      author: sadigalizada
+      changes:
+        - dropColumn:
+            tableName: flights
+            columnName: price

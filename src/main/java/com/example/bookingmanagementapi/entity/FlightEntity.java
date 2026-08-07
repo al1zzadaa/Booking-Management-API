@@ -44,9 +44,6 @@ public class FlightEntity {
     @JoinColumn(name = "airline_id",  nullable = false)
     private AirlineEntity airline;
 
-    @Column(name = "price",  nullable = false)
-    private BigDecimal basePrice;
-
     @Column(nullable = false)
     private Long flightNumber;
 

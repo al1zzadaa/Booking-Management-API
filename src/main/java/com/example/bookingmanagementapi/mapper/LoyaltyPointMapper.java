@@ -5,7 +5,6 @@ import com.example.bookingmanagementapi.dto.response.LoyaltyPointResponse;
 import com.example.bookingmanagementapi.entity.LoyaltyPointEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 import java.util.List;
 

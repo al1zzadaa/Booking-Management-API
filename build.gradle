@@ -26,7 +26,7 @@ test {
 
 
 ext {
-    set('springCloudVersion', "2025.1.1") // Use the version compatible with your Boot version
+    set('springCloudVersion', "2025.1.1")
 }
 
 dependencyManagement {

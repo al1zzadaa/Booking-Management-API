@@ -91,7 +91,7 @@ public class TicketServiceImpl implements TicketService {
                 .account(accountEntity)
                 .flight(flightEntity)
                 .seat(seatEntity)
-                .price(policy.getPrice().add(flightEntity.getBasePrice()))
+                .price(policy.getPrice().add(seatEntity.getPrice()))
                 .fareBaggage(policy)
                 .status(TicketStatus.RESERVED)
                 .build();
