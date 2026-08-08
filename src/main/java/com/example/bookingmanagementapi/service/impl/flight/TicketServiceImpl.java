@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.TicketFilter;
-import com.example.bookingmanagementapi.dto.request.LoyaltyPointRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 @Service

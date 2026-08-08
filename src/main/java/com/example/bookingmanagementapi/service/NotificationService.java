@@ -31,6 +31,8 @@ public interface NotificationService {
 
     void sendBookingNotification(Long userId);
 
+    void sendSubscribeNotification(Long userId);
+
     void sendTicketPaymentNotification(TicketEntity ticket);
 
     void sendBookingPaymentNotification(Long userId);

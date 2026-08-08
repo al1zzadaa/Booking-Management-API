@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.SubscriptionEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity, Long> {
-    SubscriptionEntity findByAccountId(Long accountId);
 
+    SubscriptionEntity findByUserIdAndIsActive(Long userId, Boolean isActive);
 //    Page<@NonNull SubscriptionEntity> findAll(Pageable pageable);
 
     @Query(value = """
@@ -24,5 +25,4 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
             """, nativeQuery = true)
     Page<SubscriptionEntity> findDueForRenewal(Pageable pageable);
 
-    SubscriptionEntity findBySubscriptionPlanAndIsActive(SubscriptionPlanEntity subscriptionPlan, Boolean isActive);
 }

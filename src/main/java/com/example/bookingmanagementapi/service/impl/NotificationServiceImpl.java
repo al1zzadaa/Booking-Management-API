@@ -148,6 +148,16 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendSubscribeNotification(Long userId) {
+        notifyUser(
+                userId,
+                NotificationType.SUBSCRIBE,
+                "Subscription",
+                "Subscription was successful"
+        );
+    }
+
+    @Override
     public void sendTicketPaymentNotification(TicketEntity ticket) {
         notifyUser(
                 ticket.getUser().getId(),

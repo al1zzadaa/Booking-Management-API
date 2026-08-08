@@ -2,10 +2,7 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
-import com.example.bookingmanagementapi.entity.AccountEntity;
-import com.example.bookingmanagementapi.entity.BookingEntity;
-import com.example.bookingmanagementapi.entity.TicketEntity;
-import com.example.bookingmanagementapi.entity.TransactionEntity;
+import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.Currency;
 import com.example.bookingmanagementapi.enums.PaymentStatus;
 import com.example.bookingmanagementapi.enums.ReferenceType;
@@ -42,6 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final BookingRepository bookingRepository;
     private final TicketRepository ticketRepository;
     private final UserPromoCodeService userPromoCodeService;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     @Override
     public void createTransaction(TransactionRequest transactionRequest) {
@@ -328,58 +326,34 @@ public class TransactionServiceImpl implements TransactionService {
         return account;
     }
 
-//    private AccountEntity ticketAndBookingPaymentDuplicate(Long accountId, BigDecimal amountInUsd, String code) {
-//
-////        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(code).orElseThrow();
-////
-////        if (!promoCodeEntity.getActive()) {
-////            throw new BadRequestException("Promo code is inactive");
-////        }
-////
-////        if (promoCodeEntity.getEndDate().isBefore(LocalDateTime.now())) {
-////            throw new BadRequestException("Promo code has expired");
-////        }
-////
-////        BigDecimal discountValue = promoCodeEntity.getDiscountValue();
-//
-//        AccountEntity account = accountRepository.findById(accountId)
-//                .orElseThrow(() -> new NotFoundException("Account not found"));
-//
-//        BigDecimal amountToWithdraw = convert.convert(
-//                amountInUsd,
-//                Currency.USD,
-//                account.getCurrency()
-//        );
-////
-////        if (promoCodeEntity.getDiscountType() == DiscountType.PERCENTAGE) {
-////            if (discountValue.compareTo(BigDecimal.ZERO) < 0
-////                    || discountValue.compareTo(BigDecimal.valueOf(100)) > 0) {
-////                throw new BadRequestException("Invalid percentage discount");
-////            }
-////
-////            discountValue = amountToWithdraw
-////                    .multiply(discountValue)
-////                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-////        } else {
-////            discountValue = discountValue.min(amountToWithdraw);
-////        }
-////
-////
-////        if (account.getBalance().compareTo(amountToWithdraw) < 0) {
-////            throw new InsufficientBalanceException("Not enough balance");
-////        }
-//
-////        BigDecimal finalAmount = amountToWithdraw.subtract(discountValue);
-//
-//        BigDecimal finalAmount = promoCodeService.discount(amountToWithdraw, code);
-//
-//        if (account.getBalance().compareTo(finalAmount) < 0) {
-//            throw new InsufficientBalanceException("Not enough balance");
-//        }
-//
-//        account.setBalance(account.getBalance().subtract(finalAmount));
-//
-//        return account;
-//    }
+    @Transactional
+    @Override
+    public void payForSubscription(SubscriptionRequest  subscriptionRequest){
+
+        validateNotAlreadyPaid(subscriptionRequest.getPlanId(), ReferenceType.SUBSCRIPTION);
+
+        SubscriptionPlanEntity subscriptionPlanEntity =
+                subscriptionPlanRepository.findByIdAndActive(subscriptionRequest.getPlanId(), true);
+
+        BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
+
+        AccountEntity account = ticketAndBookingPaymentDuplicate(
+                subscriptionRequest.getAccountId(),
+                subscriptionAmount,
+                null);
+
+        TransactionEntity transactionEntity = TransactionEntity.builder()
+                .amount(subscriptionAmount)
+                .account(account)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .referenceType(ReferenceType.SUBSCRIPTION)
+                .paymentMethod(subscriptionRequest.getPaymentMethod())
+                .type(TransactionType.PAYMENT)
+                .description("Payment for subscription")
+                .referenceId(subscriptionRequest.getPlanId())
+                .build();
+
+        transactionRepository.save(transactionEntity);
+    }
 
 }

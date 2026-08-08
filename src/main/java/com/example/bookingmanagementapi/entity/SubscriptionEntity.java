@@ -1,9 +1,7 @@
 package com.example.bookingmanagementapi.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -12,6 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name = "subscriptions")
+@Builder
+@AllArgsConstructor
 public class SubscriptionEntity {
 
     @Id
@@ -19,8 +19,8 @@ public class SubscriptionEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "account_id",  nullable = false)
-    private AccountEntity account;
+    @JoinColumn(name = "user_id",  nullable = false)
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id",  nullable = false)
@@ -33,8 +33,10 @@ public class SubscriptionEntity {
     private LocalDate endDate;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean autoRenew = true;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean isActive =  true;
 }

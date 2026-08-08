@@ -32,4 +32,6 @@ public interface TransactionService {
     void deposit(DepositRequest depositRequest);
 
     void payForBooking(BookingEntity booking, PaymentRequest paymentRequest);
+
+    void payForSubscription(SubscriptionRequest  subscriptionRequest);
 }

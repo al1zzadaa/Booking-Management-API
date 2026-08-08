@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPlanEntity,Long> {
+    SubscriptionPlanEntity findByIdAndActive(Long id, Boolean active);
 }
