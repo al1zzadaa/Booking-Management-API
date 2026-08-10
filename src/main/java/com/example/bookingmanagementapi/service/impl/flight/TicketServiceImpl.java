@@ -146,7 +146,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setStatus(TicketStatus.CANCELLED);
         ticket.getSeat().setIsAvailable(true);
 
-        notificationService.sendTicketCancellationNotification(ticket);
+        notificationService.sendTicketCancellationNotification(ticket.getUser().getId());
     }
 
 

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-auto-renew-account-to-subscriptions
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: auto_renew_account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_subscription_auto_renew_account
+                    references: accounts(id)

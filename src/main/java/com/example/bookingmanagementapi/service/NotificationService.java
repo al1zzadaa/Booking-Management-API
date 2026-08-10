@@ -33,13 +33,19 @@ public interface NotificationService {
 
     void sendSubscribeNotification(Long userId);
 
-    void sendTicketPaymentNotification(TicketEntity ticket);
+    void sendTicketPaymentNotification(Long userId);
 
     void sendBookingPaymentNotification(Long userId);
 
-    void sendTicketCancellationNotification(TicketEntity ticket);
+    void sendTicketCancellationNotification(Long userId);
 
     void sendBookingCancellationNotification(Long  userId);
 
+    void sendSubscriptionCancellationNotification(Long  userId);
 
+    void sendEnableRenewalNotification(Long  userId);
+
+    void sendDisableRenewalNotification(Long  userId);
+
+    void sendRenewalNotification(Long  userId);
 }

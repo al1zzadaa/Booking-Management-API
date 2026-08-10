@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.service;
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.BookingEntity;
+import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,5 +34,9 @@ public interface TransactionService {
 
     void payForBooking(BookingEntity booking, PaymentRequest paymentRequest);
 
-    void payForSubscription(SubscriptionRequest  subscriptionRequest);
+    void payForSubscription(SubscriptionRequest  subscriptionRequest, SubscriptionPlanEntity subscriptionPlanEntity);
+
+    void subscriptionRenew(SubscriptionRequest subscriptionRequest,
+                           Long subscriptionId,
+                           SubscriptionPlanEntity subscriptionPlanEntity);
 }

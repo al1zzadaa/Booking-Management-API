@@ -328,12 +328,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public void payForSubscription(SubscriptionRequest  subscriptionRequest){
+    public void payForSubscription(SubscriptionRequest  subscriptionRequest, SubscriptionPlanEntity subscriptionPlanEntity){
 
         validateNotAlreadyPaid(subscriptionRequest.getPlanId(), ReferenceType.SUBSCRIPTION);
-
-        SubscriptionPlanEntity subscriptionPlanEntity =
-                subscriptionPlanRepository.findByIdAndActive(subscriptionRequest.getPlanId(), true);
 
         BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
 
@@ -355,5 +352,32 @@ public class TransactionServiceImpl implements TransactionService {
 
         transactionRepository.save(transactionEntity);
     }
+
+    @Override
+    public void subscriptionRenew(SubscriptionRequest subscriptionRequest,
+                                  Long subscriptionId,
+                                  SubscriptionPlanEntity subscriptionPlanEntity) {
+
+        BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
+
+        AccountEntity account = ticketAndBookingPaymentDuplicate(
+                subscriptionRequest.getAccountId(),
+                subscriptionAmount,
+                null);
+
+        TransactionEntity transactionEntity = TransactionEntity.builder()
+                .amount(subscriptionAmount)
+                .account(account)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .referenceType(ReferenceType.SUBSCRIPTION)
+                .paymentMethod(subscriptionRequest.getPaymentMethod())
+                .type(TransactionType.PAYMENT)
+                .description("Payment for subscription renewal")
+                .referenceId(subscriptionId)
+                .build();
+
+        transactionRepository.save(transactionEntity);
+    }
+
 
 }

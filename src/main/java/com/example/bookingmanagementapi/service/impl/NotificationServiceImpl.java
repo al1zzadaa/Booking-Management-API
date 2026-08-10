@@ -158,12 +158,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendTicketPaymentNotification(TicketEntity ticket) {
-        notifyUser(
-                ticket.getUser().getId(),
+    public void sendTicketPaymentNotification(Long userId) {
+        notifyUser(userId,
                 NotificationType.PAYMENT,
                 "Payment",
-                "Payment was successful"
+                "Ticket Payment was successful"
         );
     }
 
@@ -173,16 +172,16 @@ public class NotificationServiceImpl implements NotificationService {
                 userId,
                 NotificationType.PAYMENT,
                 "Payment",
-                "Payment was successful"
+                "Booking payment was successful"
         );
     }
 
     @Override
-    public void sendTicketCancellationNotification(TicketEntity ticket) {
-        notifyUser(ticket.getUser().getId(),
+    public void sendTicketCancellationNotification(Long userId) {
+        notifyUser(userId,
                 NotificationType.CANCELLED,
                 "Cancellation",
-                "Cancellation was successful"
+                "Ticket cancellation was successful"
         );
     }
 
@@ -191,7 +190,43 @@ public class NotificationServiceImpl implements NotificationService {
         notifyUser(userId,
                 NotificationType.CANCELLED,
                 "Cancellation",
-                "Cancellation was successful"
+                "Booking cancellation was successful"
+        );
+    }
+
+    @Override
+    public void sendSubscriptionCancellationNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.CANCELLED,
+                "Cancellation",
+                "Subscription cancellation was successful"
+        );
+    }
+
+    @Override
+    public void sendEnableRenewalNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.RENEW,
+                "Renewal",
+                "Subscription renew was enabled"
+        );
+    }
+
+    @Override
+    public void sendDisableRenewalNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.RENEW,
+                "Renewal",
+                "Subscription renew was disabled"
+        );
+    }
+
+    @Override
+    public void sendRenewalNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.RENEW,
+                "Renewal",
+                "Subscription renewed successful"
         );
     }
 }

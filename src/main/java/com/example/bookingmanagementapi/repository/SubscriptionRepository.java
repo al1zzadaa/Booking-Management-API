@@ -8,21 +8,35 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 
 @Repository
 
 public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity, Long> {
 
     SubscriptionEntity findByUserIdAndIsActive(Long userId, Boolean isActive);
-//    Page<@NonNull SubscriptionEntity> findAll(Pageable pageable);
 
     @Query(value = """
             SELECT *
-            FROM subscription_entity
+            FROM subscriptions
             WHERE auto_renew = true
-            AND end_date <= CURRENT_DATE + INTERVAL '1 day'
+            AND end_date <= CURRENT_DATE
+            AND auto_renew_account_id IS NOT NULL
             """, nativeQuery = true)
-    Page<SubscriptionEntity> findDueForRenewal(Pageable pageable);
+    Page<@NonNull SubscriptionEntity> findDueForRenewal(Pageable pageable);
 
+
+    @Query("""
+    SELECT s
+    FROM SubscriptionEntity s
+    WHERE s.isActive = true
+      AND s.autoRenew = false
+      AND s.endDate <= :today
+""")
+    Page<SubscriptionEntity> findExpiredSubscriptions(
+            @Param("today") LocalDate today, Pageable pageable
+    );
 }

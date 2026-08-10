@@ -23,6 +23,10 @@ public class SubscriptionEntity {
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "auto_renew_account_id")
+    private AccountEntity autoRenewAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id",  nullable = false)
     private SubscriptionPlanEntity subscriptionPlan;
 

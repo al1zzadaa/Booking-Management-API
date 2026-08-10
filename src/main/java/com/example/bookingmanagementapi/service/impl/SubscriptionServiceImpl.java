@@ -2,8 +2,14 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.SubscriptionRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionResponse;
-import com.example.bookingmanagementapi.entity.*;
-import com.example.bookingmanagementapi.enums.*;
+import com.example.bookingmanagementapi.entity.AccountEntity;
+import com.example.bookingmanagementapi.entity.SubscriptionEntity;
+import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.event.AutoRenewEnabledEvent;
+import com.example.bookingmanagementapi.event.SubscribeEvent;
+import com.example.bookingmanagementapi.event.SubscriptionCancelledEvent;
+import com.example.bookingmanagementapi.event.SubscriptionRenewedEvent;
 import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.mapper.SubscriptionMapper;
 import com.example.bookingmanagementapi.repository.*;
@@ -12,6 +18,10 @@ import com.example.bookingmanagementapi.service.SubscriptionService;
 import com.example.bookingmanagementapi.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +40,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final TransactionService transactionService;
+    private final ApplicationEventPublisher eventPublisher;
     @Value("${subscription.size}")
     private int size;
     @Value("${subscription.page}")
@@ -53,19 +64,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new InsufficientBalanceException("Insufficient balance");
         }
 
-        transactionService.payForSubscription(subscriptionRequest);
+        transactionService.payForSubscription(subscriptionRequest, subscriptionPlanEntity);
 
         SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
                 .user(user)
                 .subscriptionPlan(subscriptionPlanEntity)
                 .startDate(LocalDate.now())
+                .autoRenewAccount(account)
                 .endDate(LocalDateTime.now().toLocalDate()
                         .plusDays(subscriptionPlanEntity.getDurationDays()))
                 .build();
 
         subscriptionRepository.save(subscriptionEntity);
 
-        notificationService.sendSubscribeNotification(subscriptionRequest.getUserId());
+        eventPublisher.publishEvent(
+                new SubscribeEvent(user.getId()));
     }
 
     @Override
@@ -76,144 +89,122 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionMapper.toDto(subscriptionEntity);
     }
 
-//    @Override
-//    public void cancel(Long accountId) {
-//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(accountId, true);
-//        subscriptionEntity.setIsActive(false);
-//
-//        NotificationRequest notificationRequest = new NotificationRequest();
-//
-//        notificationRequest.setNotificationType(NotificationType.CANCELLED);
-//        notificationRequest.setTitle("Subscription notification");
-//        notificationRequest.setMessage("Subscription canceled");
-//
-////        notificationService.create(notificationRequest);
-//
-//        subscriptionRepository.save(subscriptionEntity);
-//    }
-//
-//    @Override
-//    public boolean isActive(Long userId) {
-//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
-//        return subscriptionEntity.getEndDate().isAfter(LocalDate.now());
-//    }
-//
-//
-//
-//    @Override
-//    public void renew(Long accountId, Long planId) {
-//
-//        AccountEntity account = accountRepository.findById(accountId)
-//                .orElseThrow(null);
-//
-//        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(planId)
-//                .orElseThrow(null);
-//
-//
-//        if (account.getBalance().compareTo(subscriptionPlanEntity.getPrice()) < 0) {
-//            throw new InsufficientBalanceException("Not enough balance");
-//        }
-//
-//
-//        account.setBalance(account.getBalance().subtract(subscriptionPlanEntity.getPrice()));
-//
-//
-//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByAccountId(accountId);
-//
-//
-//        if (subscriptionEntity.getEndDate().isAfter(LocalDate.now())) {
-//            subscriptionEntity.setEndDate(subscriptionEntity.getEndDate().plusMonths(1));
-//        }else {
-//            subscriptionEntity.setStartDate(LocalDate.now());
-//            subscriptionEntity.setEndDate(LocalDate.now().plusMonths(1));
-//        }
-//
-//        TransactionEntity tx = TransactionEntity.builder()
-//                .type(TransactionType.PAYMENT)
-//                .amount(subscriptionPlanEntity.getPrice())
-//                .description("Subscription renewal")
-//                .referenceId(subscriptionPlanEntity.getId())
-//                .account(account)
-//                .createdAt(LocalDateTime.now())
-//                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
-//                .referenceType(ReferenceType.SUBSCRIPTION)
-//                .paymentStatus(PaymentStatus.PENDING)
-//                .build();
-//
-//        transactionRepository.save(tx);
-//
-//
-//        subscriptionEntity.setIsActive(true);
-//        NotificationRequest notificationRequest = new NotificationRequest();
-//
-//        notificationRequest.setNotificationType(NotificationType.RENEW);
-//        notificationRequest.setTitle("Subscription notification");
-////        notificationRequest.setIsRead(false);
-//        notificationRequest.setMessage("Subscription renewed");
-//
-////        notificationService.create(notificationRequest);
-//
-//        subscriptionRepository.save(subscriptionEntity);
-//    }
-//
+    @Transactional
+    @Override
+    public void cancel(Long userId) {
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
+        subscriptionEntity.setIsActive(false);
+        subscriptionEntity.setAutoRenew(false);
+        subscriptionEntity.setEndDate(LocalDate.now());
+
+        eventPublisher.publishEvent(
+                new SubscriptionCancelledEvent(userId)
+        );
+    }
+
+    //
+    @Override
+    public boolean isActive(Long userId) {
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
+        return subscriptionEntity.getEndDate().isAfter(LocalDate.now());
+    }
+
+
+    @Transactional
+    @Override
+    public void renew(SubscriptionRequest subscriptionRequest) {
+
+        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(subscriptionRequest.getPlanId())
+                .orElseThrow(null);
+
+        Integer durationDays = subscriptionPlanEntity.getDurationDays();
+
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(subscriptionRequest.getUserId(), true);
+
+        transactionService.subscriptionRenew(subscriptionRequest, subscriptionEntity.getId(), subscriptionPlanEntity);
+        LocalDate today = LocalDate.now();
+
+        subscriptionEntity.setSubscriptionPlan(subscriptionPlanEntity);
+
+        if (subscriptionEntity.getEndDate().isEqual(today) || subscriptionEntity.getEndDate().isAfter(today)) {
+            subscriptionEntity.setEndDate(
+                    subscriptionEntity.getEndDate().plusDays(durationDays)
+            );
+        } else {
+            subscriptionEntity.setStartDate(today);
+            subscriptionEntity.setEndDate(today.plusDays(durationDays));
+            subscriptionEntity.setIsActive(true);
+        }
+
+        eventPublisher.publishEvent(
+                new SubscriptionRenewedEvent(subscriptionRequest.getUserId()
+                )
+        );
+    }
+
 //    @Override
 //    public void autoRenew() {
-//
-//        Page<@NonNull SubscriptionEntity> result;
-//
-//        do {
-//            Pageable pageable = PageRequest.of(page, size);
-//
-//            result = subscriptionRepository.findDueForRenewal(
-//                    pageable
-//            );
-//
-//            for (SubscriptionEntity sub : result.getContent()) {
-//                try {
-//                    renew(sub.getAccount().getId(), sub.getSubscriptionPlan().getId());
-//                } catch (Exception e) {
-//                    // log and continue
-//                }
+//        while (true) {
+//            Pageable pageable = PageRequest.of(0, size);
+//            Page<SubscriptionEntity> result = subscriptionRepository.findDueForRenewal(pageable);
+//            if (result.isEmpty()) {
+//                break;
 //            }
-//
-//            page++;
-//
-//        } while (result.hasNext());
+//            for (SubscriptionEntity subscription : result.getContent()) {
+//                try {
+//                    SubscriptionRequest request = SubscriptionRequest.builder().userId(subscription.getUser().getId()).accountId(subscription.getAutoRenewAccount().getId()).planId(subscription.getSubscriptionPlan().getId()).paymentMethod(PaymentMethods.ACCOUNT_BALANCE).build();
+//                    renew(request);
+//                } catch (Exception e){
+//                // Log the failure and continue with the next subscription
+////                 log.error( "Auto-renew failed for subscription {}", subscription.getId(), e );
+//                 }
+//            }
+//        }
 //    }
-//
-//    @Override
-//    public void enableAutoRenew(Long accountId) {
-//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByAccountId(accountId);
-//
-//        subscriptionEntity.setAutoRenew(true);
-//
-//        NotificationRequest notificationRequest = new NotificationRequest();
-//
-//        notificationRequest.setNotificationType(NotificationType.RENEW);
-//        notificationRequest.setTitle("Subscription notification");
-////        notificationRequest.setIsRead(false);
-//        notificationRequest.setMessage("Subscription auto renew enabled");
-//
-////        notificationService.create(notificationRequest);
-//
-//        subscriptionRepository.save(subscriptionEntity);
-//    }
-//
-//    @Override
-//    public void disableAutoRenew(Long accountId) {
-//        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByAccountId(accountId);
-//
-//        subscriptionEntity.setAutoRenew(false);
-//
-//        NotificationRequest notificationRequest = new NotificationRequest();
-//
-//        notificationRequest.setNotificationType(NotificationType.RENEW);
-//        notificationRequest.setTitle("Subscription notification");
-////        notificationRequest.setIsRead(false);
-//        notificationRequest.setMessage("Subscription auto renew disabled");
-//
-////        notificationService.create(notificationRequest);
-//
-//        subscriptionRepository.save(subscriptionEntity);
-//    }
+
+    @Transactional
+    @Override
+    public void enableAutoRenew(Long userId) {
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
+
+        subscriptionEntity.setAutoRenew(true);
+
+        eventPublisher.publishEvent(
+                new AutoRenewEnabledEvent(userId));
+    }
+
+    @Transactional
+    @Override
+    public void disableAutoRenew(Long userId) {
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
+
+        subscriptionEntity.setAutoRenew(false);
+
+        eventPublisher.publishEvent(
+                new AutoRenewEnabledEvent(userId));
+    }
+
+    @Transactional
+    @Override
+    public void deactivateExpiredSubscriptions() {
+
+        while (true) {
+
+            Pageable pageable = PageRequest.of(0, 20);
+
+            Page<SubscriptionEntity> result =
+                    subscriptionRepository.findExpiredSubscriptions(
+                            LocalDate.now(),
+                            pageable
+                    );
+
+            if (result.isEmpty()) {
+                break;
+            }
+
+            for (SubscriptionEntity subscription : result.getContent()) {
+                subscription.setIsActive(false);
+            }
+        }
+    }
 }
