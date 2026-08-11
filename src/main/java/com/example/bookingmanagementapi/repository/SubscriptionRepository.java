@@ -23,6 +23,7 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
             SELECT *
             FROM subscriptions
             WHERE auto_renew = true
+            AND is_active = true
             AND end_date <= CURRENT_DATE
             AND auto_renew_account_id IS NOT NULL
             """, nativeQuery = true)
@@ -33,7 +34,6 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     SELECT s
     FROM SubscriptionEntity s
     WHERE s.isActive = true
-      AND s.autoRenew = false
       AND s.endDate <= :today
 """)
     Page<SubscriptionEntity> findExpiredSubscriptions(
