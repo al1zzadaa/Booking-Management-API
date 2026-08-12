@@ -54,4 +54,8 @@ public class TicketEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flight_booking_id", nullable = false)
+    private FlightBookingEntity flightBooking;
 }

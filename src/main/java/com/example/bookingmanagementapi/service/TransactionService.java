@@ -3,12 +3,14 @@ package com.example.bookingmanagementapi.service;
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.BookingEntity;
+import com.example.bookingmanagementapi.entity.FlightBookingEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface TransactionService {
 
@@ -22,9 +24,9 @@ public interface TransactionService {
 
     Page<TransactionResponse> getTransactionsByUserId(Long accountId, Pageable  pageable);
 
-    void payForTicket(TicketEntity ticket, PaymentRequest paymentRequest);
+    void payForTickets(Long flightBookingId, PaymentRequest paymentRequest);
 
-    void refundTicket(TicketEntity ticketId, BigDecimal amount);
+    void refundTicket(FlightBookingEntity flightBookingEntity, BigDecimal amount);
 
     void refundBooking(BookingEntity booking, BigDecimal amount);
 

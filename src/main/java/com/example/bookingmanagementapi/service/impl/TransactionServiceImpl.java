@@ -10,6 +10,7 @@ import com.example.bookingmanagementapi.enums.TransactionType;
 import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.PaymentAlreadyCompletedException;
+import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.ConvertService;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final BookingRepository bookingRepository;
     private final TicketRepository ticketRepository;
     private final UserPromoCodeService userPromoCodeService;
+    private final FlightBookingRepository flightBookingRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     @Override
@@ -93,46 +96,72 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public void payForTicket(TicketEntity ticket, PaymentRequest paymentRequest) {
+    public void payForTickets(Long flightBookingId, PaymentRequest paymentRequest) {
+        FlightBookingEntity flightBooking =
+                flightBookingRepository.findById(flightBookingId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Flight booking not found"));
 
-        validateNotAlreadyPaid(ticket.getId(), ReferenceType.FLIGHT_TICKET);
+        List<TicketEntity> tickets = flightBooking.getTickets();
+
+        if (tickets == null || tickets.isEmpty()) {
+            throw new ValidationException("No tickets to pay");
+        }
+
+        BigDecimal totalAmount = tickets.stream()
+                .map(TicketEntity::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal finalAmount = promoCodeService.calculateFinalAmount(
+                totalAmount,
+                paymentRequest.getPromoCode()
+        );
 
         AccountEntity account = ticketAndBookingPaymentDuplicate(
                 paymentRequest.getAccountId(),
-                ticket.getPrice(),
-                paymentRequest.getPromoCode()
+                finalAmount,
+                null
         );
-
-        BigDecimal finalAmount = promoCodeService.calculateFinalAmount(
-                ticket.getPrice(),
-                paymentRequest.getPromoCode()
-        );
-
-        ticket.setPrice(finalAmount);
-        ticketRepository.save(ticket);
+//
+//        AccountEntity account = ticketAndBookingPaymentDuplicate(
+//                paymentRequest.getAccountId(),
+//                ticket.getPrice(),
+//                paymentRequest.getPromoCode()
+//        );
+//
+//        BigDecimal finalAmount = promoCodeService.calculateFinalAmount(
+//                ticket.getPrice(),
+//                paymentRequest.getPromoCode()
+//        );
+//
+//        ticket.setPrice(finalAmount);
+//        ticketRepository.save(ticket);
 
         TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(ticket.getPrice())
+                .amount(finalAmount)
                 .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
                 .paymentMethod(paymentRequest.getPaymentMethod())
                 .type(TransactionType.PAYMENT)
                 .description("Payment for ticket")
-                .referenceId(ticket.getId())
+                .referenceId(flightBookingId)
                 .build();
 
         transactionRepository.save(transactionEntity);
 
-        applyUserPromoCode(ticket.getUser().getId(), paymentRequest.getPromoCode());
+//        ticketRepository.saveAll(tickets);
+//        transactionRepository.save(transactionEntity);
+
+        applyUserPromoCode(flightBooking.getUser().getId(), paymentRequest.getPromoCode());
     }
 
 
     @Transactional
-    public void refundTicket(TicketEntity ticket, BigDecimal amount) {
-        AccountEntity account = ticket.getAccount();
+    public void refundTicket(FlightBookingEntity flightBookingEntity, BigDecimal amount) {
+        AccountEntity account = flightBookingEntity.getAccount();
 
-        BigDecimal refundAmount =  convert.convert(
+        BigDecimal refundAmount = convert.convert(
                 amount,
                 Currency.USD,
                 account.getCurrency()
@@ -141,11 +170,11 @@ public class TransactionServiceImpl implements TransactionService {
         account.setBalance(account.getBalance().add(refundAmount));
 
         TransactionEntity transactionEntity = TransactionEntity.builder()
-                .account(ticket.getAccount())
+                .account(account)
                 .amount(refundAmount)
                 .type(TransactionType.REFUND)
                 .description("Refund")
-                .referenceId(ticket.getId())
+                .referenceId(flightBookingEntity.getId())
                 .paymentStatus(PaymentStatus.REFUNDED)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
                 .build();
@@ -158,7 +187,7 @@ public class TransactionServiceImpl implements TransactionService {
     public void refundBooking(BookingEntity booking, BigDecimal amount) {
         AccountEntity account = booking.getAccount();
 
-        BigDecimal refundAmount =  convert.convert(
+        BigDecimal refundAmount = convert.convert(
                 amount,
                 Currency.USD,
                 account.getCurrency()
@@ -194,7 +223,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new InsufficientBalanceException("Not enough balance to  withdraw");
         }
 
-        BigDecimal amountToWithdraw =  convert.convert(
+        BigDecimal amountToWithdraw = convert.convert(
                 withdrawRequest.getAmount(),
                 withdrawRequest.getCurrency(),
                 accountEntity.getCurrency()
@@ -229,7 +258,7 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal deposit = depositRequest.getAmount();
 
         if (!depositRequest.getCurrency().equals(accountEntity.getCurrency())) {
-            deposit =  convert.convert(
+            deposit = convert.convert(
                     deposit,
                     depositRequest.getCurrency(),
                     accountEntity.getCurrency()
@@ -289,7 +318,7 @@ public class TransactionServiceImpl implements TransactionService {
         applyUserPromoCode(booking.getUser().getId(), paymentRequest.getPromoCode());
     }
 
-    private void applyUserPromoCode(Long userId, String promoCode){
+    private void applyUserPromoCode(Long userId, String promoCode) {
         userPromoCodeService.applyPromoCode(
                 userId,
                 promoCode
@@ -328,7 +357,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public void payForSubscription(SubscriptionRequest  subscriptionRequest, SubscriptionPlanEntity subscriptionPlanEntity){
+    public void payForSubscription(SubscriptionRequest subscriptionRequest, SubscriptionPlanEntity subscriptionPlanEntity) {
 
         validateNotAlreadyPaid(subscriptionRequest.getPlanId(), ReferenceType.SUBSCRIPTION);
 

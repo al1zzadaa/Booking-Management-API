@@ -19,38 +19,52 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping
-    public void bookTicket(@RequestBody TicketRequest ticketRequest){
+    public void bookTicket(@RequestBody TicketRequest ticketRequest) {
         ticketService.book(ticketRequest);
     }
 
     @GetMapping("/{id}")
-    public TicketResponse getTicketById(@PathVariable Long id){
+    public TicketResponse getTicketById(@PathVariable Long id) {
         return ticketService.findById(id);
     }
 
     @GetMapping
-    public List<TicketResponse> getTickets(TicketFilter ticketFilter){
+    public List<TicketResponse> getTickets(TicketFilter ticketFilter) {
         return ticketService.findAll(ticketFilter);
     }
 
     @PutMapping("/{id}")
-    public void updateTicket(@PathVariable Long id, @RequestBody UpdateTicketRequest updateTicketRequest){
+    public void updateTicket(@PathVariable Long id, @RequestBody UpdateTicketRequest updateTicketRequest) {
         ticketService.updateTicket(id, updateTicketRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTicketById(@PathVariable Long id){
+    public void deleteTicketById(@PathVariable Long id) {
         ticketService.deleteTicketById(id);
     }
 
-    @PostMapping("/pay/{ticketId}")
-    public void payTicket(@PathVariable Long ticketId, @RequestBody PaymentRequest request) {
-        ticketService.payTicket(ticketId, request);
+    //    @PostMapping("/pay")
+//    public void payTicket(@RequestParam Long userId,
+//                          @RequestParam List<Long> ticketIds,
+//                          @RequestBody PaymentRequest request) {
+//        ticketService.payTicket(userId, ticketIds, request);
+//    }
+    @PostMapping("/flight-bookings/{flightBookingId}/pay")
+    public void payFlightBooking(
+            @RequestParam Long userId,
+            @PathVariable Long flightBookingId,
+            @RequestBody PaymentRequest request
+    ) {
+        ticketService.payTicket(
+                userId,
+                flightBookingId,
+                request
+        );
     }
 
-    @PostMapping("/cancel/{ticketId}")
-    public void cancel(@PathVariable Long ticketId){
-        ticketService.cancel(ticketId);
+    @PostMapping("/cancel/{flightBookingId}")
+    public void cancel(@PathVariable Long flightBookingId) {
+        ticketService.cancel(flightBookingId);
     }
 
 }

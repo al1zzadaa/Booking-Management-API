@@ -8,14 +8,12 @@ import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Hotels;
-import com.example.bookingmanagementapi.enums.ReferenceType;
 import com.example.bookingmanagementapi.event.BookingCancelledEvent;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.BookingMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.*;
-import com.example.bookingmanagementapi.service.impl.TicketAndBookingLogicsImpl;
 import com.example.bookingmanagementapi.service.specifications.BookingSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
@@ -78,16 +76,17 @@ public class BookingServiceImpl implements BookingService {
             throw new RoomException("Room is not available for these dates");
         }
 
+        int childrenNumber = booking.getChildrenAges().size();
 
-        if (roomEntity.getCapacity() < booking.getAdultNumber() + booking.getChildrenNumber()) {
+
+        if (roomEntity.getCapacity() < booking.getAdultNumber() + childrenNumber) {
             throw new CapacityException("People count is more than room capacity");
         }
 
         int days = booking.getCheckOut().getDayOfMonth() - booking.getCheckIn().getDayOfMonth();
         int adultNumber = booking.getAdultNumber();
-        int childNumber = booking.getChildrenNumber();
 
-        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, childNumber, roomEntity);
+        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, booking.getChildrenAges(), roomEntity);
 
         BookingEntity bookingEntity = BookingEntity.builder()
                 .user(userEntity)
@@ -98,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
                 .checkOut(booking.getCheckOut())
                 .bookingStatus(BookingStatus.PENDING)
                 .totalPrice(price)
-                .peopleNumber(adultNumber + childNumber)
+                .peopleNumber(adultNumber + childrenNumber)
                 .build();
 
 

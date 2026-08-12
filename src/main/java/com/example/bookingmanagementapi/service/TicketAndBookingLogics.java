@@ -4,6 +4,7 @@ import com.example.bookingmanagementapi.entity.RoomEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface TicketAndBookingLogics {
 
@@ -18,6 +19,6 @@ public interface TicketAndBookingLogics {
     BigDecimal getTotalPrice(
             Integer days,
             Integer adultNumber,
-            Integer childNumber,
+            List<Integer> childrenAges,
             RoomEntity roomEntity);
 }

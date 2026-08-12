@@ -1,11 +1,13 @@
 package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.TicketFilter;
+import com.example.bookingmanagementapi.dto.request.PassengerRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
+import com.example.bookingmanagementapi.enums.Flights;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -17,11 +19,14 @@ import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.service.specifications.TicketSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,8 +46,19 @@ public class TicketServiceImpl implements TicketService {
     private final TicketAndBookingLogics ticketAndBookingLogics;
     private final LoyaltyPointService loyaltyPointService;
     private final ApplicationEventPublisher eventPublisher;
-
-
+    private final FlightBookingRepository flightBookingRepository;
+    @Value("${booking.children.infant-max-age}")
+    private Integer infantMaxAge;
+    @Value("${booking.children.infant-discount-percent}")
+    private BigDecimal infantDiscountPercent;
+    @Value("${booking.children.young-max-age}")
+    private Integer youngChildMaxAge;
+    @Value("${booking.children.young-discount-percent}")
+    private BigDecimal youngChildDiscountPercent;
+    @Value("${booking.children.teen-max-age}")
+    private Integer teenChildMaxAge;
+    @Value("${booking.children.teen-discount-percent}")
+    private BigDecimal teenChildDiscountPercent;
 
     @Override
     @Transactional
@@ -50,7 +66,6 @@ public class TicketServiceImpl implements TicketService {
 
         validationUtil.validateId(ticketRequest.getUserId());
         validationUtil.validateId(ticketRequest.getFlightId());
-        validationUtil.validateId(ticketRequest.getSeatId());
         validationUtil.validateId(ticketRequest.getAccountId());
 
         UserEntity userEntity = userRepository.findById(ticketRequest.getUserId())
@@ -62,104 +77,351 @@ public class TicketServiceImpl implements TicketService {
         FlightEntity flightEntity = flightRepository.findById(ticketRequest.getFlightId())
                 .orElseThrow(() -> new NotFoundException("flight not found"));
 
-        SeatEntity seatEntity = seatRepository.findById(ticketRequest.getSeatId())
-                .orElseThrow(() -> new NotFoundException("seat not found"));
+//        SeatEntity seatEntity = seatRepository.findById(ticketRequest.getPassengers().stream().)
+//                .orElseThrow(() -> new NotFoundException("seat not found"));
 
         if (!accountEntity.getUser().getId().equals(userEntity.getId())) {
             throw new ValidationException("account not owned by user");
         }
 
-        if (!seatEntity.getFlight().getId().equals(flightEntity.getId())) {
-            throw new ValidationException("flight does not have this seat");
-        }
-
-        if (!seatEntity.getIsAvailable()) {
-            throw new SeatNotAvailable("Seat not available");
-        }
-
-        FareBaggageEntity policy = fareBaggageRepository.findByAirlineAndTicketClass(
-                        flightEntity.getAirline(),
-                        seatEntity.getTicketClass())
-                .orElseThrow(() ->
-                        new NotFoundException("Fare baggage policy not found"));
+        System.out.println("Passenger count: " +
+                ticketRequest.getPassengers().size());
 
 
-        TicketEntity ticket = TicketEntity.builder()
+        FlightBookingEntity flightBooking = FlightBookingEntity.builder()
                 .user(userEntity)
                 .account(accountEntity)
                 .flight(flightEntity)
-                .seat(seatEntity)
-                .price(policy.getPrice().add(seatEntity.getPrice()))
-                .fareBaggage(policy)
                 .status(TicketStatus.RESERVED)
                 .build();
 
-        seatEntity.setIsAvailable(false);
-        ticketRepository.save(ticket);
+        List<TicketEntity> tickets = new ArrayList<>();
 
-        notificationService.sendBookingNotification(userEntity.getId());
+        BigDecimal totalBookingPrice = BigDecimal.ZERO;
+
+
+        for (PassengerRequest passenger : ticketRequest.getPassengers()) {
+
+            validationUtil.validateId(passenger.getSeatId());
+
+            System.out.println("Seat ID: " + passenger.getSeatId());
+
+            SeatEntity seatEntity = seatRepository.findById(passenger.getSeatId())
+                    .orElseThrow(() -> new NotFoundException("Seat not found"));
+
+            if (!seatEntity.getFlight().getId().equals(flightEntity.getId())) {
+                throw new ValidationException("Flight does not have this seat");
+            }
+
+            if (!seatEntity.getIsAvailable()) {
+                throw new SeatNotAvailable("Seat " + seatEntity.getId() + " is not available");
+            }
+
+            FareBaggageEntity policy = fareBaggageRepository
+                    .findByAirlineAndTicketClass(
+                            flightEntity.getAirline(),
+                            seatEntity.getTicketClass())
+                    .orElseThrow(() ->
+                            new NotFoundException("Fare baggage policy not found"));
+
+            totalBookingPrice = calculateTotalPrice(ticketRequest, flightEntity);
+
+            TicketEntity ticket = TicketEntity.builder()
+                    .user(userEntity)
+                    .account(accountEntity)
+                    .flight(flightEntity)
+                    .seat(seatEntity)
+                    .price(totalBookingPrice)
+                    .fareBaggage(policy)
+                    .status(TicketStatus.RESERVED)
+                    .flightBooking(flightBooking)
+                    .build();
+
+            tickets.add(ticket);
+
+            seatEntity.setIsAvailable(false);
+        }
+
+        flightBooking.setTickets(tickets);
+        flightBooking.setTotalPrice(totalBookingPrice);
+
+        flightBookingRepository.save(flightBooking);
+
+        notificationService.sendBookingNotification(
+                userEntity.getId()
+        );
 
     }
 
+    private BigDecimal calculatePassengerPrice(
+            PassengerRequest passenger,
+            FlightEntity flight,
+            SeatEntity seat,
+            FareBaggageEntity baggagePolicy
+    ) {
+
+        BigDecimal baseFare = calculateBaseFare(
+                passenger.getAge()
+        );
+
+        BigDecimal seatPrice = calculateSeatPrice(seat);
+
+        BigDecimal baggagePrice = calculateBaggagePrice(
+                baggagePolicy
+        );
+
+        return baseFare
+                .add(seatPrice)
+                .add(baggagePrice);
+    }
+
+    private BigDecimal calculateBaseFare(
+            Integer age
+    ) {
+
+        BigDecimal basePrice = BigDecimal.ZERO;
+
+        if (age <= youngChildMaxAge) {
+            return BigDecimal.ZERO;
+        }
+
+        if (age <= teenChildMaxAge) {
+            BigDecimal discountPercent = teenChildDiscountPercent;
+
+            return basePrice
+                    .multiply(
+                            BigDecimal.valueOf(100)
+                                    .subtract(discountPercent)
+                    )
+                    .divide(
+                            BigDecimal.valueOf(100),
+                            2,
+                            RoundingMode.HALF_UP
+                    );
+        }
+
+        return basePrice;
+    }
+
+    private BigDecimal calculateTotalPrice(
+            TicketRequest request,
+            FlightEntity flight
+    ) {
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (PassengerRequest passenger : request.getPassengers()) {
+
+            SeatEntity seat = seatRepository.findById(passenger.getSeatId())
+                    .orElseThrow(() ->
+                            new NotFoundException("Seat not found"));
+
+            FareBaggageEntity policy = fareBaggageRepository
+                    .findByAirlineAndTicketClass(
+                            flight.getAirline(),
+                            seat.getTicketClass()
+                    )
+                    .orElseThrow(() ->
+                            new NotFoundException(
+                                    "Fare baggage policy not found"
+                            ));
+
+            BigDecimal passengerPrice = calculatePassengerPrice(
+                    passenger,
+                    flight,
+                    seat,
+                    policy
+            );
+
+            total = total.add(passengerPrice);
+        }
+
+        return total;
+    }
+
+    private BigDecimal calculateSeatPrice(SeatEntity seat) {
+        return seat.getPrice();
+    }
+
+    private BigDecimal calculateBaggagePrice(
+            FareBaggageEntity baggagePolicy
+    ) {
+        return baggagePolicy.getPrice();
+    }
+
+//    private void method(TicketRequest ticketRequest, FlightEntity flightEntity) {
+//
+//    }
+
+//    private BigDecimal calculatePassengerPrice(
+//            PassengerRequest passenger,
+//            FlightEntity flight,
+//            SeatEntity seat,
+//            FareBaggageEntity baggagePolicy
+//    ) {
+//
+//        BigDecimal baseFare = baggagePolicy.getPrice();
+//
+//        BigDecimal seatPrice = calculateSeatPrice(seat);
+//
+//        BigDecimal baggagePrice = calculateBaggagePrice(
+//                baggagePolicy
+//        );
+//
+//        return baseFare
+//                .add(seatPrice)
+//                .add(baggagePrice);
+//    }
+//
+//    private BigDecimal calculateBaseFare(
+//            Integer age,
+//            FlightEntity flight
+//    ) {
+//
+//        BigDecimal basePrice = flight.getPrice();
+//
+//        if (age <= 2) {
+//            return BigDecimal.ZERO;
+//        }
+//
+//        if (age <= 11) {
+//            BigDecimal childDiscount = BigDecimal.valueOf(30);
+//
+//            return basePrice
+//                    .multiply(
+//                            BigDecimal.valueOf(100)
+//                                    .subtract(childDiscount)
+//                    )
+//                    .divide(
+//                            BigDecimal.valueOf(100),
+//                            2,
+//                            RoundingMode.HALF_UP
+//                    );
+//        }
+//
+//        return basePrice;
+//    }
+
     @Transactional
     @Override
-    public void payTicket(Long ticketId, PaymentRequest request) {
+    public void payTicket(Long userId,
+                          Long flightBookingId,
+                          PaymentRequest request) {
+//        TicketEntity ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NotFoundException("Ticket not found"));
+//
+//        FlightEntity flight = flightRepository.findById(ticket.getFlight().getId()).orElseThrow(() -> new NotFoundException("Flight not found"));
 
-        TicketEntity ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(null);
+//        List<TicketEntity> tickets = ticketRepository.findAllById(ticketIds);
+//
+//        if (tickets.isEmpty()) {
+//            throw new NotFoundException("No reserved tickets found");
+//        }
+        FlightBookingEntity flightBooking =
+                flightBookingRepository.findById(flightBookingId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Flight booking not found"));
 
-        transactionService.payForTicket(ticket, request);
+        if (!flightBooking.getUser().getId().equals(userId)) {
+            throw new ValidationException(
+                    "Flight booking does not belong to user"
+            );
+        }
 
-        ticket.setStatus(TicketStatus.CONFIRMED);
+        List<TicketEntity> tickets = flightBooking.getTickets();
 
-        ticketRepository.save(ticket);
+        transactionService.payForTickets(
+                flightBookingId,
+                request
+        );
 
-        loyaltyPointService.earnPoints(
-                ticket.getUser().getId(),
-                ticket.getPrice(),
-                "Points earned from ticket payment");
+        for (TicketEntity ticket : tickets) {
+
+            ticket.setStatus(TicketStatus.CONFIRMED);
+
+            loyaltyPointService.earnPoints(
+                    ticket.getUser().getId(),
+                    ticket.getPrice(),
+                    "Points earned from ticket payment"
+            );
+        }
+
+        flightBooking.setStatus(TicketStatus.CONFIRMED);
+
+//        TicketEntity ticket = ticketRepository.findById(ticketId)
+//                .orElseThrow(null);
+//
+//        transactionService.payForTicket(ticket, request);
+//
+//        ticket.setStatus(TicketStatus.CONFIRMED);
+////
+//        ticketRepository.saveAll(tickets);
+//        flightBookingRepository.save(flightBooking);
+//        loyaltyPointService.earnPoints(
+//                ticket.getUser().getId(),
+//                ticket.getPrice(),
+//                "Points earned from ticket payment");
 
 //        notificationService.sendTicketPaymentNotification(ticket);
 
         eventPublisher.publishEvent(
-                new BookingPaymentEvent(ticket.getUser().getId())
+                new BookingPaymentEvent(userId)
         );
     }
 
     @Override
     @Transactional
-    public void cancel(Long ticketId) {
+    public void cancel(Long flightBookingId) {
 
-        validationUtil.validateId(ticketId);
+        validationUtil.validateId(flightBookingId);
 
-        TicketEntity ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new NotFoundException("ticket not found"));
 
-        if (ticket.getStatus() != TicketStatus.CONFIRMED) {
-            throw new ValidationException("ticket not paid");
+        FlightBookingEntity flightBooking =
+                flightBookingRepository.findById(flightBookingId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Flight booking not found"));
+
+        List<TicketEntity> tickets = flightBooking.getTickets();
+
+//        TicketEntity ticket = ticketRepository.findById(ticketId)
+//                .orElseThrow(() -> new NotFoundException("ticket not found"));
+
+        for (TicketEntity ticket : tickets) {
+            if (ticket.getStatus() != TicketStatus.CONFIRMED) {
+                throw new ValidationException("ticket not paid");
+            }
         }
 
-        BigDecimal refund = calculateTicketRefund(ticketId);
 
-        transactionService.refundTicket(ticket, refund);
+        BigDecimal refund = calculateTicketRefund(flightBookingId);
 
-        ticket.setStatus(TicketStatus.CANCELLED);
-        ticket.getSeat().setIsAvailable(true);
+        transactionService.refundTicket(flightBooking, refund);
 
-        notificationService.sendTicketCancellationNotification(ticket.getUser().getId());
+        flightBooking.setStatus(TicketStatus.CANCELLED);
+
+        for (TicketEntity ticket : tickets) {
+            ticket.setStatus(TicketStatus.CANCELLED);
+            ticket.getSeat().setIsAvailable(true);
+        }
+
+
+
+        notificationService.sendTicketCancellationNotification(flightBooking.getUser().getId());
     }
 
 
+    private BigDecimal calculateTicketRefund(Long flightBookingId) {
+        validationUtil.validateId(flightBookingId);
 
-    private BigDecimal calculateTicketRefund(Long ticketId) {
-        validationUtil.validateId(ticketId);
+        FlightBookingEntity flightBooking =
+                flightBookingRepository.findById(flightBookingId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Flight booking not found"));
 
-        TicketEntity ticket = ticketRepository.findById(ticketId)
-                .orElseThrow();
+        List<TicketEntity> tickets = flightBooking.getTickets();
 
         return ticketAndBookingLogics.calculateRefund(
-                ticket.getPrice(),
-                ticket.getFlight().getDepartureTime(),
+                flightBooking.getTotalPrice(),
+                flightBooking.getFlight().getDepartureTime(),
                 "Flight has already departed"
         );
     }

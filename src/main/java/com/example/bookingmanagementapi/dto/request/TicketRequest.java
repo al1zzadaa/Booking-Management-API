@@ -2,6 +2,8 @@ package com.example.bookingmanagementapi.dto.request;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -11,5 +13,5 @@ public class TicketRequest {
     private Long userId;
     private Long accountId;
     private Long flightId;
-    private Long seatId;
+    private List<PassengerRequest> passengers;
 }

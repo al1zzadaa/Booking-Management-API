@@ -13,9 +13,15 @@ public interface TicketService {
 
     void book(TicketRequest ticketRequest);
 
-    void payTicket(Long bookingId, PaymentRequest request);
+//    void payTicket(Long userId,
+//                    List<Long> ticketIds,
+//                    PaymentRequest request);
 
-    void cancel(Long ticketId);
+    void payTicket(Long userId,
+                    Long flightBookingId,
+                    PaymentRequest request);
+
+    void cancel(Long flightBookingId);
 
     List<TicketResponse> findAll(TicketFilter ticketFilter);
 

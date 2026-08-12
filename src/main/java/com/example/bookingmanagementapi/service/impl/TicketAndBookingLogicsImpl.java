@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +25,23 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
     private Integer percent50;
     @Value("${percent70}")
     private Integer percent70;
-    @Value("${adultPrice}")
-    private Integer adultPrice;
-    @Value("${childPrice}")
-    private Integer childPrice;
+//    @Value("${adultPrice}")
+//    private Integer adultPrice;
+//    @Value("${childPrice}")
+//    private Integer childPrice;
+    @Value("${booking.children.infant-max-age}")
+    private Integer infantMaxAge;
+    @Value("${booking.children.infant-discount-percent}")
+    private BigDecimal infantDiscountPercent;
+    @Value("${booking.children.young-max-age}")
+    private Integer youngChildMaxAge;
+    @Value("${booking.children.young-discount-percent}")
+    private BigDecimal youngChildDiscountPercent;
+    @Value("${booking.children.teen-max-age}")
+    private Integer teenChildMaxAge;
+    @Value("${booking.children.teen-discount-percent}")
+    private BigDecimal teenChildDiscountPercent;
+
 
     @Override
     public BigDecimal getBigDecimal(long daysLeft, BigDecimal refund) {
@@ -49,6 +63,8 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
     }
 
+
+
     @Override
     public BigDecimal calculateRefund(
             BigDecimal amount,
@@ -67,24 +83,52 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
         return amount.subtract(penalty);
     }
 
+//    @Override
+//    public BigDecimal getTotalPrice(Integer days,
+//                                    Integer adultNumber,
+//                                    List<Integer> childrenAges,
+//                                    RoomEntity room) {
+//
+//        BigDecimal adultTotal = room.getAdultPrice()
+//                .multiply(BigDecimal.valueOf(adultNumber));
+//
+//        BigDecimal childPrice = room.getAdultPrice()
+//                .multiply(
+//                        BigDecimal.valueOf(100)
+//                                .subtract(room.getChildDiscountPercent())
+//                )
+//                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+//
+//        BigDecimal childTotal = childPrice
+//                .multiply(BigDecimal.valueOf(childNumber));
+//
+//        BigDecimal roomTotal = room.getPricePerNight()
+//                .multiply(BigDecimal.valueOf(days));
+//
+//        return roomTotal
+//                .add(adultTotal)
+//                .add(childTotal);
+//    }
+
     @Override
     public BigDecimal getTotalPrice(Integer days,
                                     Integer adultNumber,
-                                    Integer childNumber,
+                                    List<Integer> childrenAges,
                                     RoomEntity room) {
 
-        BigDecimal adultTotal = room.getAdultPrice()
+        BigDecimal adultPrice = room.getAdultPrice();
+
+        BigDecimal adultTotal = adultPrice
                 .multiply(BigDecimal.valueOf(adultNumber));
 
-        BigDecimal childPrice = room.getAdultPrice()
-                .multiply(
-                        BigDecimal.valueOf(100)
-                                .subtract(room.getChildDiscountPercent())
-                )
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal childTotal = BigDecimal.ZERO;
 
-        BigDecimal childTotal = childPrice
-                .multiply(BigDecimal.valueOf(childNumber));
+        for (Integer age : childrenAges) {
+
+            BigDecimal childPrice = calculateChildPrice(room, age, adultPrice);
+
+            childTotal = childTotal.add(childPrice);
+        }
 
         BigDecimal roomTotal = room.getPricePerNight()
                 .multiply(BigDecimal.valueOf(days));
@@ -92,5 +136,27 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
         return roomTotal
                 .add(adultTotal)
                 .add(childTotal);
+    }
+
+    private BigDecimal calculateChildPrice(
+            RoomEntity room,
+            Integer age,
+            BigDecimal adultPrice
+    ) {
+        BigDecimal discountPercent;
+
+        if (age <= infantMaxAge) {
+            discountPercent = infantDiscountPercent;
+        } else if (age <= youngChildMaxAge) {
+            discountPercent = youngChildDiscountPercent;
+        } else if (age <= teenChildMaxAge) {
+            discountPercent = teenChildDiscountPercent;
+        } else {
+            discountPercent = room.getChildDiscountPercent();
+        }
+
+        return adultPrice
+                .multiply(BigDecimal.valueOf(100).subtract(discountPercent))
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 }
