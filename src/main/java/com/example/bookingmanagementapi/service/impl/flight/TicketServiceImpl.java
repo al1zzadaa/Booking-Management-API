@@ -127,9 +127,9 @@ public class TicketServiceImpl implements TicketService {
             totalBookingPrice = calculateTotalPrice(ticketRequest, flightEntity);
 
             TicketEntity ticket = TicketEntity.builder()
-                    .user(userEntity)
-                    .account(accountEntity)
-                    .flight(flightEntity)
+//                    .user(userEntity)
+//                    .account(accountEntity)
+//                    .flight(flightEntity)
                     .seat(seatEntity)
                     .price(totalBookingPrice)
                     .fareBaggage(policy)
@@ -339,7 +339,7 @@ public class TicketServiceImpl implements TicketService {
             ticket.setStatus(TicketStatus.CONFIRMED);
 
             loyaltyPointService.earnPoints(
-                    ticket.getUser().getId(),
+                    flightBooking.getUser().getId(),
                     ticket.getPrice(),
                     "Points earned from ticket payment"
             );

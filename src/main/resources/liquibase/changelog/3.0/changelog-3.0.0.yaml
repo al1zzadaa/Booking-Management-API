@@ -10,6 +10,12 @@ databaseChangeLog:
                   name: price
                   type: DECIMAL(19,2)
 
+      rollback:
+        - dropColumn:
+            tableName: seats
+            columnName: price
+
+
   - changeSet:
       id: set-default-seat-price
       author: sadigalizada
@@ -21,6 +27,15 @@ databaseChangeLog:
                   name: price
                   valueNumeric: 100.00
 
+      rollback:
+        - update:
+            tableName: seats
+            columns:
+              - column:
+                  name: price
+                  valueNumeric: null
+
+
   - changeSet:
       id: make-seat-price-not-null
       author: sadigalizada
@@ -30,6 +45,13 @@ databaseChangeLog:
             columnName: price
             columnDataType: DECIMAL(19,2)
 
+      rollback:
+        - dropNotNullConstraint:
+            tableName: seats
+            columnName: price
+            columnDataType: DECIMAL(19,2)
+
+
   - changeSet:
       id: remove-flight-price
       author: sadigalizada
@@ -37,3 +59,11 @@ databaseChangeLog:
         - dropColumn:
             tableName: flights
             columnName: price
+
+      rollback:
+        - addColumn:
+            tableName: flights
+            columns:
+              - column:
+                  name: price
+                  type: DECIMAL(19,2)

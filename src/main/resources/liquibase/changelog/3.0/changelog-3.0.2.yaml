@@ -11,5 +11,19 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: true
-                    foreignKeyName: fk_subscription_auto_renew_account
-                    references: accounts(id)
+
+        - addForeignKeyConstraint:
+            baseTableName: subscriptions
+            baseColumnNames: auto_renew_account_id
+            referencedTableName: accounts
+            referencedColumnNames: id
+            constraintName: fk_subscription_auto_renew_account
+
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: subscriptions
+            constraintName: fk_subscription_auto_renew_account
+
+        - dropColumn:
+            tableName: subscriptions
+            columnName: auto_renew_account_id

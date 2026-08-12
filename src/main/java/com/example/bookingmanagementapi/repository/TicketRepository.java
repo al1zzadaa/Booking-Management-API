@@ -11,9 +11,10 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<TicketEntity,Long>,
                                             JpaSpecificationExecutor<TicketEntity> {
-    List<TicketEntity> findAllByUserIdAndAccountIdAndFlightIdAndStatus(
-            Long userId,
-            Long accountId,
-            Long flightId,
-            TicketStatus status
-    );}
+//    List<TicketEntity> findAllByUserIdAndAccountIdAndFlightIdAndStatus(
+//            Long userId,
+//            Long accountId,
+//            Long flightId,
+//            TicketStatus status
+//    );
+    }

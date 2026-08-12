@@ -25,10 +25,6 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
     private Integer percent50;
     @Value("${percent70}")
     private Integer percent70;
-//    @Value("${adultPrice}")
-//    private Integer adultPrice;
-//    @Value("${childPrice}")
-//    private Integer childPrice;
     @Value("${booking.children.infant-max-age}")
     private Integer infantMaxAge;
     @Value("${booking.children.infant-discount-percent}")

@@ -67,6 +67,23 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_flight_booking_flight
 
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: flight_bookings
+            constraintName: fk_flight_booking_user
+
+        - dropForeignKeyConstraint:
+            baseTableName: flight_bookings
+            constraintName: fk_flight_booking_account
+
+        - dropForeignKeyConstraint:
+            baseTableName: flight_bookings
+            constraintName: fk_flight_booking_flight
+
+        - dropTable:
+            tableName: flight_bookings
+
+
   - changeSet:
       id: add-flight-booking-to-tickets
       author: sadigalizada
@@ -85,3 +102,12 @@ databaseChangeLog:
             referencedTableName: flight_bookings
             referencedColumnNames: id
             constraintName: fk_ticket_flight_booking
+
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableName: tickets
+            constraintName: fk_ticket_flight_booking
+
+        - dropColumn:
+            tableName: tickets
+            columnName: flight_booking_id
