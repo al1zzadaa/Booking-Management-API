@@ -3,20 +3,14 @@ package com.example.bookingmanagementapi.service.impl;
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.*;
-import com.example.bookingmanagementapi.enums.Currency;
-import com.example.bookingmanagementapi.enums.PaymentStatus;
-import com.example.bookingmanagementapi.enums.ReferenceType;
-import com.example.bookingmanagementapi.enums.TransactionType;
+import com.example.bookingmanagementapi.enums.*;
 import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.PaymentAlreadyCompletedException;
 import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
 import com.example.bookingmanagementapi.repository.*;
-import com.example.bookingmanagementapi.service.ConvertService;
-import com.example.bookingmanagementapi.service.PromoCodeService;
-import com.example.bookingmanagementapi.service.TransactionService;
-import com.example.bookingmanagementapi.service.UserPromoCodeService;
+import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserPromoCodeService userPromoCodeService;
     private final FlightBookingRepository flightBookingRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final LoyaltyPointService loyaltyPointService;
 
     @Override
     public void createTransaction(TransactionRequest transactionRequest) {
@@ -122,7 +117,16 @@ public class TransactionServiceImpl implements TransactionService {
                 finalAmount,
                 null
         );
-//
+
+        Integer points = paymentRequest.getLoyaltyPointsToUse();
+
+        if (points != null) {
+            loyaltyPointService.usePoints(
+                    account.getId(),
+                    points,
+                    "Points used for flight ticket payment"
+            );
+        }
 //        AccountEntity account = ticketAndBookingPaymentDuplicate(
 //                paymentRequest.getAccountId(),
 //                ticket.getPrice(),
@@ -142,7 +146,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
-                .paymentMethod(paymentRequest.getPaymentMethod())
+                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for ticket")
                 .referenceId(flightBookingId)
@@ -307,7 +311,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.HOTEL_BOOKING)
-                .paymentMethod(paymentRequest.getPaymentMethod())
+                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for booking")
                 .referenceId(booking.getId())
@@ -373,7 +377,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.SUBSCRIPTION)
-                .paymentMethod(subscriptionRequest.getPaymentMethod())
+                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for subscription")
                 .referenceId(subscriptionRequest.getPlanId())
@@ -399,7 +403,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .account(account)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .referenceType(ReferenceType.SUBSCRIPTION)
-                .paymentMethod(subscriptionRequest.getPaymentMethod())
+                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for subscription renewal")
                 .referenceId(subscriptionId)

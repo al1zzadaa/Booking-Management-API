@@ -17,6 +17,4 @@ public class SubscriptionRequest {
     private Long userId;
     private Long planId;
     private Long accountId;
-    @NotNull
-    private PaymentMethods paymentMethod;
 }

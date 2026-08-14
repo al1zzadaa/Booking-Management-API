@@ -33,4 +33,6 @@ public interface LoyaltyPointService {
             BigDecimal amount,
             String description
     );
+
+    void usePoints(Long accountId, Integer points, String description);
 }

@@ -2,20 +2,30 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.LoyaltyPointRequest;
 import com.example.bookingmanagementapi.dto.response.LoyaltyPointResponse;
+import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.LoyaltyPointEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.LoyaltyType;
+import com.example.bookingmanagementapi.exception.NotFoundException;
+import com.example.bookingmanagementapi.exception.ValidationException;
 import com.example.bookingmanagementapi.mapper.LoyaltyPointMapper;
+import com.example.bookingmanagementapi.repository.AccountRepository;
 import com.example.bookingmanagementapi.repository.LoyaltyPointRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.LoyaltyPointService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.support.InterceptingHttpAccessor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +33,7 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
 
     private final LoyaltyPointRepository loyaltyPointRepository;
     private final LoyaltyPointMapper loyaltyPointMapper;
+    private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     @Value("${loyalty.earning-rate}")
     private BigDecimal earningRate;
@@ -31,28 +42,25 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
     private BigDecimal pointValue;
 
     @Override
-    public void addPoints(LoyaltyPointRequest loyaltyPointRequest) {
-
-        UserEntity user = userRepository.findById(loyaltyPointRequest.getUserId())
-                .orElseThrow(null);
-
-        LoyaltyPointEntity loyaltyPointEntity = LoyaltyPointEntity.builder()
-                .points(loyaltyPointRequest.getPoints())
-                .user(user)
-                .description(loyaltyPointRequest.getDescription())
-                .type(LoyaltyType.EARN)
-                .build();
-
-
-        loyaltyPointRepository.save(loyaltyPointEntity);
+    public void addPoints(LoyaltyPointRequest request) {
+        savePoints(request, LoyaltyType.EARN);
     }
 
     @Override
-    public void removePoints(LoyaltyPointRequest loyaltyPointRequest) {
-        LoyaltyPointEntity loyaltyPointEntity = loyaltyPointMapper.toEntity(loyaltyPointRequest);
+    public void removePoints(LoyaltyPointRequest request) {
+        savePoints(request, LoyaltyType.SPEND);
+    }
 
-        loyaltyPointEntity.setType(LoyaltyType.SPEND);
+    private void savePoints(LoyaltyPointRequest request, LoyaltyType type) {
+        UserEntity user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
+        LoyaltyPointEntity loyaltyPointEntity = LoyaltyPointEntity.builder()
+                .points(request.getPoints())
+                .user(user)
+                .description(request.getDescription())
+                .type(type)
+                .build();
 
         loyaltyPointRepository.save(loyaltyPointEntity);
     }
@@ -132,5 +140,35 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
                 .build();
 
         removePoints(loyaltyPointRequest);
+    }
+
+
+    @Override
+    @Transactional
+    public void usePoints(Long accountId, Integer points, String description) {
+
+        if (points == null || points <= 0) {
+            throw new ValidationException("Points must be greater than zero");
+        }
+
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        UserEntity user = account.getUser();
+
+        Integer availablePoints = getPoints(user.getId());
+
+        if (points > availablePoints) {
+            throw new ValidationException("Not enough loyalty points");
+        }
+
+        LoyaltyPointEntity loyaltyPoint = LoyaltyPointEntity.builder()
+                .user(user)
+                .points(points)
+                .type(LoyaltyType.USE)
+                .description(description)
+                .build();
+
+        loyaltyPointRepository.save(loyaltyPoint);
     }
 }
