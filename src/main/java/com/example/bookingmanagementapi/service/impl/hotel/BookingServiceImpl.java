@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +84,10 @@ public class BookingServiceImpl implements BookingService {
             throw new CapacityException("People count is more than room capacity");
         }
 
-        int days = booking.getCheckOut().getDayOfMonth() - booking.getCheckIn().getDayOfMonth();
+        long days = ChronoUnit.DAYS.between(
+                booking.getCheckIn().toLocalDate(),
+                booking.getCheckOut().toLocalDate()
+        );
         int adultNumber = booking.getAdultNumber();
 
         BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, booking.getChildrenAges(), roomEntity);
@@ -151,6 +155,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBookingStatus(BookingStatus.CANCELLED);
 
         loyaltyPointService.cancelPoints(
+                booking.getAccount(),
                 booking.getUser().getId(),
                 booking.getTotalPrice(),
                 "Points removed due to booking cancellation"

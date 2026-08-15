@@ -64,16 +64,24 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new InsufficientBalanceException("Insufficient balance");
         }
 
-        transactionService.payForSubscription(subscriptionRequest, subscriptionPlanEntity);
 
         SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
                 .user(user)
                 .subscriptionPlan(subscriptionPlanEntity)
                 .startDate(LocalDate.now())
                 .autoRenewAccount(account)
+                .autoRenew(true)
+                .isActive(true)
                 .endDate(LocalDateTime.now().toLocalDate()
                         .plusDays(subscriptionPlanEntity.getDurationDays()))
                 .build();
+
+
+        transactionService.payForSubscription(
+                subscriptionRequest,
+                subscriptionPlanEntity.getId(),
+                subscriptionPlanEntity,
+                "Payment for subscription");
 
         subscriptionRepository.save(subscriptionEntity);
 
@@ -121,7 +129,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(subscriptionRequest.getUserId(), true);
 
-        transactionService.subscriptionRenew(subscriptionRequest, subscriptionEntity.getId(), subscriptionPlanEntity);
+        transactionService.subscriptionRenew(subscriptionRequest, subscriptionEntity.getId(), subscriptionPlanEntity, "Payment for subscription renewal");
         LocalDate today = LocalDate.now();
 
         subscriptionEntity.setSubscriptionPlan(subscriptionPlanEntity);

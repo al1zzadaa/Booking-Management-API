@@ -36,9 +36,13 @@ public interface TransactionService {
 
     void payForBooking(BookingEntity booking, PaymentRequest paymentRequest);
 
-    void payForSubscription(SubscriptionRequest  subscriptionRequest, SubscriptionPlanEntity subscriptionPlanEntity);
+    void payForSubscription(SubscriptionRequest subscriptionRequest,
+                            Long subscriptionId,
+                            SubscriptionPlanEntity subscriptionPlanEntity,
+                            String description);
 
     void subscriptionRenew(SubscriptionRequest subscriptionRequest,
                            Long subscriptionId,
-                           SubscriptionPlanEntity subscriptionPlanEntity);
+                           SubscriptionPlanEntity subscriptionPlanEntity,
+                           String description);
 }

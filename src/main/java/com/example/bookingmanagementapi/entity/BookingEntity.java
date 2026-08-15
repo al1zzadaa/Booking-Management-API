@@ -34,7 +34,7 @@ public class BookingEntity {
     @JoinColumn(name = "hotel_id", nullable = false)
     private HotelEntity hotel;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id", nullable = false)
     private RoomEntity room;
 

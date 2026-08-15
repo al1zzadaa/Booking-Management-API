@@ -15,9 +15,6 @@ public class DepositRequest {
     @NotNull
     private Long accountId;
 
-    @NotNull
-    private PaymentMethods paymentMethod;
-
     private Currency currency;
 
     private BigDecimal amount;

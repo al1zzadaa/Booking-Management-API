@@ -5,6 +5,7 @@ import com.example.bookingmanagementapi.dto.response.LoyaltyPointResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.LoyaltyPointEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.enums.Currency;
 import com.example.bookingmanagementapi.enums.LoyaltyType;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.ValidationException;
@@ -12,6 +13,7 @@ import com.example.bookingmanagementapi.mapper.LoyaltyPointMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
 import com.example.bookingmanagementapi.repository.LoyaltyPointRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
+import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.LoyaltyPointService;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
     private final LoyaltyPointMapper loyaltyPointMapper;
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final ConvertService convertService;
     @Value("${loyalty.earning-rate}")
     private BigDecimal earningRate;
 
@@ -48,7 +51,7 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
 
     @Override
     public void removePoints(LoyaltyPointRequest request) {
-        savePoints(request, LoyaltyType.SPEND);
+        savePoints(request, LoyaltyType.REMOVE);
     }
 
     private void savePoints(LoyaltyPointRequest request, LoyaltyType type) {
@@ -77,7 +80,7 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
 
         Integer spent = loyaltyPointRepository.sumByUserAndType(
                 userId,
-                LoyaltyType.SPEND
+                LoyaltyType.USE
         );
 
         Integer refunded = loyaltyPointRepository.sumByUserAndType(
@@ -126,12 +129,17 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
         addPoints(loyaltyPointRequest);
     }
 
-    public void cancelPoints(
+    public void cancelPoints(AccountEntity accountEntity,
             Long userId,
             BigDecimal amount,
             String description
     ) {
-        Integer points = calculateEarnedPoints(amount);
+
+        AccountEntity account = accountRepository.findById(accountEntity.getId()).orElseThrow();
+
+        BigDecimal amountCurrencyConvert = convertService.convert(amount, Currency.USD, account.getCurrency());
+
+        Integer points = calculateEarnedPoints(amountCurrencyConvert);
 
         var loyaltyPointRequest = LoyaltyPointRequest.builder()
                 .userId(userId)
@@ -170,5 +178,14 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
                 .build();
 
         loyaltyPointRepository.save(loyaltyPoint);
+    }
+
+    public BigDecimal pointValue(Integer points) {
+
+        if (points == null || points <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return pointValue.multiply(BigDecimal.valueOf(points));
     }
 }

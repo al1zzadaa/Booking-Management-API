@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.LoyaltyPointRequest;
 import com.example.bookingmanagementapi.dto.response.LoyaltyPointResponse;
+import com.example.bookingmanagementapi.entity.AccountEntity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,11 +29,13 @@ public interface LoyaltyPointService {
             String description
     );
 
-    void cancelPoints(
-            Long userId,
-            BigDecimal amount,
-            String description
+    void cancelPoints(AccountEntity account,
+                      Long userId,
+                      BigDecimal amount,
+                      String description
     );
 
     void usePoints(Long accountId, Integer points, String description);
+
+    BigDecimal pointValue(Integer pointsAsAmount);
 }

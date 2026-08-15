@@ -107,7 +107,7 @@ public class TicketAndBookingLogicsImpl implements TicketAndBookingLogics {
 //    }
 
     @Override
-    public BigDecimal getTotalPrice(Integer days,
+    public BigDecimal getTotalPrice(Long days,
                                     Integer adultNumber,
                                     List<Integer> childrenAges,
                                     RoomEntity room) {

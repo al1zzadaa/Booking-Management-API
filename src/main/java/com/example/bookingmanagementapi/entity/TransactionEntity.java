@@ -1,9 +1,6 @@
 package com.example.bookingmanagementapi.entity;
 
-import com.example.bookingmanagementapi.enums.PaymentMethods;
-import com.example.bookingmanagementapi.enums.PaymentStatus;
-import com.example.bookingmanagementapi.enums.ReferenceType;
-import com.example.bookingmanagementapi.enums.TransactionType;
+import com.example.bookingmanagementapi.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,6 +38,13 @@ public class TransactionEntity {
 
     @Column(nullable = false)
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
+
+    @Column(name = "amount_in_usd", nullable = false, precision = 19, scale = 2)
+    private BigDecimal amountInUsd;
 
     @Column(nullable = false)
     private String description;

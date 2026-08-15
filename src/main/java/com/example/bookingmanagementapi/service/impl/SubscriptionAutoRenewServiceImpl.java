@@ -45,15 +45,8 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
                     SubscriptionRequest request =
                             SubscriptionRequest.builder()
                                     .userId(subscription.getUser().getId())
-                                    .accountId(
-                                            subscription.getAutoRenewAccount().getId()
-                                    )
-                                    .planId(
-                                            subscription.getSubscriptionPlan().getId()
-                                    )
-                                    .paymentMethod(
-                                            PaymentMethods.ACCOUNT_BALANCE
-                                    )
+                                    .accountId(subscription.getAutoRenewAccount().getId())
+                                    .planId(subscription.getSubscriptionPlan().getId())
                                     .build();
 
                     subscriptionService.renew(request);

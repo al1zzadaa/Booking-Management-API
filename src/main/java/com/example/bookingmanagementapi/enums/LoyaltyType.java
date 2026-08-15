@@ -1,5 +1,5 @@
 package com.example.bookingmanagementapi.enums;
 
 public enum LoyaltyType {
-    EARN, SPEND, REFUND, USE
+    EARN, REFUND, USE, REMOVE
 }

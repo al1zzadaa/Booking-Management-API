@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-currency-and-amount-in-usd-to-transactions
+      author: sadigalizada
+      changes:
+        - addColumn:
+            tableName: transactions
+            columns:
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+
+              - column:
+                  name: amount_in_usd
+                  type: DECIMAL(19, 2)
+
+      rollback:
+        - dropColumn:
+            tableName: transactions
+            columnName: currency
+
+        - dropColumn:
+            tableName: transactions
+            columnName: amount_in_usd

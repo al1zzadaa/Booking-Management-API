@@ -22,10 +22,25 @@ public class JwtServiceImpl implements JwtService {
     private long refreshExpirationDays;
     private final SecretKey key;
 
-    public JwtServiceImpl() {
-        String secret = "SADIG_SECRET_KEY_FOR_TEST_PROJECT_IN_MATRIX";
+    public JwtServiceImpl(@Value("${jwt.secret}") String secret) {
+//        String secret = "SADIG_SECRET_KEY_FOR_TEST_PROJECT_IN_MATRIX";
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
+//    private final long accessExpirationMinutes;
+//    private final long refreshExpirationDays;
+//    private final SecretKey key;
+//
+//    public JwtServiceImpl(
+//            @Value("${jwt.secret}") String secret,
+//            @Value("${jwt.access-expiration-minutes}") long accessExpirationMinutes,
+//            @Value("${jwt.refresh-expiration-days}") long refreshExpirationDays) {
+//
+//        this.accessExpirationMinutes = accessExpirationMinutes;
+//        this.refreshExpirationDays = refreshExpirationDays;
+//
+//        // Ensure secret is at least 32 characters long
+//        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+//    }
 
 
     public String generateAccessToken(UserDetails userDetails) {
@@ -56,7 +71,6 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(key)
                 .compact();
     }
-
 
 
 //    public String generateToken(UserDetails userDetails) {

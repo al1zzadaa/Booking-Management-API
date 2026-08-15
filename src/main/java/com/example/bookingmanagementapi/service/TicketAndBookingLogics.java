@@ -17,7 +17,7 @@ public interface TicketAndBookingLogics {
             String alreadyStartedMessage);
 
     BigDecimal getTotalPrice(
-            Integer days,
+            Long days,
             Integer adultNumber,
             List<Integer> childrenAges,
             RoomEntity roomEntity);

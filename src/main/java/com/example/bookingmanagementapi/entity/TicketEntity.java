@@ -33,7 +33,7 @@ public class TicketEntity {
 //    @JoinColumn(name = "flight_id", nullable = false)
 //    private FlightEntity flight;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "seat_id",  nullable = false)
     private SeatEntity seat;
 
