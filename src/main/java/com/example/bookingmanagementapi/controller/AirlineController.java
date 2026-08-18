@@ -34,7 +34,8 @@ public class AirlineController {
     }
 
     @PutMapping("/{id}")
-    public void update(@RequestBody UpdateAirlineRequest updateAirlineRequest, @PathVariable Long id) {
+    public void update(@RequestBody UpdateAirlineRequest updateAirlineRequest,
+                       @PathVariable Long id) {
         airlineService.update(updateAirlineRequest, id);
     }
 

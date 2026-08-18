@@ -9,4 +9,5 @@ public class AirlineFilter {
     public String name;
     public String model;
     public String country;
+
 }

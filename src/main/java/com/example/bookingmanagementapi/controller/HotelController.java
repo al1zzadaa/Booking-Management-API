@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/hotels")
 @RequiredArgsConstructor
@@ -20,27 +18,28 @@ public class HotelController {
     private final HotelService hotelService;
 
     @PostMapping
-    public void createHotel(@RequestBody HotelRequest hotelRequest){
+    public void createHotel(@RequestBody HotelRequest hotelRequest) {
         hotelService.createHotel(hotelRequest);
     }
 
     @GetMapping("/{id}")
-    public HotelResponse getHotelById(@PathVariable Long id){
+    public HotelResponse getHotelById(@PathVariable Long id) {
         return hotelService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public void updateHotel(@RequestBody UpdateHotelRequest updateHotelRequest, @PathVariable Long id){
+    public void updateHotel(@RequestBody UpdateHotelRequest updateHotelRequest,
+                            @PathVariable Long id) {
         hotelService.updateHotel(id, updateHotelRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHotelById(@PathVariable Long id){
+    public void deleteHotelById(@PathVariable Long id) {
         hotelService.deleteHotel(id);
     }
 
     @GetMapping
-    public Page<HotelResponse> getAllHotels(HotelFilter hotelFilter, Pageable pageable){
+    public Page<HotelResponse> getAllHotels(HotelFilter hotelFilter, Pageable pageable) {
         return hotelService.findAll(hotelFilter, pageable);
     }
 }

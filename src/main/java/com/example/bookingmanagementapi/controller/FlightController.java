@@ -1,6 +1,5 @@
 package com.example.bookingmanagementapi.controller;
 
-
 import com.example.bookingmanagementapi.dto.filter.FlightFilter;
 import com.example.bookingmanagementapi.dto.request.FlightRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateFlightRequest;
@@ -34,7 +33,8 @@ public class FlightController {
     }
 
     @PutMapping("/{id}")
-    public void updateFlight(@RequestBody UpdateFlightRequest updateFlightRequest, @PathVariable Long id){
+    public void updateFlight(@RequestBody UpdateFlightRequest updateFlightRequest,
+                             @PathVariable Long id){
         flightService.updateFlight(id, updateFlightRequest);
     }
 

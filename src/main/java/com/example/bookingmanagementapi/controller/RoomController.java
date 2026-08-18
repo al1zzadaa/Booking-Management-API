@@ -20,32 +20,33 @@ public class RoomController {
     private final RoomService roomService;
 
     @PutMapping("/{id}")
-    public void updateRoom(@RequestBody UpdateRoomRequest updateRoomRequest, @PathVariable Long id){
+    public void updateRoom(@RequestBody UpdateRoomRequest updateRoomRequest,
+                           @PathVariable Long id) {
         roomService.updateRoom(id, updateRoomRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRoom(@PathVariable Long id){
+    public void deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
     }
 
     @PostMapping
-    public void createRoom(@RequestBody RoomRequest roomRequest){
+    public void createRoom(@RequestBody RoomRequest roomRequest) {
         roomService.createRoom(roomRequest);
     }
 
     @GetMapping("/{id}")
-    public RoomResponse getRoomById(@PathVariable Long id){
+    public RoomResponse getRoomById(@PathVariable Long id) {
         return roomService.findById(id);
     }
 
     @GetMapping
-    public Page<RoomResponse> getRooms(RoomFilter roomFilter,  Pageable pageable){
-        return roomService.findAll(roomFilter,  pageable);
+    public Page<RoomResponse> getRooms(RoomFilter roomFilter, Pageable pageable) {
+        return roomService.findAll(roomFilter, pageable);
     }
 
     @GetMapping("/number")
-    public RoomResponse findByRoomNo(@RequestParam Integer roomNo){
+    public RoomResponse findByRoomNo(@RequestParam Integer roomNo) {
         return roomService.findByRoomNo(roomNo);
     }
 

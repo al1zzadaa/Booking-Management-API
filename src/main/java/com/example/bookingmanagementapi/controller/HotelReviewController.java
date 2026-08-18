@@ -28,7 +28,8 @@ public class HotelReviewController {
     }
 
     @PutMapping("/{id}")
-    public void updateHotelReview(@RequestBody UpdateHotelReviewRequest updateHotelReviewRequest, @PathVariable Long id) {
+    public void updateHotelReview(@RequestBody UpdateHotelReviewRequest updateHotelReviewRequest,
+                                  @PathVariable Long id) {
         hotelReviewService.updateHotelReview(id, updateHotelReviewRequest);
     }
 

@@ -1,5 +1,6 @@
 package com.example.bookingmanagementapi.service.impl;
 
+import com.example.bookingmanagementapi.dto.response.UserPromoCodeResponse;
 import com.example.bookingmanagementapi.entity.PromoCodeEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.entity.UserPromoCodeEntity;
@@ -7,10 +8,12 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.repository.UserPromoCodeRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
-import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +23,6 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
 
     private final UserRepository userRepository;
     private final PromoCodeRepository promoCodeRepository;
-    private final NotificationService notificationService;
     private final UserPromoCodeRepository userPromoCodeRepository;
 
     @Override
@@ -42,5 +44,26 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
                         .usedAt(LocalDateTime.now())
                         .build()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserPromoCodeResponse> getUserPromoCodes(
+            Long userId,
+            Pageable pageable
+    ) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
+
+        return userPromoCodeRepository
+                .findAllByUserId(userId, pageable)
+                .map(userPromoCode -> UserPromoCodeResponse.builder()
+                        .id(userPromoCode.getId())
+                        .userId(userPromoCode.getUser().getId())
+                        .planId(userPromoCode.getPromoCode().getId())
+                        .usedAt(LocalDateTime.now())
+                        .build()
+                );
     }
 }

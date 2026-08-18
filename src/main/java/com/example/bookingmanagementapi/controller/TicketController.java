@@ -7,6 +7,8 @@ import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.service.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,9 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping
-    public void bookTicket(@RequestBody TicketRequest ticketRequest) {
-        ticketService.book(ticketRequest);
+    public void bookTicket(@RequestBody TicketRequest ticketRequest,
+                           @AuthenticationPrincipal UserDetails userDetails) {
+        ticketService.book(ticketRequest, userDetails.getUsername());
     }
 
     @GetMapping("/{id}")
@@ -43,28 +46,20 @@ public class TicketController {
         ticketService.deleteTicketById(id);
     }
 
-    //    @PostMapping("/pay")
-//    public void payTicket(@RequestParam Long userId,
-//                          @RequestParam List<Long> ticketIds,
-//                          @RequestBody PaymentRequest request) {
-//        ticketService.payTicket(userId, ticketIds, request);
-//    }
     @PostMapping("/flight-bookings/{flightBookingId}/pay")
-    public void payFlightBooking(
-            @RequestParam Long userId,
-            @PathVariable Long flightBookingId,
-            @RequestBody PaymentRequest request
-    ) {
+    public void payFlightBooking(@AuthenticationPrincipal UserDetails userDetails,
+                                 @PathVariable Long flightBookingId,
+                                 @RequestBody PaymentRequest request) {
         ticketService.payTicket(
-                userId,
+                userDetails.getUsername(),
                 flightBookingId,
-                request
-        );
+                request);
     }
 
     @PostMapping("/cancel/{flightBookingId}")
-    public void cancel(@PathVariable Long flightBookingId) {
-        ticketService.cancel(flightBookingId);
+    public void cancel(@AuthenticationPrincipal UserDetails userDetails,
+                       @PathVariable Long flightBookingId) {
+        ticketService.cancel(userDetails.getUsername(), flightBookingId);
     }
 
 }

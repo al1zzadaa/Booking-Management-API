@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-ticket-user-account-flight-columns
+      author: sadigalizada
+      changes:
+
+        - dropColumn:
+            tableName: tickets
+            columnName: user_id
+
+        - dropColumn:
+            tableName: tickets
+            columnName: account_id
+
+        - dropColumn:
+            tableName: tickets
+            columnName: flight_id
+
+      rollback:
+
+        - addColumn:
+            tableName: tickets
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: flight_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false

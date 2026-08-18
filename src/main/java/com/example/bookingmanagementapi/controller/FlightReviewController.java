@@ -24,7 +24,8 @@ public class FlightReviewController {
     }
 
     @PutMapping("/{id}")
-    public void updateFlightReview(@RequestBody UpdateFlightReviewRequest updateFlightReviewRequest, @PathVariable Long id) {
+    public void updateFlightReview(@RequestBody UpdateFlightReviewRequest updateFlightReviewRequest,
+                                   @PathVariable Long id) {
         flightReviewService.updateFlightReview(id, updateFlightReviewRequest);
     }
 

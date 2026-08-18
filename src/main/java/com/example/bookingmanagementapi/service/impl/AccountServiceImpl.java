@@ -2,13 +2,15 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.AccountFilter;
 import com.example.bookingmanagementapi.dto.request.AccountRequest;
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateAccountRequest;
 import com.example.bookingmanagementapi.dto.response.AccountResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.AccountStatus;
 import com.example.bookingmanagementapi.enums.Currency;
+import com.example.bookingmanagementapi.exception.AccountBlockedException;
+import com.example.bookingmanagementapi.exception.AccountDeletedException;
+import com.example.bookingmanagementapi.exception.AccountInactiveException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.AccountMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
@@ -19,9 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Service
@@ -44,7 +43,10 @@ public class AccountServiceImpl implements AccountService {
         if(!accountRepository.existsById(id)){
             throw new NotFoundException("Account not found");
         }
-        accountRepository.deleteById(id);
+        AccountEntity currentAccount = accountRepository.findById(id).orElseThrow();
+
+        currentAccount.setStatus(AccountStatus.DELETED);
+        accountRepository.save(currentAccount);
     }
 
     @Override
@@ -109,7 +111,24 @@ public class AccountServiceImpl implements AccountService {
                 .user(user)
                 .currency(currency)
                 .build();
+    }
 
+    @Override
+    public void validateAccountCanBook(Long accountId) {
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        if (account.getStatus().equals(AccountStatus.DELETED)) {
+            throw new AccountDeletedException("This account has been deleted");
+        }
+
+        if (account.getStatus().equals(AccountStatus.BLOCKED)) {
+            throw new AccountBlockedException("This account has been blocked");
+        }
+
+        if (account.getStatus().equals(AccountStatus.INACTIVE)){
+            throw new AccountInactiveException("This account is not active");
+        }
     }
 
 }

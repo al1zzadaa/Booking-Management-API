@@ -20,6 +20,4 @@ public interface HotelService {
     Page<@NonNull HotelResponse> findAll(HotelFilter hotelFilter, Pageable pageable);
 
     HotelResponse findById(Long id);
-
-//    boolean existsById(Long hotelId, Integer);
 }

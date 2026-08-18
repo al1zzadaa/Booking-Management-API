@@ -23,7 +23,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService, CustomU
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         var roles = userEntity.getRoles().stream()
-                .map(it -> new SimpleGrantedAuthority(it.name()))
+                .map(role -> new SimpleGrantedAuthority(role.name()))
                 .toList();
 
         return new CustomUserDetails(

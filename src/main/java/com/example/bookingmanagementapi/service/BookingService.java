@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface BookingService {
 
-    void bookHotel(BookingRequest bookingRequest);
+    void bookHotel(String username,BookingRequest bookingRequest);
 
     void updateBooking(UpdateBookingRequest updateBookingRequest, Long id);
 
@@ -24,7 +24,7 @@ public interface BookingService {
 
     void cancelBooking(Long bookingId);
 
-    void payBooking(Long bookingId, PaymentRequest request);
+    void payBooking(String username, Long bookingId, PaymentRequest request);
 
-    void cancel(Long bookingId);
+    void cancel(String username,Long bookingId);
 }

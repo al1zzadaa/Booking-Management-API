@@ -10,7 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class TicketRequest {
-    private Long userId;
     private Long accountId;
     private Long flightId;
     private List<PassengerRequest> passengers;

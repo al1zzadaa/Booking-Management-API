@@ -21,7 +21,6 @@ public interface LoyaltyPointService {
 
     int calculateEarnedPoints(BigDecimal amount);
 
-//    int calculateRemovedPoints(BigDecimal amount);
 
     void earnPoints(
             Long userId,

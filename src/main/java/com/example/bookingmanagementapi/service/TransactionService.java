@@ -14,7 +14,6 @@ import java.util.List;
 
 public interface TransactionService {
 
-    void createTransaction(TransactionRequest transactionRequest);
 
     void updateTransaction(UpdateTransactionRequest updateTransactionRequest, Long transactionId);
 

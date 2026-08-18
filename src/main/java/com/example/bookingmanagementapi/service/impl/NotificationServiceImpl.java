@@ -3,16 +3,14 @@ package com.example.bookingmanagementapi.service.impl;
 import com.example.bookingmanagementapi.dto.request.MailRequest;
 import com.example.bookingmanagementapi.dto.request.NotificationRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
-import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.NotificationEntity;
-import com.example.bookingmanagementapi.entity.TicketEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.NotificationType;
+import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.NotificationMapper;
 import com.example.bookingmanagementapi.repository.NotificationRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
-import com.example.bookingmanagementapi.service.BookingService;
 import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.awt.print.Book;
 
 @Service
 @RequiredArgsConstructor
@@ -61,10 +57,18 @@ public class NotificationServiceImpl implements NotificationService {
 //        notificationRepository.save(notificationEntity);
 //    }
 
+    private void verifyUser(Long userId, NotificationEntity notificationEntity) {
+        if (!notificationEntity.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You cannot access this notification");
+        }
+    }
+
     @Override
-    public NotificationResponse getById(Long id) {
+    public NotificationResponse getById(Long id, Long userId) {
         NotificationEntity notificationEntity = notificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
+
+        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
 
         return notificationMapper.toDto(notificationEntity);
     }
@@ -88,14 +92,16 @@ public class NotificationServiceImpl implements NotificationService {
 //        notificationRepository.save(notificationEntity);
 //    }
 //
-//    @Override
-//    public void delete(Long id) {
-//
-//        NotificationEntity notificationEntity = notificationRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException("Notification Not Found"));
-//
-//        notificationRepository.deleteById(notificationEntity.getId());
-//    }
+    @Override
+    public void delete(Long notificationId, Long userId) {
+
+        NotificationEntity notificationEntity = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotFoundException("Notification Not Found"));
+
+        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
+
+        notificationRepository.deleteById(notificationEntity.getId());
+    }
 
     @Transactional
     @Override
@@ -120,10 +126,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void markAsRead(Long notificationId) {
+    public void markAsRead(Long notificationId, Long userId) {
         NotificationEntity notificationEntity = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
 
+        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
         notificationEntity.setRead(true);
 
         notificationRepository.save(notificationEntity);

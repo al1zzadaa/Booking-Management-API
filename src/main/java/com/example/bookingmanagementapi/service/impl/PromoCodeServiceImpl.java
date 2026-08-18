@@ -1,5 +1,6 @@
 package com.example.bookingmanagementapi.service.impl;
 
+import com.example.bookingmanagementapi.dto.filter.PromoCodeFilter;
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
 import com.example.bookingmanagementapi.dto.request.UpdatePromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
@@ -11,7 +12,10 @@ import com.example.bookingmanagementapi.mapper.PromoCodeMapper;
 import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.service.PromoCodeService;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
+import com.example.bookingmanagementapi.service.specifications.PromoCodeSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,10 +47,13 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public List<PromoCodeResponse> getAll() {
-        List<PromoCodeEntity> promoCodeEntities = promoCodeRepository.findAll();
+    public Page<PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable) {
 
-        return promoCodeMapper.toDto(promoCodeEntities);
+        var specification = new PromoCodeSpecification(promoCodeFilter);
+
+        Page<PromoCodeEntity> promoCodeEntities = promoCodeRepository.findAll(specification, pageable);
+
+        return promoCodeEntities.map(promoCodeMapper::toDto);
     }
 
     @Override

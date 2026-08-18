@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class BookingRequest {
-    private Long userId;
     private Long accountId;
     private Long hotel;
     private Long room;

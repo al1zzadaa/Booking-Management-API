@@ -17,5 +17,4 @@ public class AdminController {
     public void makeAdmin(PrivilegeRequest privilegeRequest) {
         adminService.makeAdmin(privilegeRequest);
     }
-
 }

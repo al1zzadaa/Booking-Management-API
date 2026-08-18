@@ -28,7 +28,8 @@ public class FareBaggageController {
     }
 
     @PutMapping("/{id}")
-    public void updateFareBaggage(@RequestBody UpdateFareBaggageRequest updateFareBaggageRequest, @PathVariable Long id) {
+    public void updateFareBaggage(@RequestBody UpdateFareBaggageRequest updateFareBaggageRequest,
+                                  @PathVariable Long id) {
         fareBaggageService.updateFareBaggageById(updateFareBaggageRequest, id);
     }
 
@@ -41,8 +42,5 @@ public class FareBaggageController {
     public List<FareBaggageResponse> getAll(FareBaggageFilter fareBaggageFilter) {
         return fareBaggageService.getAll(fareBaggageFilter);
     }
-
-
-
 
 }

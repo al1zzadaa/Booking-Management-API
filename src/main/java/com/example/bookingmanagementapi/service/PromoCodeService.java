@@ -1,5 +1,6 @@
 package com.example.bookingmanagementapi.service;
 
+import com.example.bookingmanagementapi.dto.filter.PromoCodeFilter;
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
 import com.example.bookingmanagementapi.dto.request.UpdatePromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
@@ -7,6 +8,8 @@ import com.example.bookingmanagementapi.entity.PromoCodeEntity;
 import com.example.bookingmanagementapi.enums.DiscountType;
 import com.example.bookingmanagementapi.exception.BadRequestException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,7 +21,7 @@ public interface PromoCodeService {
 
     PromoCodeResponse getById(Long id);
 
-    List<PromoCodeResponse> getAll();
+    Page<PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable);
 
     void deleteById(Long id);
 

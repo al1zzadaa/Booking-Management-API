@@ -11,17 +11,13 @@ import java.util.List;
 
 public interface TicketService {
 
-    void book(TicketRequest ticketRequest);
+    void book(TicketRequest ticketRequest, String username);
 
-//    void payTicket(Long userId,
-//                    List<Long> ticketIds,
-//                    PaymentRequest request);
-
-    void payTicket(Long userId,
+    void payTicket(String username,
                     Long flightBookingId,
                     PaymentRequest request);
 
-    void cancel(Long flightBookingId);
+    void cancel(String username, Long flightBookingId);
 
     List<TicketResponse> findAll(TicketFilter ticketFilter);
 

@@ -6,6 +6,7 @@ import com.example.bookingmanagementapi.dto.request.UpdateNotificationRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
 import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,17 +16,17 @@ public interface NotificationService {
 
 //    void create(NotificationRequest notificationRequest);
 
-    NotificationResponse getById(Long id);
+    NotificationResponse getById(Long id, Long userId);
 
-    Page<NotificationResponse> getAll(Long userId, Pageable pageable);
+    Page<NotificationResponse> getAll(Long userId,  Pageable pageable);
 
 //    void update(Long id, UpdateNotificationRequest updateNotificationRequest);
 //
-//    void delete(Long id);
+    void delete(Long notificationId, Long userId);
 
     void send(Long userId, NotificationRequest notificationRequest);
 
-    void markAsRead(Long notificationId);
+    void markAsRead(Long notificationId, Long userId);
 
     Page<NotificationResponse> getUnreadNotifications(Long userId,  Pageable pageable);
 

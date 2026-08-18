@@ -82,7 +82,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactionRepository.existsByReferenceIdAndReferenceTypeAndPaymentStatus(
                 referenceId,
                 referenceType,
-                PaymentStatus.SUCCESS)) {
+                PaymentStatus.PAID)) {
             throw new PaymentAlreadyCompletedException("Payment is already paid");
         }
     }
@@ -149,7 +149,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .amountInUsd(paymentResult.finalAmountInUsd())
                 .currency(paymentResult.account().getCurrency())
                 .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceType(ReferenceType.FLIGHT_TICKET)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for ticket")
@@ -252,7 +252,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .type(TransactionType.WITHDRAW)
                 .description("Withdraw")
                 .referenceType(ReferenceType.ACCOUNT)
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceId(accountEntity.getId())
                 .build();
 
@@ -300,7 +300,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .type(TransactionType.DEPOSIT)
                 .description("Deposit")
                 .referenceType(ReferenceType.ACCOUNT)
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceId(accountEntity.getId())
                 .build();
 
@@ -381,7 +381,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .amountInUsd(paymentResult.finalAmountInUsd())
                 .currency(paymentResult.account().getCurrency())
                 .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceType(ReferenceType.HOTEL_BOOKING)
                 .type(TransactionType.PAYMENT)
                 .description("Payment for booking")
@@ -478,7 +478,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .amountInUsd(paymentResult.finalAmountInUsd())
                 .account(paymentResult.account())
                 .currency(paymentResult.account().getCurrency())
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceType(ReferenceType.SUBSCRIPTION)
                 .type(TransactionType.PAYMENT)
                 .description(description)
@@ -507,7 +507,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .amountInUsd(paymentResult.finalAmountInUsd())
                 .currency(paymentResult.account().getCurrency())
                 .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(PaymentStatus.PAID)
                 .referenceType(ReferenceType.SUBSCRIPTION)
                 .type(TransactionType.PAYMENT)
                 .description(description)

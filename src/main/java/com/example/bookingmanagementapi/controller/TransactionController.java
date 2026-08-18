@@ -1,10 +1,14 @@
 package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.request.DepositRequest;
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
+import com.example.bookingmanagementapi.dto.response.TransactionResponse;
+import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,5 +26,24 @@ public class TransactionController {
     @PostMapping("/withdraw")
     public void withdraw(@RequestBody WithdrawRequest withdrawRequest) {
         transactionService.withdraw(withdrawRequest);
+    }
+
+    @GetMapping
+    public Page<TransactionResponse> getMyTransactions(
+            @AuthenticationPrincipal CustomUserDetails user,
+            Pageable pageable
+    ) {
+        return transactionService.getTransactionsByUserId(
+                user.getId(),
+                pageable
+        );
+    }
+
+    @GetMapping("/{id}")
+    public TransactionResponse getTransactionById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return transactionService.getTransactionById(id);
     }
 }

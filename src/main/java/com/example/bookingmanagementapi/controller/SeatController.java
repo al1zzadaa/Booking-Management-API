@@ -20,28 +20,29 @@ public class SeatController {
 
 
     @PutMapping("/{id}")
-    public void updateSeat(@RequestBody UpdateSeatRequest updateSeatRequest, @PathVariable Long id){
+    public void updateSeat(@RequestBody UpdateSeatRequest updateSeatRequest,
+                           @PathVariable Long id) {
         seatService.updateSeat(id, updateSeatRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSeat(@PathVariable Long id){
+    public void deleteSeat(@PathVariable Long id) {
         seatService.deleteSeat(id);
     }
 
     @PostMapping
-    public void createSeat(@RequestBody SeatRequest seatRequest){
+    public void createSeat(@RequestBody SeatRequest seatRequest) {
         seatService.createSeat(seatRequest);
     }
 
     @GetMapping("/{id}")
-    public SeatResponse getSeatById(@PathVariable Long id){
+    public SeatResponse getSeatById(@PathVariable Long id) {
         return seatService.getSeat(id);
     }
 
     @GetMapping
-    public Page<@NonNull SeatResponse> getSeats(SeatFilter seatFilter, Pageable pageable){
-        return seatService.getSeats(seatFilter,  pageable);
+    public Page<@NonNull SeatResponse> getSeats(SeatFilter seatFilter, Pageable pageable) {
+        return seatService.getSeats(seatFilter, pageable);
     }
 
 }

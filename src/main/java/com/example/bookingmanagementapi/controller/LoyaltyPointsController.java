@@ -2,8 +2,10 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.request.LoyaltyPointRequest;
 import com.example.bookingmanagementapi.dto.response.LoyaltyPointResponse;
+import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.LoyaltyPointService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,14 +27,14 @@ public class LoyaltyPointsController {
         loyaltyPointService.removePoints(loyaltyPointRequest);
     }
 
-    @GetMapping("/history/{id}")
-    public List<LoyaltyPointResponse> getPointsByUser(@PathVariable Long id) {
-        return loyaltyPointService.getHistory(id);
+    @GetMapping
+    public Integer getPoints(@AuthenticationPrincipal CustomUserDetails user) {
+        return loyaltyPointService.getPoints(user.getId());
     }
 
-    @GetMapping("/{userId}")
-    public Integer getPoints(@PathVariable Long userId){
-        return loyaltyPointService.getPoints(userId);
+    @GetMapping("/history")
+    public List<LoyaltyPointResponse> getHistory(@AuthenticationPrincipal CustomUserDetails user) {
+        return loyaltyPointService.getHistory(user.getId());
     }
 
 }

@@ -44,14 +44,17 @@ public class BookingServiceImpl implements BookingService {
     private final TicketAndBookingLogics ticketAndBookingLogics;
     private final LoyaltyPointService loyaltyPointService;
     private final ApplicationEventPublisher eventPublisher;
+    private final AccountService accountService;
 
     @Override
-    public void bookHotel(BookingRequest booking) {
+    @Transactional
+    public void bookHotel(String username,BookingRequest booking) {
 
-        validationUtil.validateId(booking.getUserId());
+//        validationUtil.validateId(booking.getUserId());
         validationUtil.validateId(booking.getAccountId());
 
-        UserEntity userEntity = userRepository.findById(booking.getUserId()).orElseThrow(null);
+        UserEntity userEntity = userRepository
+                .findByEmail(username).orElseThrow(null);
 
         AccountEntity accountEntity = accountRepository.findById(booking.getAccountId()).orElseThrow(null);
 
@@ -59,8 +62,12 @@ public class BookingServiceImpl implements BookingService {
 
         RoomEntity roomEntity = roomRepository.findById(booking.getRoom()).orElseThrow(null);
 
-        userService.validateUserCanBook(booking.getUserId());
+        userService.validateUserCanBook(userEntity.getId());
+        accountService.validateAccountCanBook(booking.getAccountId());
 
+        if (!accountEntity.getUser().getId().equals(userEntity.getId())) {
+            throw new AccessDeniedException("Account does not belong to user");
+        }
 
         if (!roomEntity.getHotel().getId().equals(hotelEntity.getId())) {
             throw new ValidationException("Room does not belong to the hotel");
@@ -112,11 +119,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public void payBooking(Long bookingId, PaymentRequest request) {
+    public void payBooking(String username, Long bookingId, PaymentRequest request) {
+
+
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
 
         BookingEntity booking = bookingRepository.findById(bookingId)
                 .orElseThrow(null);
 
+
+        if (!booking.getUser().getId().equals(user.getId())) {
+            throw new ValidationException(
+                    "Flight booking does not belong to user"
+            );
+        }
         transactionService.payForBooking(booking, request);
 
         booking.setBookingStatus(BookingStatus.CONFIRMED);
@@ -130,19 +148,26 @@ public class BookingServiceImpl implements BookingService {
 
 //        notificationService.sendBookingPaymentNotification(booking);
         eventPublisher.publishEvent(
-                new BookingPaymentEvent(booking.getUser().getId())
+                new BookingPaymentEvent(user.getId())
         );
     }
 
     @Override
     @Transactional
-    public void cancel(Long bookingId) {
+    public void cancel(String username, Long bookingId) {
 
         validationUtil.validateId(bookingId);
+
+        UserEntity userEntity = userRepository
+                .findByEmail(username).orElseThrow(null);
+
 
         BookingEntity booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("ticket not found"));
 
+        if (!booking.getUser().getId().equals(userEntity.getId())) {
+            throw new AccessDeniedException("Account does not belong to user");
+        }
 
         if (booking.getBookingStatus() != BookingStatus.CONFIRMED) {
             throw new ValidationException("booking not paid");

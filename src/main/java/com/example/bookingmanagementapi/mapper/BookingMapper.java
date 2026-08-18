@@ -13,7 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
 
-    @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "hotel", target = "hotel.id")
     @Mapping(source = "room", target = "room.id")
     BookingEntity toEntity(BookingRequest bookingRequest);

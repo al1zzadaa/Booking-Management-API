@@ -7,9 +7,9 @@ import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
-import com.example.bookingmanagementapi.enums.Flights;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
+import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.SeatNotAvailable;
 import com.example.bookingmanagementapi.exception.ValidationException;
@@ -40,6 +40,7 @@ public class TicketServiceImpl implements TicketService {
     private final FareBaggageRepository fareBaggageRepository;
     private final ValidationUtil validationUtil;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
@@ -47,14 +48,9 @@ public class TicketServiceImpl implements TicketService {
     private final LoyaltyPointService loyaltyPointService;
     private final ApplicationEventPublisher eventPublisher;
     private final FlightBookingRepository flightBookingRepository;
-    @Value("${booking.children.infant-max-age}")
-    private Integer infantMaxAge;
-    @Value("${booking.children.infant-discount-percent}")
-    private BigDecimal infantDiscountPercent;
+    private final AccountService accountService;
     @Value("${booking.children.young-max-age}")
     private Integer youngChildMaxAge;
-    @Value("${booking.children.young-discount-percent}")
-    private BigDecimal youngChildDiscountPercent;
     @Value("${booking.children.teen-max-age}")
     private Integer teenChildMaxAge;
     @Value("${booking.children.teen-discount-percent}")
@@ -62,14 +58,16 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public void book(TicketRequest ticketRequest) {
+    public void book(
+            TicketRequest ticketRequest,
+            String username) {
 
-        validationUtil.validateId(ticketRequest.getUserId());
-        validationUtil.validateId(ticketRequest.getFlightId());
-        validationUtil.validateId(ticketRequest.getAccountId());
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        UserEntity userEntity = userRepository.findById(ticketRequest.getUserId())
-                .orElseThrow();
+        userService.validateUserCanBook(user.getId());
+        accountService.validateAccountCanBook(ticketRequest.getAccountId());
+
 
         AccountEntity accountEntity = accountRepository.findById(ticketRequest.getAccountId())
                 .orElseThrow();
@@ -80,7 +78,7 @@ public class TicketServiceImpl implements TicketService {
 //        SeatEntity seatEntity = seatRepository.findById(ticketRequest.getPassengers().stream().)
 //                .orElseThrow(() -> new NotFoundException("seat not found"));
 
-        if (!accountEntity.getUser().getId().equals(userEntity.getId())) {
+        if (!accountEntity.getUser().getId().equals(user.getId())) {
             throw new ValidationException("account not owned by user");
         }
 
@@ -89,7 +87,7 @@ public class TicketServiceImpl implements TicketService {
 
 
         FlightBookingEntity flightBooking = FlightBookingEntity.builder()
-                .user(userEntity)
+                .user(user)
                 .account(accountEntity)
                 .flight(flightEntity)
                 .status(TicketStatus.RESERVED)
@@ -148,7 +146,7 @@ public class TicketServiceImpl implements TicketService {
         flightBookingRepository.save(flightBooking);
 
         notificationService.sendBookingNotification(
-                userEntity.getId()
+                user.getId()
         );
 
     }
@@ -304,9 +302,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Transactional
     @Override
-    public void payTicket(Long userId,
+    public void payTicket(String username,
                           Long flightBookingId,
                           PaymentRequest request) {
+
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
 //        TicketEntity ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NotFoundException("Ticket not found"));
 //
 //        FlightEntity flight = flightRepository.findById(ticket.getFlight().getId()).orElseThrow(() -> new NotFoundException("Flight not found"));
@@ -321,7 +323,7 @@ public class TicketServiceImpl implements TicketService {
                         .orElseThrow(() ->
                                 new NotFoundException("Flight booking not found"));
 
-        if (!flightBooking.getUser().getId().equals(userId)) {
+        if (!flightBooking.getUser().getId().equals(user.getId())) {
             throw new ValidationException(
                     "Flight booking does not belong to user"
             );
@@ -364,21 +366,28 @@ public class TicketServiceImpl implements TicketService {
 //        notificationService.sendTicketPaymentNotification(ticket);
 
         eventPublisher.publishEvent(
-                new BookingPaymentEvent(userId)
+                new BookingPaymentEvent(user.getId())
         );
     }
 
     @Override
     @Transactional
-    public void cancel(Long flightBookingId) {
+    public void cancel(String username, Long flightBookingId) {
 
         validationUtil.validateId(flightBookingId);
+
+        UserEntity userEntity = userRepository
+                .findByEmail(username).orElseThrow(null);
 
 
         FlightBookingEntity flightBooking =
                 flightBookingRepository.findById(flightBookingId)
                         .orElseThrow(() ->
                                 new NotFoundException("Flight booking not found"));
+
+        if (!flightBooking.getUser().getId().equals(userEntity.getId())) {
+            throw new AccessDeniedException("Account does not belong to user");
+        }
 
         List<TicketEntity> tickets = flightBooking.getTickets();
 
@@ -402,7 +411,6 @@ public class TicketServiceImpl implements TicketService {
             ticket.setStatus(TicketStatus.CANCELLED);
             ticket.getSeat().setIsAvailable(true);
         }
-
 
 
         notificationService.sendTicketCancellationNotification(flightBooking.getUser().getId());

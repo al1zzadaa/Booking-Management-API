@@ -15,13 +15,14 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/text")
-    public void sendTextEmail(@RequestBody MailRequest mailRequest){
+    public void sendTextEmail(@RequestBody MailRequest mailRequest) {
         emailService.sendTextEmail(mailRequest);
     }
 
     @PostMapping(value = "/attachment",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void sendWithAttachment(@RequestPart("mail") MailRequest mail, @RequestPart("file") MultipartFile file) {
+    public void sendWithAttachment(@RequestPart("mail") MailRequest mail,
+                                   @RequestPart("file") MultipartFile file) {
         emailService.sendEmailWithAttachment(mail, file);
     }
 }

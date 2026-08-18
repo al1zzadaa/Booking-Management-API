@@ -30,5 +30,4 @@ public class FavoriteHotelController {
     public void removeHotel(@PathVariable Long id) {
         favoriteHotelService.removeFavoriteHotel(id);
     }
-
 }

@@ -30,5 +30,5 @@ public interface AccountService {
 
     AccountEntity createDefaultAccount(UserEntity user, Currency currency);
 
-
+    void validateAccountCanBook(Long accountId);
 }

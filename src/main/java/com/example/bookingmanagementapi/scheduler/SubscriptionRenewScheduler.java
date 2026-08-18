@@ -12,7 +12,7 @@ public class SubscriptionRenewScheduler {
     private final SubscriptionService subscriptionService;
     private final SubscriptionAutoRenewService subscriptionAutoRenewService;
 
-    @Scheduled(fixedRate = 60 * 1000)
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     public void runAutoRenew() {
         subscriptionAutoRenewService.autoRenew();
 
