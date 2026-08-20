@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +92,7 @@ public class TicketServiceImpl implements TicketService {
                 .account(accountEntity)
                 .flight(flightEntity)
                 .status(TicketStatus.RESERVED)
+                .paymentDeadline(LocalDateTime.now().plusMinutes(15))
                 .build();
 
         List<TicketEntity> tickets = new ArrayList<>();
@@ -500,5 +502,9 @@ public class TicketServiceImpl implements TicketService {
         }
 
         ticketRepository.deleteById(id);
+    }
+
+    public void expireUnpaidBookings(){
+
     }
 }

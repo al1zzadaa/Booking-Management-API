@@ -49,4 +49,8 @@ public interface NotificationService {
     void sendDisableRenewalNotification(Long  userId);
 
     void sendRenewalNotification(Long  userId);
+
+    void sendFlightExpirationNotification(Long  userId);
+
+    void sendBookingExpirationNotification(Long  userId);
 }

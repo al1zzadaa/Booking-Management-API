@@ -21,5 +21,5 @@ public class PromoCodeFilter {
     private Integer minUsageLimit;
     private Integer maxUsageLimit;
     private Integer usedCount;
-    private Boolean active = true;
+    private Boolean active;
 }

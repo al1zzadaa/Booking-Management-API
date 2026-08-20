@@ -54,6 +54,8 @@ public class BookingEntity {
     @Column(nullable = false)
     private BookingStatus bookingStatus;
 
+    private LocalDateTime paymentDeadline;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

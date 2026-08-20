@@ -4,10 +4,16 @@ import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.PaymentResult;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.*;
-import com.example.bookingmanagementapi.enums.*;
+import com.example.bookingmanagementapi.enums.Currency;
+import com.example.bookingmanagementapi.enums.PaymentStatus;
+import com.example.bookingmanagementapi.enums.ReferenceType;
+import com.example.bookingmanagementapi.enums.TransactionType;
 import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
-import com.example.bookingmanagementapi.repository.*;
+import com.example.bookingmanagementapi.repository.AccountRepository;
+import com.example.bookingmanagementapi.repository.BookingRepository;
+import com.example.bookingmanagementapi.repository.FlightBookingRepository;
+import com.example.bookingmanagementapi.repository.TransactionRepository;
 import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
@@ -31,16 +37,29 @@ public class TransactionServiceImpl implements TransactionService {
     private final ConvertService convert;
     private final PromoCodeService promoCodeService;
     private final BookingRepository bookingRepository;
-    private final TicketRepository ticketRepository;
     private final UserPromoCodeService userPromoCodeService;
     private final FlightBookingRepository flightBookingRepository;
-    private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final LoyaltyPointService loyaltyPointService;
 
-    @Override
-    public void createTransaction(TransactionRequest transactionRequest) {
-        TransactionEntity transactionEntity = transactionMapper.toEntity(transactionRequest);
-        transactionRepository.save(transactionEntity);
+    private void createPayment(
+            PaymentResult paymentResult,
+            ReferenceType referenceType,
+            Long referenceId,
+            String description
+    ) {
+        TransactionEntity transaction = TransactionEntity.builder()
+                .amount(paymentResult.finalAmount())
+                .amountInUsd(paymentResult.finalAmountInUsd())
+                .currency(paymentResult.account().getCurrency())
+                .account(paymentResult.account())
+                .paymentStatus(PaymentStatus.PAID)
+                .referenceType(referenceType)
+                .type(TransactionType.PAYMENT)
+                .description(description)
+                .referenceId(referenceId)
+                .build();
+
+        transactionRepository.save(transaction);
     }
 
     @Override
@@ -144,19 +163,25 @@ public class TransactionServiceImpl implements TransactionService {
         flightBooking.setTotalPrice(paymentResult.finalAmountInUsd());
         flightBookingRepository.save(flightBooking);
 
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(paymentResult.finalAmount())
-                .amountInUsd(paymentResult.finalAmountInUsd())
-                .currency(paymentResult.account().getCurrency())
-                .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.PAID)
-                .referenceType(ReferenceType.FLIGHT_TICKET)
-                .type(TransactionType.PAYMENT)
-                .description("Payment for ticket")
-                .referenceId(flightBookingId)
-                .build();
-
-        transactionRepository.save(transactionEntity);
+        createPayment(
+                paymentResult,
+                ReferenceType.FLIGHT_TICKET,
+                flightBookingId,
+                "Payment for ticket"
+        );
+//        TransactionEntity transactionEntity = TransactionEntity.builder()
+//                .amount(paymentResult.finalAmount())
+//                .amountInUsd(paymentResult.finalAmountInUsd())
+//                .currency(paymentResult.account().getCurrency())
+//                .account(paymentResult.account())
+//                .paymentStatus(PaymentStatus.PAID)
+//                .referenceType(ReferenceType.FLIGHT_TICKET)
+//                .type(TransactionType.PAYMENT)
+//                .description("Payment for ticket")
+//                .referenceId(flightBookingId)
+//                .build();
+//
+//        transactionRepository.save(transactionEntity);
 
 
 //    / /        ticketRepository.saveAll(tickets);
@@ -376,19 +401,26 @@ public class TransactionServiceImpl implements TransactionService {
         booking.setTotalPrice(paymentResult.finalAmountInUsd());
         bookingRepository.save(booking);
 
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(paymentResult.finalAmount())
-                .amountInUsd(paymentResult.finalAmountInUsd())
-                .currency(paymentResult.account().getCurrency())
-                .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.PAID)
-                .referenceType(ReferenceType.HOTEL_BOOKING)
-                .type(TransactionType.PAYMENT)
-                .description("Payment for booking")
-                .referenceId(booking.getId())
-                .build();
+        createPayment(
+                paymentResult,
+                ReferenceType.HOTEL_BOOKING,
+                booking.getId(),
+                "Payment for booking"
+        );
 
-        transactionRepository.save(transactionEntity);
+//        TransactionEntity transactionEntity = TransactionEntity.builder()
+//                .amount(paymentResult.finalAmount())
+//                .amountInUsd(paymentResult.finalAmountInUsd())
+//                .currency(paymentResult.account().getCurrency())
+//                .account(paymentResult.account())
+//                .paymentStatus(PaymentStatus.PAID)
+//                .referenceType(ReferenceType.HOTEL_BOOKING)
+//                .type(TransactionType.PAYMENT)
+//                .description("Payment for booking")
+//                .referenceId(booking.getId())
+//                .build();
+//
+//        transactionRepository.save(transactionEntity);
 
         applyUserPromoCode(
                 booking.getUser().getId(),
@@ -460,10 +492,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public void payForSubscription(SubscriptionRequest subscriptionRequest,
-                                   Long subscriptionId,
-                                   SubscriptionPlanEntity subscriptionPlanEntity,
-                                   String description) {
+    public void processSubscriptionPayment(SubscriptionRequest subscriptionRequest,
+                                           Long subscriptionId,
+                                           SubscriptionPlanEntity subscriptionPlanEntity,
+                                           String description) {
 
         BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
 
@@ -473,49 +505,64 @@ public class TransactionServiceImpl implements TransactionService {
                 null,
                 null);
 
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(paymentResult.finalAmount())
-                .amountInUsd(paymentResult.finalAmountInUsd())
-                .account(paymentResult.account())
-                .currency(paymentResult.account().getCurrency())
-                .paymentStatus(PaymentStatus.PAID)
-                .referenceType(ReferenceType.SUBSCRIPTION)
-                .type(TransactionType.PAYMENT)
-                .description(description)
-                .referenceId(subscriptionId)
-                .build();
+        createPayment(
+                paymentResult,
+                ReferenceType.SUBSCRIPTION,
+                subscriptionId,
+                description
+        );
 
-        transactionRepository.save(transactionEntity);
+//        TransactionEntity transactionEntity = TransactionEntity.builder()
+//                .amount(paymentResult.finalAmount())
+//                .amountInUsd(paymentResult.finalAmountInUsd())
+//                .account(paymentResult.account())
+//                .currency(paymentResult.account().getCurrency())
+//                .paymentStatus(PaymentStatus.PAID)
+//                .referenceType(ReferenceType.SUBSCRIPTION)
+//                .type(TransactionType.PAYMENT)
+//                .description(description)
+//                .referenceId(subscriptionId)
+//                .build();
+//
+//        transactionRepository.save(transactionEntity);
     }
 
-    @Override
-    public void subscriptionRenew(SubscriptionRequest subscriptionRequest,
-                                  Long subscriptionId,
-                                  SubscriptionPlanEntity subscriptionPlanEntity,
-                                  String description) {
-
-        BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
-
-        PaymentResult paymentResult = processAccountPayment(
-                subscriptionRequest.getAccountId(),
-                subscriptionAmount,
-                null,
-                null);
-
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(paymentResult.finalAmount())
-                .amountInUsd(paymentResult.finalAmountInUsd())
-                .currency(paymentResult.account().getCurrency())
-                .account(paymentResult.account())
-                .paymentStatus(PaymentStatus.PAID)
-                .referenceType(ReferenceType.SUBSCRIPTION)
-                .type(TransactionType.PAYMENT)
-                .description(description)
-                .referenceId(subscriptionId)
-                .build();
-
-        transactionRepository.save(transactionEntity);
-    }
+//    @Transactional
+//    @Override
+//    public void subscriptionRenew(SubscriptionRequest subscriptionRequest,
+//                                  Long subscriptionId,
+//                                  SubscriptionPlanEntity subscriptionPlanEntity,
+//                                  String description) {
+//
+//        BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
+//
+//        PaymentResult paymentResult = processAccountPayment(
+//                subscriptionRequest.getAccountId(),
+//                subscriptionAmount,
+//                null,
+//                null);
+//
+//        createPayment(
+//                paymentResult,
+//                ReferenceType.SUBSCRIPTION,
+//                subscriptionId,
+//                description
+//        );
+//
+//        TransactionEntity transactionEntity = TransactionEntity.builder()
+//                .amount(paymentResult.finalAmount())
+//                .amountInUsd(paymentResult.finalAmountInUsd())
+//                .currency(paymentResult.account().getCurrency())
+//                .account(paymentResult.account())
+//                .paymentStatus(PaymentStatus.PAID)
+//                .referenceType(ReferenceType.SUBSCRIPTION)
+//                .type(TransactionType.PAYMENT)
+//                .description(description)
+//                .referenceId(subscriptionId)
+//                .build();
+//
+//        transactionRepository.save(transactionEntity);
+//    }
 
 
 }

@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
 
         HotelEntity hotelEntity = hotelRepository.findById(booking.getHotel()).orElseThrow(null);
 
-        RoomEntity roomEntity = roomRepository.findById(booking.getRoom()).orElseThrow(null);
+        RoomEntity roomEntity = roomRepository.findByIdForUpdate(booking.getRoom()).orElseThrow(null);
 
         userService.validateUserCanBook(userEntity.getId());
         accountService.validateAccountCanBook(booking.getAccountId());
@@ -77,10 +79,12 @@ public class BookingServiceImpl implements BookingService {
             throw new HotelException("Hotel is closed or under renovation");
         }
 
-        if (bookingRepository.existsByRoomIdAndCheckInLessThanAndCheckOutGreaterThan(
-                        booking.getRoom(),
-                        booking.getCheckOut(),
-                        booking.getCheckIn())) {
+        if (bookingRepository.existsByRoomIdAndBookingStatusInAndCheckInLessThanAndCheckOutGreaterThan(
+                booking.getRoom(),
+                List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED),
+                booking.getCheckOut(),
+                booking.getCheckIn())) {
+
             throw new RoomException("Room is not available for these dates");
         }
 
@@ -109,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 .bookingStatus(BookingStatus.PENDING)
                 .totalPrice(price)
                 .peopleNumber(adultNumber + childrenNumber)
+                .paymentDeadline(LocalDateTime.now().plusMinutes(15))
                 .build();
 
 

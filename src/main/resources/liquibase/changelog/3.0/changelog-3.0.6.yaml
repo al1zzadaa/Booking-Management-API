@@ -1,0 +1,36 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: add-payment-deadline-to-bookings
+      author: sadigalizada
+      changes:
+
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: payment_deadline
+                  type: TIMESTAMP
+
+      rollback:
+        - dropColumn:
+            tableName: bookings
+            columnName: payment_deadline
+
+
+  - changeSet:
+      id: add-payment-deadline-to-flight-bookings
+      author: sadigalizada
+      changes:
+
+        - addColumn:
+            tableName: flight_bookings
+            columns:
+              - column:
+                  name: payment_deadline
+                  type: TIMESTAMP
+
+      rollback:
+        - dropColumn:
+            tableName: flight_bookings
+            columnName: payment_deadline

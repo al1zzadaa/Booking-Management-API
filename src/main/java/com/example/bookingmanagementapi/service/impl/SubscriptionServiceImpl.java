@@ -6,10 +6,7 @@ import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
-import com.example.bookingmanagementapi.event.AutoRenewEnabledEvent;
-import com.example.bookingmanagementapi.event.SubscribeEvent;
-import com.example.bookingmanagementapi.event.SubscriptionCancelledEvent;
-import com.example.bookingmanagementapi.event.SubscriptionRenewedEvent;
+import com.example.bookingmanagementapi.event.*;
 import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.mapper.SubscriptionMapper;
 import com.example.bookingmanagementapi.repository.*;
@@ -37,7 +34,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
-    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final TransactionService transactionService;
     private final ApplicationEventPublisher eventPublisher;
@@ -58,11 +54,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findByIdAndActive(subscriptionRequest.getPlanId(), true);
 
         AccountEntity account = accountRepository.findById(subscriptionRequest.getAccountId()).orElseThrow(null);
-
-
-        if (subscriptionPlanEntity.getPrice().compareTo(account.getBalance()) > 0) {
-            throw new InsufficientBalanceException("Insufficient balance");
-        }
+//
+//
+//        if (subscriptionPlanEntity.getPrice().compareTo(account.getBalance()) > 0) {
+//            throw new InsufficientBalanceException("Insufficient balance");
+//        }
 
 
         SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
@@ -77,7 +73,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .build();
 
 
-        transactionService.payForSubscription(
+        transactionService.processSubscriptionPayment(
                 subscriptionRequest,
                 subscriptionPlanEntity.getId(),
                 subscriptionPlanEntity,
@@ -129,7 +125,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(subscriptionRequest.getUserId(), true);
 
-        transactionService.subscriptionRenew(subscriptionRequest, subscriptionEntity.getId(), subscriptionPlanEntity, "Payment for subscription renewal");
+        transactionService.processSubscriptionPayment(
+                subscriptionRequest,
+                subscriptionEntity.getId(),
+                subscriptionPlanEntity,
+                "Payment for subscription renewal");
+
         LocalDate today = LocalDate.now();
 
         subscriptionEntity.setSubscriptionPlan(subscriptionPlanEntity);
@@ -164,12 +165,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 //                    renew(request);
 //                } catch (Exception e){
 //                // Log the failure and continue with the next subscription
-////                 log.error( "Auto-renew failed for subscription {}", subscription.getId(), e );
+
+    /// /                 log.error( "Auto-renew failed for subscription {}", subscription.getId(), e );
 //                 }
 //            }
 //        }
 //    }
-
     @Transactional
     @Override
     public void enableAutoRenew(Long userId) {
@@ -189,7 +190,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionEntity.setAutoRenew(false);
 
         eventPublisher.publishEvent(
-                new AutoRenewEnabledEvent(userId));
+                new AutoRenewDisableEvent(userId));
     }
 
     @Transactional

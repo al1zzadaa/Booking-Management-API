@@ -236,4 +236,22 @@ public class NotificationServiceImpl implements NotificationService {
                 "Subscription renewed successful"
         );
     }
+
+    @Override
+    public void sendFlightExpirationNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.EXPIRE,
+                "Expire",
+                "Flight tickets expired"
+        );
+    }
+
+    @Override
+    public void sendBookingExpirationNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.EXPIRE,
+                "Expire",
+                "Hotel bookings expired"
+        );
+    }
 }

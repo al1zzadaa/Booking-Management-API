@@ -21,8 +21,7 @@ public class UserPromoCodeController {
     @GetMapping
     public Page<UserPromoCodeResponse> getMyPromoCodes(
             @AuthenticationPrincipal CustomUserDetails user,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         return userPromoCodeService.getUserPromoCodes(
                 user.getId(),
                 pageable

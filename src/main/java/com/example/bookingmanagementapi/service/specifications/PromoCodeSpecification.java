@@ -27,11 +27,11 @@ public class PromoCodeSpecification implements Specification<PromoCodeEntity> {
         List<Predicate> predicates = new ArrayList<>();
 
         if (promoCodeFilter.getActive() != null) {
-            predicates.add(criteriaBuilder.equal(root.get("active"), true));
+            predicates.add(criteriaBuilder.equal(root.get("active"), promoCodeFilter.getActive()));
         }
 
         if (promoCodeFilter.getCode() != null) {
-            predicates.add(criteriaBuilder.equal(root.get("code"), "%" + promoCodeFilter.getCode() + "%" ));
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), "%" + promoCodeFilter.getCode().toLowerCase() + "%"));
         }
 
         if (promoCodeFilter.getDiscountType() != null) {
@@ -55,11 +55,11 @@ public class PromoCodeSpecification implements Specification<PromoCodeEntity> {
         }
 
         if (promoCodeFilter.getMinUsageLimit() != null) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("minUsageLimit"), promoCodeFilter.getMinUsageLimit()));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("usageLimit"), promoCodeFilter.getMinUsageLimit()));
         }
 
         if (promoCodeFilter.getMaxUsageLimit() != null) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("maxUsageLimit"), promoCodeFilter.getMaxUsageLimit()));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("usageLimit"), promoCodeFilter.getMaxUsageLimit()));
         }
 
         return  criteriaBuilder.and(predicates.toArray(new Predicate[0]));

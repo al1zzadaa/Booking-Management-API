@@ -9,5 +9,6 @@ public enum NotificationType {
     SUBSCRIBE,
     SYSTEM,
     CANCELLED,
-    RENEW
+    RENEW,
+    EXPIRE
 }
