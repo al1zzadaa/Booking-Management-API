@@ -2,7 +2,7 @@ package com.example.bookingmanagementapi.enums;
 
 public enum Flights {
     SCHEDULED,
-    DELAYED,
+    IN_PROGRESS,
     CANCELLED,
     LANDED
 }

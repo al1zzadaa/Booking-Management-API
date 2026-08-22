@@ -7,4 +7,6 @@ public interface TicketAndBookingExpirationService {
     void expireUnpaidHotelBookings();
 
     void updateBookingStatuses();
+
+    void updateFlightStatuses();
 }

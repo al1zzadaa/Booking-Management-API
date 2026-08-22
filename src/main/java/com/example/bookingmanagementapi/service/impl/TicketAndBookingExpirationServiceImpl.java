@@ -2,9 +2,11 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
+import com.example.bookingmanagementapi.enums.Flights;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.repository.BookingRepository;
 import com.example.bookingmanagementapi.repository.FlightBookingRepository;
+import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.TicketAndBookingExpirationService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
     private final FlightBookingRepository flightBookingRepository;
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final FlightRepository flightRepository;
 
     @Override
     public void expireUnpaidFlightBookings() {
@@ -82,6 +85,25 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
         bookingRepository.updateCheckOuts(
                 BookingStatus.CHECKED_IN,
                 BookingStatus.CHECKED_OUT,
+                now
+        );
+    }
+
+    @Transactional
+    @Override
+    public void updateFlightStatuses() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        flightRepository.startFlights(
+                Flights.SCHEDULED,
+                Flights.IN_PROGRESS,
+                now
+        );
+
+        flightRepository.landFlights(
+                Flights.IN_PROGRESS,
+                Flights.LANDED,
                 now
         );
     }

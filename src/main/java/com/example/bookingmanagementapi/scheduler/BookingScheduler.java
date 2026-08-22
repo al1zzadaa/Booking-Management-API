@@ -25,4 +25,9 @@ public class BookingScheduler {
     public void updateBookingStatuses() {
         ticketAndBookingExpirationService.updateBookingStatuses();
     }
+
+    @Scheduled(fixedDelay = 60_000)
+    public void updateFlightStatuses() {
+        ticketAndBookingExpirationService.updateFlightStatuses();
+    }
 }
