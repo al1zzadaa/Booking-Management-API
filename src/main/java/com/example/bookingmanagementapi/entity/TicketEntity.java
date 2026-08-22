@@ -21,18 +21,6 @@ public class TicketEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private UserEntity user;
-//
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "account_id", nullable = false)
-//    private AccountEntity account;
-//
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "flight_id", nullable = false)
-//    private FlightEntity flight;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "seat_id",  nullable = false)
     private SeatEntity seat;

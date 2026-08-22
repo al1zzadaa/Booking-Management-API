@@ -29,6 +29,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +65,8 @@ public class TicketServiceImpl implements TicketService {
             TicketRequest ticketRequest,
             String username) {
 
+        validateRequestSeats(ticketRequest);
+
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -75,9 +79,6 @@ public class TicketServiceImpl implements TicketService {
 
         FlightEntity flightEntity = flightRepository.findById(ticketRequest.getFlightId())
                 .orElseThrow(() -> new NotFoundException("flight not found"));
-
-//        SeatEntity seatEntity = seatRepository.findById(ticketRequest.getPassengers().stream().)
-//                .orElseThrow(() -> new NotFoundException("seat not found"));
 
         if (!accountEntity.getUser().getId().equals(user.getId())) {
             throw new ValidationException("account not owned by user");
@@ -106,7 +107,7 @@ public class TicketServiceImpl implements TicketService {
 
             System.out.println("Seat ID: " + passenger.getSeatId());
 
-            SeatEntity seatEntity = seatRepository.findById(passenger.getSeatId())
+            SeatEntity seatEntity = seatRepository.findByIdForUpdate(passenger.getSeatId())
                     .orElseThrow(() -> new NotFoundException("Seat not found"));
 
             if (!seatEntity.getFlight().getId().equals(flightEntity.getId())) {
@@ -127,9 +128,6 @@ public class TicketServiceImpl implements TicketService {
             totalBookingPrice = calculateTotalPrice(ticketRequest, flightEntity);
 
             TicketEntity ticket = TicketEntity.builder()
-//                    .user(userEntity)
-//                    .account(accountEntity)
-//                    .flight(flightEntity)
                     .seat(seatEntity)
                     .price(totalBookingPrice)
                     .fareBaggage(policy)
@@ -151,6 +149,17 @@ public class TicketServiceImpl implements TicketService {
                 user.getId()
         );
 
+    }
+
+    private void validateRequestSeats(TicketRequest ticketRequest) {
+        Set<Long> seatIds = ticketRequest.getPassengers()
+                .stream()
+                .map(PassengerRequest::getSeatId)
+                .collect(Collectors.toSet());
+
+        if (seatIds.size() != ticketRequest.getPassengers().size()) {
+            throw new ValidationException("Duplicate seat selected");
+        }
     }
 
     private BigDecimal calculatePassengerPrice(
@@ -504,7 +513,7 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.deleteById(id);
     }
 
-    public void expireUnpaidBookings(){
+    public void expireUnpaidBookings() {
 
     }
 }
