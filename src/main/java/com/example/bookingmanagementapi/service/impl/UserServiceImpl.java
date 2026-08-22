@@ -103,8 +103,6 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-//        Set<Roles> roles = userEntity.getRoles();
-
         return userMapper.toDto(userEntity);
     }
 

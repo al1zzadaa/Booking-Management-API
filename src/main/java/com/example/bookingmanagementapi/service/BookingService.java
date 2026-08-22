@@ -27,4 +27,6 @@ public interface BookingService {
     void payBooking(String username, Long bookingId, PaymentRequest request);
 
     void cancel(String username,Long bookingId);
+
+    Page<@NonNull BookingResponse> getUserBookings(String username, Pageable pageable);
 }

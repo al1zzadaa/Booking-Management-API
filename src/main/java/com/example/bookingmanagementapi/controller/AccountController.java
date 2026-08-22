@@ -9,6 +9,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,16 +21,19 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
+//    @PreAuthorize("hasRole('ADMIN')")
     public void createAccount(@RequestBody AccountRequest accountRequest) {
         accountService.create(accountRequest);
     }
 
     @DeleteMapping("/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
     public void deleteAccount(@PathVariable Long id) {
         accountService.delete(id);
     }
 
     @PutMapping("/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
     public void updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest, @PathVariable Long id) {
         accountService.update(updateAccountRequest, id);
     }

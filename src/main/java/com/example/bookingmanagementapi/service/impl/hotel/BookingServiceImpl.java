@@ -197,6 +197,16 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Override
+    public Page<@NonNull BookingResponse> getUserBookings(String username, Pageable pageable) {
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Page<@NonNull BookingEntity> bookings = bookingRepository.findAllByUserId(user.getId(), pageable);
+
+        return bookings.map(bookingMapper::toDto);
+    }
+
 
     private BigDecimal calculateBookingRefund(Long bookingId) {
         validationUtil.validateId(bookingId);

@@ -59,4 +59,9 @@ public class BookingController {
     public Page<BookingResponse> getAllBooking(BookingFilter bookingFilter, Pageable pageable) {
         return bookingService.getBookings(bookingFilter, pageable);
     }
+
+    @GetMapping("/my-history")
+    public Page<BookingResponse> getMyBookings(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        return bookingService.getUserBookings(userDetails.getUsername(), pageable);
+    }
 }

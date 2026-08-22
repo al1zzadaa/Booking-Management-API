@@ -5,22 +5,26 @@ import com.example.bookingmanagementapi.dto.request.PassengerRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
+import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
+import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.PassengerType;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
-import com.example.bookingmanagementapi.exception.AccessDeniedException;
-import com.example.bookingmanagementapi.exception.NotFoundException;
-import com.example.bookingmanagementapi.exception.SeatNotAvailable;
-import com.example.bookingmanagementapi.exception.ValidationException;
+import com.example.bookingmanagementapi.exception.*;
+import com.example.bookingmanagementapi.mapper.FlightBookingMapper;
 import com.example.bookingmanagementapi.mapper.TicketMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.service.specifications.TicketSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +56,7 @@ public class TicketServiceImpl implements TicketService {
     private final ApplicationEventPublisher eventPublisher;
     private final FlightBookingRepository flightBookingRepository;
     private final AccountService accountService;
+    private final FlightBookingMapper flightBookingMapper;
     @Value("${booking.children.young-max-age}")
     private Integer youngChildMaxAge;
     @Value("${booking.children.teen-max-age}")
@@ -66,6 +71,7 @@ public class TicketServiceImpl implements TicketService {
             String username) {
 
         validateRequestSeats(ticketRequest);
+        validatePassengerAges(ticketRequest);
 
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -79,6 +85,14 @@ public class TicketServiceImpl implements TicketService {
 
         FlightEntity flightEntity = flightRepository.findById(ticketRequest.getFlightId())
                 .orElseThrow(() -> new NotFoundException("flight not found"));
+
+        if (flightEntity.getStatus() != Flights.SCHEDULED) {
+            throw new FlightException("Flight is not available for booking");
+        }
+
+        if (flightEntity.getDepartureTime().isBefore(LocalDateTime.now())) {
+            throw new FlightException("Flight has already departed");
+        }
 
         if (!accountEntity.getUser().getId().equals(user.getId())) {
             throw new ValidationException("account not owned by user");
@@ -149,6 +163,36 @@ public class TicketServiceImpl implements TicketService {
                 user.getId()
         );
 
+    }
+
+    private void validatePassengerAges(TicketRequest ticketRequest) {
+        for (PassengerRequest passenger : ticketRequest.getPassengers()) {
+
+            if (passenger.getAge() < 0) {
+                throw new ValidationException("Age cannot be negative");
+            }
+
+            if (passenger.getType() == PassengerType.INFANT
+                    && passenger.getAge() >= 2) {
+                throw new ValidationException(
+                        "Infant passenger must be under 2"
+                );
+            }
+
+            if (passenger.getType() == PassengerType.ADULT
+                    && passenger.getAge() < 18) {
+                throw new ValidationException(
+                        "Adult passenger must be 18 or older"
+                );
+            }
+
+            if (passenger.getType() == PassengerType.CHILD
+                    && passenger.getAge() >= 18) {
+                throw new ValidationException(
+                        "Child passenger must be under 18"
+                );
+            }
+        }
     }
 
     private void validateRequestSeats(TicketRequest ticketRequest) {
@@ -511,6 +555,16 @@ public class TicketServiceImpl implements TicketService {
         }
 
         ticketRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<FlightBookingResponse> getUserTickets(String username, Pageable pageable) {
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Page<@NonNull FlightBookingEntity> flightBookingEntities = flightBookingRepository.findAllByUserId(user.getId(), pageable);
+
+        return flightBookingEntities.map(flightBookingMapper::toDto);
     }
 
     public void expireUnpaidBookings() {

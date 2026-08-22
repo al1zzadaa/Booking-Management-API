@@ -4,9 +4,12 @@ import com.example.bookingmanagementapi.dto.filter.TicketFilter;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
+import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.service.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +63,12 @@ public class TicketController {
     public void cancel(@AuthenticationPrincipal UserDetails userDetails,
                        @PathVariable Long flightBookingId) {
         ticketService.cancel(userDetails.getUsername(), flightBookingId);
+    }
+
+    @GetMapping("/my-history")
+    public Page<FlightBookingResponse> getMyBookings(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        // Pass the username/email to the service to fetch only their bookings
+        return ticketService.getUserTickets(userDetails.getUsername(), pageable);
     }
 
 }

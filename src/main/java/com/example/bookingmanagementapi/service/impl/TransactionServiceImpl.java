@@ -98,11 +98,19 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validateNotAlreadyPaid(Long referenceId, ReferenceType referenceType) {
-        if (transactionRepository.existsByReferenceIdAndReferenceTypeAndPaymentStatus(
-                referenceId,
-                referenceType,
-                PaymentStatus.PAID)) {
-            throw new PaymentAlreadyCompletedException("Payment is already paid");
+//        if (transactionRepository.existsByReferenceIdAndReferenceTypeAndPaymentStatus(
+//                referenceId,
+//                referenceType,
+//                PaymentStatus.PAID)) {
+//            throw new PaymentAlreadyCompletedException("Payment is already paid");
+//        }
+        if (transactionRepository
+                .existsByReferenceIdAndReferenceTypeAndType(
+                        referenceId,
+                        referenceType,
+                        TransactionType.PAYMENT))
+        {
+            throw new PaymentException("Already paid");
         }
     }
 
@@ -436,7 +444,7 @@ public class TransactionServiceImpl implements TransactionService {
             BigDecimal loyaltyPointsValueInUsd
     ) {
 
-        AccountEntity account = accountRepository.findById(accountId)
+        AccountEntity account = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
         // 1. Apply promo in USD

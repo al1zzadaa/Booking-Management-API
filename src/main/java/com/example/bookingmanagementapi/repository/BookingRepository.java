@@ -2,6 +2,8 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.enums.BookingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -71,6 +73,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long>,
             LocalDateTime checkOut,
             LocalDateTime checkIn
     );
+
+    Page<BookingEntity> findAllByUserId(Long userId, Pageable pageable);
 
     List<BookingEntity> findAllByBookingStatusAndCheckInLessThanEqual(BookingStatus bookingStatus, LocalDateTime now);
 

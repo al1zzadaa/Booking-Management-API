@@ -1,0 +1,29 @@
+#databaseChangeLog:
+#  - changeSet:
+#      id: add-unique-payment-reference
+#      author: sadigalizada
+#      changes:
+#        - addUniqueConstraint:
+#            tableName: transactions
+#            columnNames: reference_id, reference_type, type
+#            constraintName: uk_transaction_payment_reference
+#
+#      rollback:
+#        - dropUniqueConstraint:
+#            tableName: transactions
+#            constraintName: uk_transaction_payment_reference
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-payment-reference
+      author: sadig
+      changes:
+        - sql:
+            sql: |
+              CREATE UNIQUE INDEX uk_payment_reference
+              ON transactions (reference_id, reference_type)
+              WHERE type = 'PAYMENT';
+
+      rollback:
+        - sql:
+            sql: |
+              DROP INDEX IF EXISTS uk_payment_reference;
