@@ -29,19 +29,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**").permitAll()
-                        // 1. PUBLIC ENDPOINTS (Authentication & Verification)
                         .requestMatchers(HttpMethod.POST,
                                 "/auth/register",
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/auth/forgot-password",
                                 "/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/accounts").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/accounts/{accountId}").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/accounts/{accountId}/currency").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/accounts/my").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/accounts", "/accounts/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "accounts/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/accounts/block/{id}", "/accounts/unblock/{id}").hasRole("ADMIN")
+/// //////////////////////////////////////
                         .requestMatchers(HttpMethod.GET, "/email-verification").permitAll()
                         .requestMatchers(HttpMethod.POST, "/email-verification/resend").permitAll()
 // 2. PUBLIC READ-ONLY (Assuming anyone can view airlines and fare details)

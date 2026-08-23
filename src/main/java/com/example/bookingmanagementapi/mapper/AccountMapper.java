@@ -6,11 +6,15 @@ import com.example.bookingmanagementapi.dto.response.AccountResponse;
 import com.example.bookingmanagementapi.entity.AccountEntity;
 import org.mapstruct.*;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
 
     @Mapping(source = "user.id", target = "userId")
     AccountResponse toDto(AccountEntity account);
+
+    List<AccountResponse> toListDto(List<AccountEntity> accounts);
 
     @Mapping(source = "userId", target = "user.id")
     AccountEntity toEntity(AccountRequest accountRequest);

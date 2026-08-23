@@ -11,11 +11,13 @@ import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface AccountService {
 
-    void create(AccountRequest accountRequest);
+    void create(Long userId, AccountRequest accountRequest);
 
-    void delete(Long id);
+    void delete(Long userId, Long id);
 
     void update(UpdateAccountRequest updateAccountRequest, Long id);
 
@@ -30,4 +32,11 @@ public interface AccountService {
     AccountEntity createDefaultAccount(UserEntity user, Currency currency);
 
     void validateAccountCanBook(Long accountId);
+
+    void changeCurrency(
+            Long userId,
+            Long accountId,
+            Currency newCurrency);
+
+    List<AccountResponse> getMyAccounts(Long userId);
 }

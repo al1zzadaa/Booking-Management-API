@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.enums.AccountStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -29,4 +30,6 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long>,
 
 
     List<AccountEntity> user(UserEntity user);
+
+    List<AccountEntity> findAllByUserIdAndStatus(Long userId, AccountStatus accountStatus);
 }

@@ -8,19 +8,22 @@ import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.AccountStatus;
 import com.example.bookingmanagementapi.enums.Currency;
-import com.example.bookingmanagementapi.exception.AccountBlockedException;
-import com.example.bookingmanagementapi.exception.AccountDeletedException;
-import com.example.bookingmanagementapi.exception.AccountInactiveException;
-import com.example.bookingmanagementapi.exception.NotFoundException;
+import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.AccountMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.AccountService;
+import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.specifications.AccountSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -29,24 +32,42 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final ValidationUtil validationUtil;
+    private final UserRepository userRepository;
+    private final ConvertService convertService;
 
     @Override
-    public void create(AccountRequest accountRequest) {
-        accountRepository.save(accountMapper.toEntity(accountRequest));
+    @Transactional
+    public void create(Long userId, AccountRequest request) {
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        AccountEntity account = AccountEntity.builder()
+                .user(user)
+                .currency(request.getCurrency())
+                .balance(BigDecimal.ZERO)
+                .status(AccountStatus.ACTIVE)
+                .build();
+
+        accountRepository.save(account);
     }
 
     @Override
-    public void delete(Long id) {
+    @Transactional
+    public void delete(Long userId, Long accountId) {
 
-        validationUtil.validateId(id);
+        validationUtil.validateId(accountId);
 
-        if(!accountRepository.existsById(id)){
-            throw new NotFoundException("Account not found");
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        if (!account.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException(
+                    "You cannot delete another user's account"
+            );
         }
-        AccountEntity currentAccount = accountRepository.findById(id).orElseThrow();
 
-        currentAccount.setStatus(AccountStatus.DELETED);
-        accountRepository.save(currentAccount);
+        account.setStatus(AccountStatus.DELETED);
     }
 
     @Override
@@ -74,11 +95,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<AccountResponse> getAll(AccountFilter accountFilter,  Pageable pageable) {
+    public Page<AccountResponse> getAll(AccountFilter accountFilter, Pageable pageable) {
 
         var specification = new AccountSpecification(accountFilter);
 
-        Page<AccountEntity> accountEntities = accountRepository.findAll(specification,  pageable);
+        Page<AccountEntity> accountEntities = accountRepository.findAll(specification, pageable);
 
         return accountEntities.map(accountMapper::toDto);
     }
@@ -91,7 +112,7 @@ public class AccountServiceImpl implements AccountService {
         AccountEntity accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-       accountEntity.setStatus(AccountStatus.BLOCKED);
+        accountEntity.setStatus(AccountStatus.BLOCKED);
     }
 
     @Override
@@ -126,9 +147,52 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountBlockedException("This account has been blocked");
         }
 
-        if (account.getStatus().equals(AccountStatus.INACTIVE)){
+        if (account.getStatus().equals(AccountStatus.INACTIVE)) {
             throw new AccountInactiveException("This account is not active");
         }
+    }
+
+    @Transactional
+    @Override
+    public void changeCurrency(
+            Long userId,
+            Long accountId,
+            Currency newCurrency) {
+
+        AccountEntity account = accountRepository.findByIdForUpdate(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        if (!account.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException(
+                    "You cannot modify another user's account"
+            );
+        }
+
+        if (account.getCurrency() == newCurrency) {
+            return;
+        }
+
+        BigDecimal convertedBalance = convertService.convert(
+                account.getBalance(),
+                account.getCurrency(),
+                newCurrency
+        );
+
+        account.setBalance(convertedBalance);
+        account.setCurrency(newCurrency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AccountResponse> getMyAccounts(Long userId) {
+
+        List<AccountEntity> accounts =
+                accountRepository.findAllByUserIdAndStatus(
+                        userId,
+                        AccountStatus.ACTIVE
+                );
+
+        return accountMapper.toListDto(accounts);
     }
 
 }
