@@ -4,10 +4,15 @@ import com.example.bookingmanagementapi.dto.filter.FlightReviewFilter;
 import com.example.bookingmanagementapi.dto.request.FlightReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateFlightReviewRequest;
 import com.example.bookingmanagementapi.dto.response.flight.FlightReviewResponse;
+import com.example.bookingmanagementapi.entity.FlightEntity;
 import com.example.bookingmanagementapi.entity.FlightReviewEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FlightReviewMapper;
+import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.repository.FlightReviewRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FlightReviewService;
 import com.example.bookingmanagementapi.service.specifications.FlightReviewSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
@@ -26,17 +31,24 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     private final FlightReviewRepository flightReviewRepository;
     private final FlightReviewMapper flightReviewMapper;
     private final ValidationUtil validationUtil;
+    private final UserRepository userRepository;
+    private final FlightRepository flightRepository;
 
 
     @Transactional
     @Override
-    public void createFlightReview(FlightReviewRequest flightReviewRequest) {
-
-        validationUtil.validateId(flightReviewRequest.getUserId());
+    public void createFlightReview(Long userId, FlightReviewRequest flightReviewRequest) {
 
         validationUtil.validateId(flightReviewRequest.getFlightId());
 
         validationUtil.validateRating(flightReviewRequest.getRating());
+//
+//
+//        FlightEntity flightEntity = flightRepository.findById(flightReviewRequest.getFlightId()).orElseThrow();
+//
+//        UserEntity user = userRepository.findById(userId).orElseThrow();
+//
+//        if (user.getId().equals(flightEntity.))
 
         FlightReviewEntity flightReview = flightReviewMapper.toEntity(flightReviewRequest);
         flightReviewRepository.save(flightReview);
@@ -44,11 +56,16 @@ public class FlightReviewServiceImpl implements FlightReviewService {
 
     @Transactional
     @Override
-    public void updateFlightReview(Long id, UpdateFlightReviewRequest updateFlightReviewRequest) {
+    public void updateFlightReview(Long id, Long userId, UpdateFlightReviewRequest updateFlightReviewRequest) {
 
         validationUtil.validateId(id);
+        UserEntity user = userRepository.findById(userId).orElseThrow();
 
         FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
+
+        if (!flightReview.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You cannot update this review");
+        }
 
         flightReviewMapper.updateFlightReview(updateFlightReviewRequest, flightReview);
 
@@ -57,12 +74,15 @@ public class FlightReviewServiceImpl implements FlightReviewService {
 
     @Transactional
     @Override
-    public void deleteFlightReview(Long id) {
+    public void deleteFlightReview(Long id, Long userId) {
 
         validationUtil.validateId(id);
 
-        if (!flightReviewRepository.existsById(id)) {
-            throw new NotFoundException("Flight Review Not Found");
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+        FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
+
+        if (!flightReview.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You cannot delete this review");
         }
 
         flightReviewRepository.deleteById(id);

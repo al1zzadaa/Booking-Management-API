@@ -4,10 +4,12 @@ import com.example.bookingmanagementapi.dto.filter.FlightReviewFilter;
 import com.example.bookingmanagementapi.dto.request.FlightReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateFlightReviewRequest;
 import com.example.bookingmanagementapi.dto.response.flight.FlightReviewResponse;
+import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.FlightReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -18,20 +20,39 @@ public class FlightReviewController {
 
     private final FlightReviewService flightReviewService;
 
-    @DeleteMapping("/{id}")
-    public void deleteFlightReview(@PathVariable Long id) {
-        flightReviewService.deleteFlightReview(id);
+    @PutMapping("/{id}")
+    public void updateFlightReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id,
+            @RequestBody UpdateFlightReviewRequest request) {
+
+        flightReviewService.updateFlightReview(
+                userDetails.getId(),
+                id,
+                request
+        );
     }
 
-    @PutMapping("/{id}")
-    public void updateFlightReview(@RequestBody UpdateFlightReviewRequest updateFlightReviewRequest,
-                                   @PathVariable Long id) {
-        flightReviewService.updateFlightReview(id, updateFlightReviewRequest);
+    @DeleteMapping("/{id}")
+    public void deleteFlightReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id) {
+
+        flightReviewService.deleteFlightReview(
+                userDetails.getId(),
+                id
+        );
     }
 
     @PostMapping
-    public void createFlightReview(@RequestBody FlightReviewRequest flightReviewRequest) {
-        flightReviewService.createFlightReview(flightReviewRequest);
+    public void createFlightReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody FlightReviewRequest request) {
+
+        flightReviewService.createFlightReview(
+                userDetails.getId(),
+                request
+        );
     }
 
     @GetMapping("/{id}")

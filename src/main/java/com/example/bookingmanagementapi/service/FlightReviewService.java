@@ -10,11 +10,11 @@ import org.springframework.data.domain.Pageable;
 
 public interface FlightReviewService {
 
-    void createFlightReview(FlightReviewRequest flightReviewRequest);
+    void createFlightReview(Long userId, FlightReviewRequest flightReviewRequest);
 
-    void updateFlightReview(Long id, UpdateFlightReviewRequest updateFlightReviewRequest);
+    void updateFlightReview(Long id, Long userId, UpdateFlightReviewRequest updateFlightReviewRequest);
 
-    void deleteFlightReview(Long id);
+    void deleteFlightReview(Long id, Long userId);
 
     Page<@NonNull FlightReviewResponse> findAll(FlightReviewFilter flightReviewFilter, Pageable pageable);
 

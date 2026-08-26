@@ -16,7 +16,6 @@ public interface AccountMapper {
 
     List<AccountResponse> toListDto(List<AccountEntity> accounts);
 
-    @Mapping(source = "userId", target = "user.id")
     AccountEntity toEntity(AccountRequest accountRequest);
 
     @Mapping(target = "createdAt", ignore = true)
