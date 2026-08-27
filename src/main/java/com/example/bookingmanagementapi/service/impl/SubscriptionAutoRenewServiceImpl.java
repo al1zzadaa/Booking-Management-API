@@ -1,9 +1,14 @@
 package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.SubscriptionRequest;
+import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.PaymentMethods;
+import com.example.bookingmanagementapi.exception.NotFoundException;
+import com.example.bookingmanagementapi.repository.AccountRepository;
 import com.example.bookingmanagementapi.repository.SubscriptionRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.SubscriptionAutoRenewService;
 import com.example.bookingmanagementapi.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,8 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
 
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionService subscriptionService;
+    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     @Transactional
 //            (readOnly = true)
@@ -44,12 +52,15 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
                 try {
                     SubscriptionRequest request =
                             SubscriptionRequest.builder()
-                                    .userId(subscription.getUser().getId())
                                     .accountId(subscription.getAutoRenewAccount().getId())
                                     .planId(subscription.getSubscriptionPlan().getId())
                                     .build();
 
-                    subscriptionService.renew(request);
+                    UserEntity userEntity = userRepository
+                            .findByAccountsId(request.getAccountId())
+                            .orElseThrow(() -> new NotFoundException("User not found"));
+
+                    subscriptionService.renew(userEntity.getId(), request);
 
                 } catch (Exception e) {
 //                    log.error(

@@ -19,7 +19,3 @@ public class UserRequest {
     private LocalDate dateOfBirth;
     private Currency currency;
 }
-
-
-//better to delete ToString bcs we have password field it can be shown on logs
-//@ToString

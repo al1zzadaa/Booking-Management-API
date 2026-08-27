@@ -31,8 +31,6 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     private final FlightReviewRepository flightReviewRepository;
     private final FlightReviewMapper flightReviewMapper;
     private final ValidationUtil validationUtil;
-    private final UserRepository userRepository;
-    private final FlightRepository flightRepository;
 
 
     @Transactional
@@ -59,13 +57,10 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     public void updateFlightReview(Long id, Long userId, UpdateFlightReviewRequest updateFlightReviewRequest) {
 
         validationUtil.validateId(id);
-        UserEntity user = userRepository.findById(userId).orElseThrow();
 
         FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
 
-        if (!flightReview.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You cannot update this review");
-        }
+        validationUtil.checkUserIdEqualsToUsedUsedId(userId, flightReview.getUser().getId());
 
         flightReviewMapper.updateFlightReview(updateFlightReviewRequest, flightReview);
 
@@ -78,12 +73,9 @@ public class FlightReviewServiceImpl implements FlightReviewService {
 
         validationUtil.validateId(id);
 
-        UserEntity user = userRepository.findById(userId).orElseThrow();
         FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
 
-        if (!flightReview.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You cannot delete this review");
-        }
+        validationUtil.checkUserIdEqualsToUsedUsedId(userId, flightReview.getUser().getId());
 
         flightReviewRepository.deleteById(id);
     }

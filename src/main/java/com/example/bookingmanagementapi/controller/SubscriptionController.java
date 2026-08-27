@@ -16,8 +16,9 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/subscribe")
-    public void subscribe(@RequestBody SubscriptionRequest subscriptionRequest) {
-        subscriptionService.subscribe(subscriptionRequest);
+    public void subscribe(@AuthenticationPrincipal CustomUserDetails user,
+                          @RequestBody SubscriptionRequest subscriptionRequest) {
+        subscriptionService.subscribe(user.getId(), subscriptionRequest);
     }
 
     @GetMapping("/current")
@@ -35,7 +36,8 @@ public class SubscriptionController {
     }
 
     @PostMapping("/renew")
-    public void renew(@RequestBody SubscriptionRequest subscriptionRequest) {
-        subscriptionService.renew(subscriptionRequest);
+    public void renew(@AuthenticationPrincipal CustomUserDetails user,
+                      @RequestBody SubscriptionRequest subscriptionRequest) {
+        subscriptionService.renew(user.getId(), subscriptionRequest);
     }
 }

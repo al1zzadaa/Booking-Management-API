@@ -21,10 +21,9 @@ public class FlightReviewController {
     private final FlightReviewService flightReviewService;
 
     @PutMapping("/{id}")
-    public void updateFlightReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long id,
-            @RequestBody UpdateFlightReviewRequest request) {
+    public void updateFlightReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                   @PathVariable Long id,
+                                   @RequestBody UpdateFlightReviewRequest request) {
 
         flightReviewService.updateFlightReview(
                 userDetails.getId(),
@@ -34,9 +33,8 @@ public class FlightReviewController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFlightReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long id) {
+    public void deleteFlightReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                   @PathVariable Long id) {
 
         flightReviewService.deleteFlightReview(
                 userDetails.getId(),
@@ -45,9 +43,8 @@ public class FlightReviewController {
     }
 
     @PostMapping
-    public void createFlightReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody FlightReviewRequest request) {
+    public void createFlightReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                   @RequestBody FlightReviewRequest request) {
 
         flightReviewService.createFlightReview(
                 userDetails.getId(),

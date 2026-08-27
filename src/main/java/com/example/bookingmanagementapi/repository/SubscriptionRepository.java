@@ -39,4 +39,5 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     Page<SubscriptionEntity> findExpiredSubscriptions(
             @Param("today") LocalDate today, Pageable pageable
     );
+    boolean existsByUserIdAndIsActiveTrueAndEndDateAfter(Long userId, LocalDate now);
 }

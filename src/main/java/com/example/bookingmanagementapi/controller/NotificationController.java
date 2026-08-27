@@ -17,25 +17,22 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @DeleteMapping("/{id}")
-    public void delete(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails user
+    public void delete(@PathVariable Long id,
+                       @AuthenticationPrincipal CustomUserDetails user
     ) {
         notificationService.delete(id, user.getId());
     }
 
     @GetMapping
-    public Page<NotificationResponse> getAll(
-            @AuthenticationPrincipal CustomUserDetails user,
-            Pageable pageable
+    public Page<NotificationResponse> getAll(@AuthenticationPrincipal CustomUserDetails user,
+                                             Pageable pageable
     ) {
         return notificationService.getAll(user.getId(), pageable);
     }
 
     @GetMapping("/unread")
-    public Page<NotificationResponse> getUnread(
-            @AuthenticationPrincipal CustomUserDetails user,
-            Pageable pageable
+    public Page<NotificationResponse> getUnread(@AuthenticationPrincipal CustomUserDetails user,
+                                                Pageable pageable
     ) {
         return notificationService.getUnreadNotifications(
                 user.getId(),
@@ -44,17 +41,15 @@ public class NotificationController {
     }
 
     @GetMapping("/{id}")
-    public NotificationResponse getById(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails user
+    public NotificationResponse getById(@PathVariable Long id,
+                                        @AuthenticationPrincipal CustomUserDetails user
     ) {
         return notificationService.getById(id, user.getId());
     }
 
     @PatchMapping("/{id}/read")
-    public void markAsRead(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails user
+    public void markAsRead(@PathVariable Long id,
+                           @AuthenticationPrincipal CustomUserDetails user
     ) {
         notificationService.markAsRead(id, user.getId());
     }

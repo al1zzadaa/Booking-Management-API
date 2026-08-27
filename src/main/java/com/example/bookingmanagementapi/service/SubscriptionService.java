@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface SubscriptionService {
 
-    void subscribe(SubscriptionRequest subscriptionRequest);
+    void subscribe(Long userId, SubscriptionRequest subscriptionRequest);
 
     SubscriptionResponse getCurrentSubscription(Long userId);
 
@@ -14,7 +14,7 @@ public interface SubscriptionService {
 
     boolean isActive(Long userId);
 
-    void renew(SubscriptionRequest subscriptionRequest);
+    void renew(Long userId, SubscriptionRequest subscriptionRequest);
 
 //    void autoRenew();
 

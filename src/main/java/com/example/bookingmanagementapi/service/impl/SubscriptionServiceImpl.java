@@ -45,20 +45,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Transactional
     @Override
-    public void subscribe(SubscriptionRequest subscriptionRequest) {
+    public void subscribe(Long userId, SubscriptionRequest subscriptionRequest) {
 
-        System.out.println(subscriptionRequest.getUserId());
+        System.out.println(userId);
 
-        UserEntity user = userRepository.findById(subscriptionRequest.getUserId()).orElseThrow(null);
+        UserEntity user = userRepository.findById(userId).orElseThrow(null);
 
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findByIdAndActive(subscriptionRequest.getPlanId(), true);
 
         AccountEntity account = accountRepository.findById(subscriptionRequest.getAccountId()).orElseThrow(null);
-//
-//
-//        if (subscriptionPlanEntity.getPrice().compareTo(account.getBalance()) > 0) {
-//            throw new InsufficientBalanceException("Insufficient balance");
-//        }
 
 
         SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
@@ -109,21 +104,24 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     //
     @Override
     public boolean isActive(Long userId) {
-        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
-        return subscriptionEntity.getEndDate().isAfter(LocalDate.now());
+        return subscriptionRepository
+                .existsByUserIdAndIsActiveTrueAndEndDateAfter(
+                        userId,
+                        LocalDate.now()
+                );
     }
 
 
     @Transactional
     @Override
-    public void renew(SubscriptionRequest subscriptionRequest) {
+    public void renew(Long userId, SubscriptionRequest subscriptionRequest) {
 
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(subscriptionRequest.getPlanId())
                 .orElseThrow(null);
 
         Integer durationDays = subscriptionPlanEntity.getDurationDays();
 
-        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(subscriptionRequest.getUserId(), true);
+        SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
 
         transactionService.processSubscriptionPayment(
                 subscriptionRequest,
@@ -146,7 +144,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         eventPublisher.publishEvent(
-                new SubscriptionRenewedEvent(subscriptionRequest.getUserId()
+                new SubscriptionRenewedEvent(userId
                 )
         );
     }

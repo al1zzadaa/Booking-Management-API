@@ -4,8 +4,10 @@ import com.example.bookingmanagementapi.dto.filter.HotelReviewFilter;
 import com.example.bookingmanagementapi.dto.request.HotelReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateHotelReviewRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelReviewResponse;
+import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.HotelReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,9 @@ public class HotelReviewController {
     private final HotelReviewService hotelReviewService;
 
     @PostMapping
-    public void createHotelReview(@RequestBody HotelReviewRequest hotelReviewRequest) {
-        hotelReviewService.createHotelReview(hotelReviewRequest);
+    public void createHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @RequestBody HotelReviewRequest hotelReviewRequest) {
+        hotelReviewService.createHotelReview(userDetails.getId(), hotelReviewRequest);
     }
 
     @GetMapping("/{id}")
@@ -28,14 +31,16 @@ public class HotelReviewController {
     }
 
     @PutMapping("/{id}")
-    public void updateHotelReview(@RequestBody UpdateHotelReviewRequest updateHotelReviewRequest,
+    public void updateHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @RequestBody UpdateHotelReviewRequest updateHotelReviewRequest,
                                   @PathVariable Long id) {
-        hotelReviewService.updateHotelReview(id, updateHotelReviewRequest);
+        hotelReviewService.updateHotelReview(userDetails.getId(), id, updateHotelReviewRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteHotelReview(@PathVariable Long id) {
-        hotelReviewService.deleteHotelReview(id);
+    public void deleteHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @PathVariable Long id) {
+        hotelReviewService.deleteHotelReview(userDetails.getId(), id);
     }
 
     @GetMapping("/search")

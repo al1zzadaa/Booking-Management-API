@@ -13,6 +13,7 @@ import com.example.bookingmanagementapi.repository.NotificationRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.NotificationService;
+import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper notificationMapper;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final ValidationUtil validationUtil;
 
 
     private NotificationRequest createNotification(
@@ -68,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationEntity notificationEntity = notificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
 
-        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
+        validationUtil.checkUserIdEqualsToUsedUsedId(userId, notificationEntity.getUser().getId());
 
         return notificationMapper.toDto(notificationEntity);
     }
@@ -81,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationEntities.map(notificationMapper::toDto);
     }
 
-//    @Override
+    //    @Override
 //    public void update(Long id, UpdateNotificationRequest updateNotificationRequest) {
 //
 //        NotificationEntity notificationEntity = notificationRepository.findById(id)
@@ -98,7 +100,7 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationEntity notificationEntity = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
 
-        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
+        validationUtil.checkUserIdEqualsToUsedUsedId(userId, notificationEntity.getUser().getId());
 
         notificationRepository.deleteById(notificationEntity.getId());
     }
@@ -130,7 +132,7 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationEntity notificationEntity = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
 
-        verifyUser(notificationEntity.getUser().getId(), notificationEntity);
+        validationUtil.checkUserIdEqualsToUsedUsedId(userId, notificationEntity.getUser().getId());
         notificationEntity.setRead(true);
 
         notificationRepository.save(notificationEntity);

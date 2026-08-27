@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class SubscriptionRequest {
 
     @NotNull
-    private Long userId;
     private Long planId;
     private Long accountId;
 }

@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface HotelReviewService {
 
-    void createHotelReview(HotelReviewRequest hotelReviewRequest);
+    void createHotelReview(Long userId, HotelReviewRequest hotelReviewRequest);
 
-    void updateHotelReview(Long id, UpdateHotelReviewRequest updateHotelReviewRequest);
+    void updateHotelReview(Long userId, Long id,UpdateHotelReviewRequest updateHotelReviewRequest);
 
-    void deleteHotelReview(Long id);
+    void deleteHotelReview(Long userId, Long id);
 
     List<HotelReviewResponse> findAll(HotelReviewFilter hotelReviewFilter);
 

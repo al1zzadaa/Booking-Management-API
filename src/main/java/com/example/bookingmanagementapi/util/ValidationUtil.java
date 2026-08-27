@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.util;
 
 import com.example.bookingmanagementapi.enums.Rows;
 import com.example.bookingmanagementapi.enums.Tickets;
+import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.ValidationException;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,12 @@ public class ValidationUtil {
     public void validateRoomNo(Integer roomNo) {
         if (roomNo == null || roomNo < 1) {
             throw new ValidationException("roomNo is null or empty");
+        }
+    }
+
+    public void checkUserIdEqualsToUsedUsedId(Long userId, Long usedId) {
+        if (!userId.equals(usedId)) {
+            throw new AccessDeniedException("This not belongs to user");
         }
     }
 
