@@ -26,6 +26,7 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
     private final FlightRepository flightRepository;
 
     @Override
+    @Transactional
     public void expireUnpaidFlightBookings() {
         List<FlightBookingEntity> bookings =
                 flightBookingRepository
@@ -52,6 +53,7 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
     }
 
     @Override
+    @Transactional
     public void expireUnpaidHotelBookings() {
         List<BookingEntity> bookings =
                 bookingRepository

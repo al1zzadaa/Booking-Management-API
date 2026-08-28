@@ -1,7 +1,7 @@
 package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.request.PrivilegeRequest;
-import com.example.bookingmanagementapi.security.AdminService;
+import com.example.bookingmanagementapi.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

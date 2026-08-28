@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.security;
+package com.example.bookingmanagementapi.service.impl;
 
 
 import com.example.bookingmanagementapi.dto.request.PrivilegeRequest;
@@ -7,6 +7,7 @@ import com.example.bookingmanagementapi.enums.Roles;
 import com.example.bookingmanagementapi.exception.AdminException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.repository.UserRepository;
+import com.example.bookingmanagementapi.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -6,6 +6,7 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -15,6 +16,8 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
+    @Value("${jwt.refresh-expiration-days}")
+    private long refreshExpirationDays;
     private final RefreshTokenRepository refreshTokenRepository;
 
     public RefreshTokenEntity save(UserEntity user, String token) {
@@ -22,7 +25,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
                 .user(user)
                 .token(token)
-                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+//                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+                .expiresAt(Instant.now().plus(refreshExpirationDays, ChronoUnit.DAYS))
                 .build();
 
         return refreshTokenRepository.save(refreshToken);
@@ -52,7 +56,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Transactional
-    public void deleteAllByUser(Long  userId) {
+    public void deleteAllByUser(Long userId) {
         refreshTokenRepository.deleteAllByUser_Id(userId);
     }
 }

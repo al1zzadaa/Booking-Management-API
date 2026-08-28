@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.security;
+package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.LoginRequest;
 import com.example.bookingmanagementapi.dto.request.RefreshRequest;

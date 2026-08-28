@@ -34,11 +34,7 @@ public class FlightBookingEntity {
     @JoinColumn(name = "flight_id", nullable = false)
     private FlightEntity flight;
 
-    @OneToMany(
-            mappedBy = "flightBooking",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "flightBooking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicketEntity> tickets = new ArrayList<>();
 
     private LocalDateTime paymentDeadline;

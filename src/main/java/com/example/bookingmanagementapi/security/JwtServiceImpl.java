@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
@@ -23,25 +24,8 @@ public class JwtServiceImpl implements JwtService {
     private final SecretKey key;
 
     public JwtServiceImpl(@Value("${jwt.secret}") String secret) {
-//        String secret = "SADIG_SECRET_KEY_FOR_TEST_PROJECT_IN_MATRIX";
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
-//    private final long accessExpirationMinutes;
-//    private final long refreshExpirationDays;
-//    private final SecretKey key;
-//
-//    public JwtServiceImpl(
-//            @Value("${jwt.secret}") String secret,
-//            @Value("${jwt.access-expiration-minutes}") long accessExpirationMinutes,
-//            @Value("${jwt.refresh-expiration-days}") long refreshExpirationDays) {
-//
-//        this.accessExpirationMinutes = accessExpirationMinutes;
-//        this.refreshExpirationDays = refreshExpirationDays;
-//
-//        // Ensure secret is at least 32 characters long
-//        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-//    }
-
 
     public String generateAccessToken(UserDetails userDetails) {
 
@@ -61,7 +45,8 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
 
         Instant now = Instant.now();
-        Instant exp = now.plusSeconds(refreshExpirationDays * 24 * 60 * 60);
+//        Instant exp = now.plusSeconds(refreshExpirationDays * 24 * 60 * 60);
+        Instant exp = now.plus(refreshExpirationDays, ChronoUnit.DAYS);
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())

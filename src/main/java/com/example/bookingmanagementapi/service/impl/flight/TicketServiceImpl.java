@@ -33,8 +33,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,8 +68,8 @@ public class TicketServiceImpl implements TicketService {
             TicketRequest ticketRequest,
             String username) {
 
-        validateRequestSeats(ticketRequest);
-        validatePassengerAges(ticketRequest);
+        validationUtil.validateRequestSeats(ticketRequest);
+        validationUtil.validatePassengerAges(ticketRequest);
 
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -165,47 +163,6 @@ public class TicketServiceImpl implements TicketService {
 
     }
 
-    private void validatePassengerAges(TicketRequest ticketRequest) {
-        for (PassengerRequest passenger : ticketRequest.getPassengers()) {
-
-            if (passenger.getAge() < 0) {
-                throw new ValidationException("Age cannot be negative");
-            }
-
-            if (passenger.getType() == PassengerType.INFANT
-                    && passenger.getAge() >= 2) {
-                throw new ValidationException(
-                        "Infant passenger must be under 2"
-                );
-            }
-
-            if (passenger.getType() == PassengerType.ADULT
-                    && passenger.getAge() < 18) {
-                throw new ValidationException(
-                        "Adult passenger must be 18 or older"
-                );
-            }
-
-            if (passenger.getType() == PassengerType.CHILD
-                    && passenger.getAge() >= 18) {
-                throw new ValidationException(
-                        "Child passenger must be under 18"
-                );
-            }
-        }
-    }
-
-    private void validateRequestSeats(TicketRequest ticketRequest) {
-        Set<Long> seatIds = ticketRequest.getPassengers()
-                .stream()
-                .map(PassengerRequest::getSeatId)
-                .collect(Collectors.toSet());
-
-        if (seatIds.size() != ticketRequest.getPassengers().size()) {
-            throw new ValidationException("Duplicate seat selected");
-        }
-    }
-
     private BigDecimal calculatePassengerPrice(
             PassengerRequest passenger,
             FlightEntity flight,
@@ -273,11 +230,7 @@ public class TicketServiceImpl implements TicketService {
                     .findByAirlineAndTicketClass(
                             flight.getAirline(),
                             seat.getTicketClass()
-                    )
-                    .orElseThrow(() ->
-                            new NotFoundException(
-                                    "Fare baggage policy not found"
-                            ));
+                    ).orElseThrow(() -> new NotFoundException("Fare baggage policy not found"));
 
             BigDecimal passengerPrice = calculatePassengerPrice(
                     passenger,
@@ -301,59 +254,6 @@ public class TicketServiceImpl implements TicketService {
     ) {
         return baggagePolicy.getPrice();
     }
-
-//    private void method(TicketRequest ticketRequest, FlightEntity flightEntity) {
-//
-//    }
-
-//    private BigDecimal calculatePassengerPrice(
-//            PassengerRequest passenger,
-//            FlightEntity flight,
-//            SeatEntity seat,
-//            FareBaggageEntity baggagePolicy
-//    ) {
-//
-//        BigDecimal baseFare = baggagePolicy.getPrice();
-//
-//        BigDecimal seatPrice = calculateSeatPrice(seat);
-//
-//        BigDecimal baggagePrice = calculateBaggagePrice(
-//                baggagePolicy
-//        );
-//
-//        return baseFare
-//                .add(seatPrice)
-//                .add(baggagePrice);
-//    }
-//
-//    private BigDecimal calculateBaseFare(
-//            Integer age,
-//            FlightEntity flight
-//    ) {
-//
-//        BigDecimal basePrice = flight.getPrice();
-//
-//        if (age <= 2) {
-//            return BigDecimal.ZERO;
-//        }
-//
-//        if (age <= 11) {
-//            BigDecimal childDiscount = BigDecimal.valueOf(30);
-//
-//            return basePrice
-//                    .multiply(
-//                            BigDecimal.valueOf(100)
-//                                    .subtract(childDiscount)
-//                    )
-//                    .divide(
-//                            BigDecimal.valueOf(100),
-//                            2,
-//                            RoundingMode.HALF_UP
-//                    );
-//        }
-//
-//        return basePrice;
-//    }
 
     @Transactional
     @Override
@@ -392,6 +292,8 @@ public class TicketServiceImpl implements TicketService {
         );
 
         for (TicketEntity ticket : tickets) {
+
+            validationUtil.validateTicketCanBePaid(ticket);
 
             ticket.setStatus(TicketStatus.CONFIRMED);
 
@@ -480,8 +382,6 @@ public class TicketServiceImpl implements TicketService {
                         .orElseThrow(() ->
                                 new NotFoundException("Flight booking not found"));
 
-        List<TicketEntity> tickets = flightBooking.getTickets();
-
         return ticketAndBookingLogics.calculateRefund(
                 flightBooking.getTotalPrice(),
                 flightBooking.getFlight().getDepartureTime(),
@@ -565,9 +465,5 @@ public class TicketServiceImpl implements TicketService {
         Page<@NonNull FlightBookingEntity> flightBookingEntities = flightBookingRepository.findAllByUserId(user.getId(), pageable);
 
         return flightBookingEntities.map(flightBookingMapper::toDto);
-    }
-
-    public void expireUnpaidBookings() {
-
     }
 }

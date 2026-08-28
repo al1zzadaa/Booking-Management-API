@@ -2,7 +2,7 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.request.*;
 import com.example.bookingmanagementapi.dto.response.AuthResponse;
-import com.example.bookingmanagementapi.security.AuthService;
+import com.example.bookingmanagementapi.service.AuthService;
 import com.example.bookingmanagementapi.service.PasswordResetService;
 import com.example.bookingmanagementapi.service.UserService;
 import jakarta.validation.Valid;
