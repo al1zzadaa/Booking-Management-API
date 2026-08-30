@@ -108,19 +108,24 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
 
         LocalDateTime now = LocalDateTime.now();
 
-        flightRepository.startFlights(
+        int startedFlights = flightRepository.startFlights(
                 Flights.SCHEDULED,
                 Flights.IN_PROGRESS,
                 now
         );
 
-        flightRepository.landFlights(
+        int landedFlights = flightRepository.landFlights(
                 Flights.IN_PROGRESS,
                 Flights.LANDED,
                 now
         );
 
-        log.info("Updated {} flights", flightRepository.count());
+        int totalUpdated = startedFlights + landedFlights;
+
+        log.info("Updated {} flights: {} started, {} landed",
+                totalUpdated,
+                startedFlights,
+                landedFlights);
     }
 
 }

@@ -13,11 +13,11 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = FlightMapper.class)
 public interface FavoriteFlightMapper {
 
-    @Mapping(source = "userId", target = "user.id")
+//    @Mapping(source = "userId", target = "user.id")
     @Mapping(source = "flightId", target = "flight.id")
     FavoriteFlightEntity toEntity(FavoriteFlightRequest request);
 
-    @Mapping(target = "userId", source = "user.id")
+//    @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "flightId", source = "flight.id")
 //    @Mapping(target = "flight", source = "flight")
     FavoriteFlightResponse toResponse(FavoriteFlightEntity entity);
