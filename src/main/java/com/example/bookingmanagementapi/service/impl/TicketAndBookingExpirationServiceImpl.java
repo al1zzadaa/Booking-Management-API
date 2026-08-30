@@ -1,6 +1,9 @@
 package com.example.bookingmanagementapi.service.impl;
 
-import com.example.bookingmanagementapi.entity.*;
+import com.example.bookingmanagementapi.entity.BookingEntity;
+import com.example.bookingmanagementapi.entity.FlightBookingEntity;
+import com.example.bookingmanagementapi.entity.SeatEntity;
+import com.example.bookingmanagementapi.entity.TicketEntity;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Flights;
 import com.example.bookingmanagementapi.enums.TicketStatus;
@@ -10,12 +13,14 @@ import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.TicketAndBookingExpirationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingExpirationService {
@@ -50,6 +55,8 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
                     booking.getUser().getId()
             );
         }
+
+        log.info("Expired {} unpaid flight bookings", bookings.size());
     }
 
     @Override
@@ -70,6 +77,8 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
                     booking.getUser().getId()
             );
         }
+
+        log.info("Expired {} unpaid hotel bookings", bookings.size());
     }
 
     @Transactional
@@ -89,6 +98,8 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
                 BookingStatus.CHECKED_OUT,
                 now
         );
+
+        log.info("Updated {} bookings", bookingRepository.count());
     }
 
     @Transactional
@@ -108,6 +119,8 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
                 Flights.LANDED,
                 now
         );
+
+        log.info("Updated {} flights", flightRepository.count());
     }
 
 }

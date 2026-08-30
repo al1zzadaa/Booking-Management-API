@@ -17,6 +17,7 @@ import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.LoyaltyPointService;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.support.InterceptingHttpAccessor;
 import org.springframework.security.core.userdetails.User;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoyaltyPointServiceImpl implements LoyaltyPointService {
@@ -47,11 +49,15 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
     @Override
     public void addPoints(LoyaltyPointRequest request) {
         savePoints(request, LoyaltyType.EARN);
+
+        log.info("Earned '{}' points", request.getPoints());
     }
 
     @Override
     public void removePoints(LoyaltyPointRequest request) {
         savePoints(request, LoyaltyType.REMOVE);
+
+        log.info("Removed '{}' points", request.getPoints());
     }
 
     private void savePoints(LoyaltyPointRequest request, LoyaltyType type) {
@@ -178,6 +184,8 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
                 .build();
 
         loyaltyPointRepository.save(loyaltyPoint);
+
+        log.info("Loyalty points '{}' used. User: '{}'", points, user.getEmail());
     }
 
     public BigDecimal pointValue(Integer points) {

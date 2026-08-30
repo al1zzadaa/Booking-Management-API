@@ -18,6 +18,7 @@ import com.example.bookingmanagementapi.service.specifications.FlightReviewSpeci
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FlightReviewServiceImpl implements FlightReviewService {
 
     private final FlightReviewRepository flightReviewRepository;
@@ -40,16 +42,11 @@ public class FlightReviewServiceImpl implements FlightReviewService {
         validationUtil.validateId(flightReviewRequest.getFlightId());
 
         validationUtil.validateRating(flightReviewRequest.getRating());
-//
-//
-//        FlightEntity flightEntity = flightRepository.findById(flightReviewRequest.getFlightId()).orElseThrow();
-//
-//        UserEntity user = userRepository.findById(userId).orElseThrow();
-//
-//        if (user.getId().equals(flightEntity.))
 
         FlightReviewEntity flightReview = flightReviewMapper.toEntity(flightReviewRequest);
         flightReviewRepository.save(flightReview);
+
+        log.info("Flight review created successfully by userId {}", userId);
     }
 
     @Transactional
@@ -65,11 +62,13 @@ public class FlightReviewServiceImpl implements FlightReviewService {
         flightReviewMapper.updateFlightReview(updateFlightReviewRequest, flightReview);
 
         flightReviewRepository.save(flightReview);
+
+        log.info("Flight review updated successfully by userId {}", userId);
     }
 
     @Transactional
     @Override
-    public void deleteFlightReview(Long id, Long userId) {
+    public void deleteFlightReview(Long userId, Long id) {
 
         validationUtil.validateId(id);
 
@@ -78,6 +77,8 @@ public class FlightReviewServiceImpl implements FlightReviewService {
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, flightReview.getUser().getId());
 
         flightReviewRepository.deleteById(id);
+
+        log.error("Flight review deleted successfully by userId {}", userId);
     }
 
     @Transactional(readOnly = true)

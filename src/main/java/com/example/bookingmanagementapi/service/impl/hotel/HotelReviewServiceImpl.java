@@ -5,20 +5,18 @@ import com.example.bookingmanagementapi.dto.request.HotelReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateHotelReviewRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelReviewResponse;
 import com.example.bookingmanagementapi.entity.HotelReviewEntity;
-import com.example.bookingmanagementapi.entity.UserEntity;
-import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.mapper.HotelReviewMapper;
-import com.example.bookingmanagementapi.repository.HotelRepository;
 import com.example.bookingmanagementapi.repository.HotelReviewRepository;
-import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.HotelReviewService;
 import com.example.bookingmanagementapi.service.specifications.HotelReviewSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HotelReviewServiceImpl implements HotelReviewService {
@@ -32,6 +30,8 @@ public class HotelReviewServiceImpl implements HotelReviewService {
 
         HotelReviewEntity hotelReviewEntity = hotelReviewMapper.toEntity(hotelReviewRequest);
         hotelReviewRepository.save(hotelReviewEntity);
+
+        log.info("Created hotelReviewEntity by userId {} and request {}", userId,  hotelReviewRequest);
     }
 
     @Override
@@ -45,6 +45,8 @@ public class HotelReviewServiceImpl implements HotelReviewService {
         hotelReviewMapper.updateHotelReview(updateHotelReviewRequest, hotelReviewEntity);
                 
         hotelReviewRepository.save(hotelReviewEntity);
+
+        log.info("Updated hotelReviewEntity by userId {} and request {}", userId, updateHotelReviewRequest);
     }
 
     @Override
@@ -56,6 +58,8 @@ public class HotelReviewServiceImpl implements HotelReviewService {
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, hotelReviewEntity.getUser().getId());
 
         hotelReviewRepository.deleteById(id);
+
+        log.info("Deleted hotelReviewEntity by userId {} and request {}", userId, id);
     }
 
 

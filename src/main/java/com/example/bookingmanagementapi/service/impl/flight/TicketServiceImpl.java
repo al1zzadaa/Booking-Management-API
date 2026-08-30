@@ -9,7 +9,6 @@ import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.Flights;
-import com.example.bookingmanagementapi.enums.PassengerType;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.*;
@@ -21,6 +20,7 @@ import com.example.bookingmanagementapi.service.specifications.TicketSpecificati
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -36,6 +36,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
@@ -64,9 +65,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public void book(
-            TicketRequest ticketRequest,
-            String username) {
+    public void book(TicketRequest ticketRequest,
+                     String username) {
 
         validationUtil.validateRequestSeats(ticketRequest);
         validationUtil.validatePassengerAges(ticketRequest);
@@ -156,6 +156,16 @@ public class TicketServiceImpl implements TicketService {
         flightBooking.setTotalPrice(totalBookingPrice);
 
         flightBookingRepository.save(flightBooking);
+
+        log.info(
+                "Flight booking created: bookingId={}, userId={}, flightId={}, accountId={}, passengers={}, totalPrice={}",
+                flightBooking.getId(),
+                user.getId(),
+                flightEntity.getId(),
+                accountEntity.getId(),
+                tickets.size(),
+                totalBookingPrice
+        );
 
         notificationService.sendBookingNotification(
                 user.getId()
@@ -322,6 +332,8 @@ public class TicketServiceImpl implements TicketService {
 
 //        notificationService.sendTicketPaymentNotification(ticket);
 
+        log.info("Payment for flightBooking with id: '{}'", flightBookingId);
+
         eventPublisher.publishEvent(
                 new BookingPaymentEvent(user.getId())
         );
@@ -369,6 +381,7 @@ public class TicketServiceImpl implements TicketService {
             ticket.getSeat().setIsAvailable(true);
         }
 
+        log.info("Flight booking has been cancelled with id '{}'", flightBookingId);
 
         notificationService.sendTicketCancellationNotification(flightBooking.getUser().getId());
     }

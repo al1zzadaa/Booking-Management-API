@@ -7,13 +7,16 @@ import com.example.bookingmanagementapi.entity.SubscriptionEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.event.*;
-import com.example.bookingmanagementapi.exception.InsufficientBalanceException;
 import com.example.bookingmanagementapi.mapper.SubscriptionMapper;
-import com.example.bookingmanagementapi.repository.*;
+import com.example.bookingmanagementapi.repository.AccountRepository;
+import com.example.bookingmanagementapi.repository.SubscriptionPlanRepository;
+import com.example.bookingmanagementapi.repository.SubscriptionRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.SubscriptionService;
 import com.example.bookingmanagementapi.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -76,6 +80,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         subscriptionRepository.save(subscriptionEntity);
 
+        log.info("User {} subscribed to plan '{}'", user.getId(), subscriptionPlanEntity.getSubscriptionType());
+
         eventPublisher.publishEvent(
                 new SubscribeEvent(user.getId()));
     }
@@ -96,12 +102,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionEntity.setAutoRenew(false);
         subscriptionEntity.setEndDate(LocalDate.now());
 
+        log.info("User {} cancelled subscription '{}'", userId, subscriptionEntity.getSubscriptionPlan().getSubscriptionType());
+
         eventPublisher.publishEvent(
                 new SubscriptionCancelledEvent(userId)
         );
     }
 
-    //
     @Override
     public boolean isActive(Long userId) {
         return subscriptionRepository
@@ -143,6 +150,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             subscriptionEntity.setIsActive(true);
         }
 
+        log.info("User {} renewed the subscription '{}'", userId, subscriptionEntity.getId());
+
         eventPublisher.publishEvent(
                 new SubscriptionRenewedEvent(userId
                 )
@@ -176,6 +185,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         subscriptionEntity.setAutoRenew(true);
 
+        log.info("Auto renew enabled for user '{}'", userId);
+
         eventPublisher.publishEvent(
                 new AutoRenewEnabledEvent(userId));
     }
@@ -186,6 +197,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         SubscriptionEntity subscriptionEntity = subscriptionRepository.findByUserIdAndIsActive(userId, true);
 
         subscriptionEntity.setAutoRenew(false);
+
+        log.info("Auto renew disabled for user '{}'", userId);
 
         eventPublisher.publishEvent(
                 new AutoRenewDisableEvent(userId));
@@ -213,5 +226,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 subscription.setIsActive(false);
             }
         }
+
+        log.info("Expired subscriptions deactivated");
     }
 }

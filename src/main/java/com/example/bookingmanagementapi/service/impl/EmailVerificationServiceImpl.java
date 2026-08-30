@@ -12,6 +12,7 @@ import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationServiceImpl implements EmailVerificationService {
@@ -64,7 +66,6 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                                 new InvalidTokenException(
                                         "Invalid verification token"
                                 ));
-
 
 
         if (verification.getExpiresAt()
@@ -127,20 +128,22 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                 "http://localhost:8080/email-verification?token="
                         + token;
 
-        MailRequest  mailRequest = new MailRequest();
+        MailRequest mailRequest = new MailRequest();
         mailRequest.setTo(user.getEmail());
         mailRequest.setSubject("Email Verification");
         mailRequest.setMessage("""
                 Hello %s,
-
+                
                 Please verify your email by clicking this link:
-
+                
                 %s
-
+                
                 This link expires in 24 hours.
                 """.formatted(user.getEmail(), link));
 
         emailService.sendTextEmail(mailRequest);
+
+        log.info("Verification email sent.");
     }
 
 }

@@ -12,6 +12,7 @@ import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.SubscriptionAutoRenewService;
 import com.example.bookingmanagementapi.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewService {
 
     private final SubscriptionRepository subscriptionRepository;
@@ -33,6 +35,9 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
     @Transactional
 //            (readOnly = true)
     public void autoRenew() {
+
+        int renewedCount = 0;
+        int failedCount = 0;
 
         while (true) {
 
@@ -62,17 +67,32 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
 
                     subscriptionService.renew(userEntity.getId(), request);
 
+                    renewedCount++;
+
+                    log.info(
+                            "Auto-renewed subscription {} for user {}",
+                            subscription.getId(),
+                            userEntity.getId()
+                    );
+
                 } catch (Exception e) {
-//                    log.error(
-//                            "Auto-renew failed for subscription {}",
-//                            subscription.getId(),
-//                            e
-//                    );
-                    System.out.println("Auto-renew failed for subscription {}");
 
+                    failedCount++;
 
+                    log.error(
+                            "Auto-renew failed for subscription {}",
+                            subscription.getId(),
+                            e
+                    );
                 }
             }
         }
+
+        log.info(
+                "Auto-renew job completed: {} renewed, {} failed",
+                renewedCount,
+                failedCount
+        );
+
     }
 }

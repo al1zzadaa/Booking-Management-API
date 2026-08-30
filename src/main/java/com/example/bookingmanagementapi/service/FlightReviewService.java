@@ -14,7 +14,7 @@ public interface FlightReviewService {
 
     void updateFlightReview(Long id, Long userId, UpdateFlightReviewRequest updateFlightReviewRequest);
 
-    void deleteFlightReview(Long id, Long userId);
+    void deleteFlightReview(Long userId, Long id);
 
     Page<@NonNull FlightReviewResponse> findAll(FlightReviewFilter flightReviewFilter, Pageable pageable);
 

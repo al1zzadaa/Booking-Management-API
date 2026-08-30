@@ -14,6 +14,7 @@ import com.example.bookingmanagementapi.service.PromoCodeService;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import com.example.bookingmanagementapi.service.specifications.PromoCodeSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromoCodeServiceImpl implements PromoCodeService {
@@ -100,6 +102,8 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         promoCodeEntity.setActive(true);
 
         promoCodeRepository.save(promoCodeEntity);
+
+        log.info("Promo code {} activated", promoCodeEntity.getId());
     }
 
     @Override
@@ -110,6 +114,8 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         promoCodeEntity.setActive(false);
 
         promoCodeRepository.save(promoCodeEntity);
+
+        log.info("Promo code {} deactivated", promoCodeEntity.getId());
     }
 
     //    @Override

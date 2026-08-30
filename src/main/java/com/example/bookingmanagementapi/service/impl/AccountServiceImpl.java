@@ -17,6 +17,7 @@ import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.specifications.AccountSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -50,6 +52,12 @@ public class AccountServiceImpl implements AccountService {
                 .build();
 
         accountRepository.save(account);
+
+        log.info("Account created: accountId={}, userId={}, currency={}",
+                account.getId(),
+                user.getId(),
+                account.getCurrency()
+        );
     }
 
     @Override
@@ -68,6 +76,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setStatus(AccountStatus.DELETED);
+
+        log.info("Account '{}' deleted", accountId);
     }
 
     @Override
@@ -81,6 +91,8 @@ public class AccountServiceImpl implements AccountService {
         accountMapper.updateAccount(updateAccountRequest, accountEntity);
 
         accountRepository.save(accountEntity);
+
+        log.info("Account '{}' updated with request '{}'", accountEntity, updateAccountRequest);
     }
 
     @Override
@@ -104,6 +116,7 @@ public class AccountServiceImpl implements AccountService {
         return accountEntities.map(accountMapper::toDto);
     }
 
+    @Transactional
     @Override
     public void blockAccount(Long id) {
 
@@ -113,8 +126,11 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
         accountEntity.setStatus(AccountStatus.BLOCKED);
+
+        log.info("Account '{}' blocked", accountEntity.getId());
     }
 
+    @Transactional
     @Override
     public void unblockAccount(Long id) {
 
@@ -124,10 +140,14 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
         accountEntity.setStatus(AccountStatus.ACTIVE);
+
+        log.info("Account '{}' unblocked", accountEntity.getId());
     }
 
+    @Transactional
     @Override
     public AccountEntity createDefaultAccount(UserEntity user, Currency currency) {
+        log.info("Creating default account for user '{}'", user.getEmail());
         return AccountEntity.builder()
                 .user(user)
                 .currency(currency)
@@ -180,6 +200,8 @@ public class AccountServiceImpl implements AccountService {
 
         account.setBalance(convertedBalance);
         account.setCurrency(newCurrency);
+
+        log.info("Account '{}' changed currency '{}'", accountId, newCurrency);
     }
 
     @Override

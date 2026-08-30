@@ -18,6 +18,7 @@ import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
@@ -77,6 +79,8 @@ public class TransactionServiceImpl implements TransactionService {
         TransactionEntity transactionEntity = transactionRepository.findById(transactionId).orElseThrow(null);
 
         transactionRepository.delete(transactionEntity);
+
+        log.info("Transaction with id: '{}' has been deleted", transactionId);
     }
 
     @Override
@@ -195,6 +199,8 @@ public class TransactionServiceImpl implements TransactionService {
 //    / /        ticketRepository.saveAll(tickets);
 //    / /        transactionRepository.save(transactionEntity);
 
+        log.info("Payment for ticket with id: '{}'", flightBookingId);
+
         applyUserPromoCode(flightBooking.getUser().getId(), paymentRequest.getPromoCode());
     }
 
@@ -224,6 +230,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        log.info("Refund for ticket with id: '{}'", flightBookingEntity.getId());
     }
 
 
@@ -252,6 +260,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        log.info("Refund for hotel booking with id: '{}'", booking.getId());
     }
 
     @Override
@@ -290,6 +300,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        log.info("Withdraw for account with id: '{}'", accountEntity.getId());
     }
 
     @Override
@@ -338,6 +350,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         transactionRepository.save(transactionEntity);
+
+        log.info("Deposit for account with id: '{}'", accountEntity.getId());
     }
 
     //    @Transactional
@@ -430,6 +444,9 @@ public class TransactionServiceImpl implements TransactionService {
 //
 //        transactionRepository.save(transactionEntity);
 
+
+        log.info("Payment for booking with id: '{}'", booking.getId());
+
         applyUserPromoCode(
                 booking.getUser().getId(),
                 paymentRequest.getPromoCode()
@@ -519,6 +536,8 @@ public class TransactionServiceImpl implements TransactionService {
                 subscriptionId,
                 description
         );
+
+        log.info("Subscription payment for user with id: '{}'", subscriptionId);
 
 //        TransactionEntity transactionEntity = TransactionEntity.builder()
 //                .amount(paymentResult.finalAmount())

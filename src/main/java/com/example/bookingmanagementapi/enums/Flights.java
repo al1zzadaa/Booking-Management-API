@@ -4,5 +4,6 @@ public enum Flights {
     SCHEDULED,
     IN_PROGRESS,
     CANCELLED,
-    LANDED
+    LANDED,
+    DELAYED
 }

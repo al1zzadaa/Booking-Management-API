@@ -8,10 +8,12 @@ import com.example.bookingmanagementapi.mapper.SubscriptionPlanMapper;
 import com.example.bookingmanagementapi.repository.SubscriptionPlanRepository;
 import com.example.bookingmanagementapi.service.SubscriptionPlanService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
@@ -64,6 +66,8 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
         subscriptionPlanEntity.setActive(true);
         subscriptionPlanRepository.save(subscriptionPlanEntity);
+
+        log.info("Subscription plan with id {} activated", id);
     }
 
     @Override
@@ -73,5 +77,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
         subscriptionPlanEntity.setActive(false);
         subscriptionPlanRepository.save(subscriptionPlanEntity);
+
+        log.info("Subscription plan with id {} deactivated", id);
     }
 }

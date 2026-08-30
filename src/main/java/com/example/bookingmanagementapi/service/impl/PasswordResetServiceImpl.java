@@ -14,6 +14,7 @@ import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PasswordResetServiceImpl implements PasswordResetService {
@@ -50,6 +52,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         UserEntity user = verification.getUser();
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        log.info("Password reset request received for user {}", user.getEmail());
 
         emailVerificationTokenRepository.delete(verification);
     }
@@ -96,14 +100,16 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         mailRequest.setSubject("Reset Password");
 
         mailRequest.setMessage("""
-            Hello %s,
+                Hello %s,
+                
+                Click the link below to reset your password:
+                
+                %s
+                
+                This link expires in 15 minutes.
+                """.formatted(user.getFirstName(), link));
 
-            Click the link below to reset your password:
-
-            %s
-
-            This link expires in 15 minutes.
-            """.formatted(user.getFirstName(), link));
+        log.info("Sending email for password reset to email '{}'", mailRequest.getTo());
 
         emailService.sendTextEmail(mailRequest);
     }

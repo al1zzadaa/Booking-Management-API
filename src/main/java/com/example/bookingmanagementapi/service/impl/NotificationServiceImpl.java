@@ -15,12 +15,14 @@ import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
@@ -50,19 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
             String message) {
 
         send(userId, createNotification(type, title, message));
-    }
-
-//    @Override
-//    public void create(NotificationRequest notificationRequest) {
-//        NotificationEntity notificationEntity = notificationMapper.toEntity(notificationRequest);
-//
-//        notificationRepository.save(notificationEntity);
-//    }
-
-    private void verifyUser(Long userId, NotificationEntity notificationEntity) {
-        if (!notificationEntity.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("You cannot access this notification");
-        }
     }
 
     @Override
@@ -125,6 +114,11 @@ public class NotificationServiceImpl implements NotificationService {
         emailService.sendTextEmail(mailRequest);
 
         notificationRepository.save(notification);
+
+        log.info("Notification sent: userId={}, type={}",
+                userId,
+                notificationRequest.getNotificationType()
+        );
     }
 
     @Override

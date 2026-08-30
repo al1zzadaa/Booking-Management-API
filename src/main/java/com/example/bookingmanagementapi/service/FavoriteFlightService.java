@@ -9,15 +9,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface FavoriteFlightService {
 
-    void addFavoriteFlight(FavoriteFlightRequest favoriteFlightRequest);
+    void addFavoriteFlight(Long userId, FavoriteFlightRequest favoriteFlightRequest);
 
-    void removeFavoriteFlight(Long id);
+    void removeFavoriteFlight(Long userId, Long id);
 
     Page<@NonNull FavoriteFlightResponse> getAll(Long userId, Pageable pageable);
 
     void clearFavoriteFlights(Long userId);
 
     FavoriteFlightResponse getById(Long id);
-
-    void updateFavoriteFlight(Long id, UpdateFavoriteFlightRequest updateFavoriteFlightRequest);
 }

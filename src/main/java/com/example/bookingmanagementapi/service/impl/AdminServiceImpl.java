@@ -9,8 +9,10 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
@@ -27,5 +29,7 @@ public class AdminServiceImpl implements AdminService {
         userEntity.getRoles().add(Roles.ROLE_ADMIN);
 
         userRepository.save(userEntity);
+
+        log.info("User: '{}' become admin", privilegeRequest.getEmail());
     }
 }

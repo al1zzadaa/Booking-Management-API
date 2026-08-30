@@ -20,6 +20,7 @@ import com.example.bookingmanagementapi.service.UserService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -38,7 +40,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AccountService accountService;
     private final EmailVerificationService emailVerificationService;
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Transactional
     @Override
@@ -64,6 +65,8 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(userEntity);
 
+        log.info("Created account for user {}", userEntity.getEmail());
+
         emailVerificationService.create(userEntity);
     }
 
@@ -78,6 +81,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         entity.setIsActive(UserStatus.DELETED);
+
+        log.info("Deleted user {}", entity.getEmail());
     }
 
     @Transactional
@@ -92,6 +97,8 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(userEntity, updateUserRequest);
 
         userRepository.save(userEntity);
+
+        log.info("Updated user {} to update request {}", userEntity.getEmail(),  updateUserRequest);
     }
 
     @Transactional(readOnly = true)
@@ -125,6 +132,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         userEntity.setIsActive(UserStatus.BLOCKED);
+
+        log.info("Blocked user {}", userEntity.getEmail());
     }
 
     @Transactional
@@ -137,6 +146,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         userEntity.setIsActive(UserStatus.ACTIVE);
+
+        log.info("Unblocked user {}", userEntity.getEmail());
     }
 
     @Override public UserResponse getCurrentUser(Long userId) {

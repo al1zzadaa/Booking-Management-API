@@ -10,6 +10,7 @@ import com.example.bookingmanagementapi.repository.UserPromoCodeRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserPromoCodeServiceImpl implements UserPromoCodeService {
@@ -44,6 +46,8 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
                         .usedAt(LocalDateTime.now())
                         .build()
         );
+
+        log.info("Applying promo code {} to user {}", promoCode, user);
     }
 
     @Override

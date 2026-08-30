@@ -10,10 +10,10 @@ import com.example.bookingmanagementapi.mapper.FavoriteFlightMapper;
 import com.example.bookingmanagementapi.repository.FavoriteFlightRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FavoriteFlightService;
-import com.example.bookingmanagementapi.service.UserService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FavoriteFlightServiceImpl implements FavoriteFlightService {
 
     private final FavoriteFlightRepository favoriteFlightRepository;
@@ -30,9 +31,9 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
 
     @Transactional
     @Override
-    public void addFavoriteFlight(FavoriteFlightRequest favoriteFlightRequest) {
+    public void addFavoriteFlight(Long userId, FavoriteFlightRequest favoriteFlightRequest) {
 
-        UserEntity userEntity = userRepository.findById(favoriteFlightRequest.getUserId())
+        UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(null);
 
         FavoriteFlightEntity favoriteFlightEntity = favoriteFlightMapper.toEntity(favoriteFlightRequest);
@@ -40,19 +41,23 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
         favoriteFlightEntity.setUser(userEntity);
 
         favoriteFlightRepository.save(favoriteFlightEntity);
+
+        log.info("Added to favorite flights by  userId {}", userId);
     }
 
     @Transactional
     @Override
-    public void removeFavoriteFlight(Long id) {
+    public void removeFavoriteFlight(Long userId, Long id) {
 
         validationUtil.validateId(id);
 
-        if(!favoriteFlightRepository.existsById(id)){
-            throw new NotFoundException("Product not found in favorites");
-        }
+        FavoriteFlightEntity favoriteFlight = favoriteFlightRepository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("Flight not found in favorites"));
 
-        favoriteFlightRepository.deleteById(id);
+        favoriteFlightRepository.delete(favoriteFlight);
+
+        log.info("Removed from favorite flights by   userId {}", id);
     }
 
     @Transactional(readOnly = true)
@@ -87,19 +92,4 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
 
         return favoriteFlightMapper.toResponse(flight);
     }
-
-    @Transactional
-    @Override
-    public void updateFavoriteFlight(Long id, UpdateFavoriteFlightRequest updateFavoriteFlightRequest) {
-        validationUtil.validateId(id);
-
-        FavoriteFlightEntity favoriteFlightEntity = favoriteFlightRepository.findById(id)
-                .orElseThrow(null);
-
-        favoriteFlightMapper.updateFavoriteFlight(updateFavoriteFlightRequest, favoriteFlightEntity);
-
-        favoriteFlightRepository.save(favoriteFlightEntity);
-
-    }
-
 }

@@ -18,6 +18,7 @@ import com.example.bookingmanagementapi.service.specifications.BookingSpecificat
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -50,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public void bookHotel(String username,BookingRequest booking) {
+    public void bookHotel(String username, BookingRequest booking) {
 
 //        validationUtil.validateId(booking.getUserId());
         validationUtil.validateId(booking.getAccountId());
@@ -119,6 +121,8 @@ public class BookingServiceImpl implements BookingService {
 
         bookingRepository.save(bookingEntity);
 
+        log.info("Booking with id: '{}' has been booked for 15 minutes", bookingEntity.getId());
+
         notificationService.sendBookingNotification(userEntity.getId());
     }
 
@@ -150,6 +154,8 @@ public class BookingServiceImpl implements BookingService {
                 booking.getUser().getId(),
                 booking.getTotalPrice(),
                 "Points earned from hotel payment");
+
+        log.info("Payment for booking with id: '{}'", bookingId);
 
 //        notificationService.sendBookingPaymentNotification(booking);
         eventPublisher.publishEvent(
@@ -191,6 +197,8 @@ public class BookingServiceImpl implements BookingService {
                 "Points removed due to booking cancellation"
         );
 
+        log.info("Booking cancellation for booking with id: '{}'", bookingId);
+
 //        notificationService.sendBookingCancellationNotification(booking.getUser().getId());
         eventPublisher.publishEvent(
                 new BookingCancelledEvent(booking.getUser().getId())
@@ -203,6 +211,8 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Page<@NonNull BookingEntity> bookings = bookingRepository.findAllByUserId(user.getId(), pageable);
+
+        log.info("User bookings by userId {}", user.getId());
 
         return bookings.map(bookingMapper::toDto);
     }
@@ -254,6 +264,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void deleteBooking(Long id) {
+        //Todo
+
         bookingRepository.deleteById(id);
     }
 
