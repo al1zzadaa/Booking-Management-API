@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.PromoCodeFilter;
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
-import com.example.bookingmanagementapi.dto.request.UpdatePromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
 import com.example.bookingmanagementapi.entity.PromoCodeEntity;
 import com.example.bookingmanagementapi.enums.DiscountType;
@@ -13,6 +12,7 @@ import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.service.PromoCodeService;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import com.example.bookingmanagementapi.service.specifications.PromoCodeSpecification;
+import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -32,9 +31,13 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     private final PromoCodeMapper promoCodeMapper;
     private final PromoCodeRepository promoCodeRepository;
     private final UserPromoCodeService userPromoCodeService;
+    private final ValidationUtil validationUtil;
 
     @Override
     public void create(PromoCodeRequest promoCodeResuest) {
+
+        validationUtil.checkTime(promoCodeResuest.getStartDate(), promoCodeResuest.getEndDate());
+
         PromoCodeEntity promoCodeEntity = promoCodeMapper.toEntity(promoCodeResuest);
 
         promoCodeRepository.save(promoCodeEntity);
@@ -67,7 +70,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public void update(Long id, UpdatePromoCodeRequest updatePromoCodeResuest) {
+    public void update(Long id, PromoCodeRequest updatePromoCodeResuest) {
         PromoCodeEntity promoCodeEntity = promoCodeRepository
                 .findById(id).orElseThrow(null);
 

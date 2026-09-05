@@ -8,9 +8,11 @@ import com.example.bookingmanagementapi.enums.Rows;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.enums.Tickets;
 import com.example.bookingmanagementapi.exception.AccessDeniedException;
+import com.example.bookingmanagementapi.exception.BadRequestException;
 import com.example.bookingmanagementapi.exception.ValidationException;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -108,4 +110,9 @@ public class ValidationUtil {
         }
     }
 
+    public void checkTime(LocalDateTime departureTime, LocalDateTime arrivalTime) {
+        if(!departureTime.isBefore(arrivalTime)) {
+            throw new BadRequestException("Error in time validation 'before-after' ");
+        }
+    }
 }

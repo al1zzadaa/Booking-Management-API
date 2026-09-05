@@ -4,7 +4,6 @@ package com.example.bookingmanagementapi.service;
 import com.example.bookingmanagementapi.dto.filter.TicketFilter;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import org.springframework.data.domain.Page;
@@ -25,8 +24,6 @@ public interface TicketService {
     List<TicketResponse> findAll(TicketFilter ticketFilter);
 
     TicketResponse findById(Long id);
-
-    void updateTicket(Long id, UpdateTicketRequest updateTicketRequest);
 
     void deleteTicketById(Long id);
 

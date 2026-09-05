@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.SubscriptionPlanRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateSubscriptionPlanRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionPlanResponse;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.mapper.SubscriptionPlanMapper;
@@ -35,7 +34,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     }
 
     @Override
-    public void updateSubscription(Long id, UpdateSubscriptionPlanRequest updateSubscriptionPlanRequest) {
+    public void updateSubscription(Long id, SubscriptionPlanRequest updateSubscriptionPlanRequest) {
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
                 .orElseThrow(null);
 

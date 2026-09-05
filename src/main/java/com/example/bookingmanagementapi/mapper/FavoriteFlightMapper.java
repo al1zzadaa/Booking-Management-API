@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.mapper;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteFlightRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFavoriteFlightRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse;
 import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
 import org.mapstruct.Mapper;
@@ -23,6 +22,4 @@ public interface FavoriteFlightMapper {
     FavoriteFlightResponse toResponse(FavoriteFlightEntity entity);
 
     List<FavoriteFlightResponse> toListDto(List<FavoriteFlightEntity> list);
-
-    void updateFavoriteFlight(UpdateFavoriteFlightRequest updateFavoriteFlightRequest, @MappingTarget FavoriteFlightEntity favoriteFlightEntity);
 }

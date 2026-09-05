@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.filter.PromoCodeFilter;
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
-import com.example.bookingmanagementapi.dto.request.UpdatePromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
 import com.example.bookingmanagementapi.service.PromoCodeService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class PromoCodeController {
     @PutMapping("/{id}")
     public void update(
             @PathVariable Long id,
-            @RequestBody UpdatePromoCodeRequest request
+            @RequestBody PromoCodeRequest request
     ) {
         promoCodeService.update(id, request);
     }

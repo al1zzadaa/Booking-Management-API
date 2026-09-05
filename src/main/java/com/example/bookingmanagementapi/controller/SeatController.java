@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.filter.SeatFilter;
 import com.example.bookingmanagementapi.dto.request.SeatRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateSeatRequest;
 import com.example.bookingmanagementapi.dto.response.flight.SeatResponse;
 import com.example.bookingmanagementapi.service.SeatService;
 import lombok.NonNull;
@@ -17,13 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class SeatController {
 
     private final SeatService seatService;
-
-
-    @PutMapping("/{id}")
-    public void updateSeat(@RequestBody UpdateSeatRequest updateSeatRequest,
-                           @PathVariable Long id) {
-        seatService.updateSeat(id, updateSeatRequest);
-    }
 
     @DeleteMapping("/{id}")
     public void deleteSeat(@PathVariable Long id) {

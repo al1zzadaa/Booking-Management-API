@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl.hotel;
 
 import com.example.bookingmanagementapi.dto.filter.HotelFilter;
 import com.example.bookingmanagementapi.dto.request.HotelRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateHotelRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelResponse;
 import com.example.bookingmanagementapi.entity.HotelEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -35,18 +34,6 @@ public class HotelServiceImpl implements HotelService {
         hotelRepository.save(hotelEntity);
     }
 
-    @Override
-    public void updateHotel(Long id, UpdateHotelRequest updateHotelRequest) {
-
-        validationUtil.validateId(id);
-
-        HotelEntity hotelEntity = hotelRepository.findById(id)
-                .orElseThrow();
-
-        hotelMapper.updateHotel(updateHotelRequest, hotelEntity);
-
-        hotelRepository.save(hotelEntity);
-    }
 
     @Override
     public void deleteHotel(Long hotelId) {

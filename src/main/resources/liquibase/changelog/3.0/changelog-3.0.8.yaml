@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-default-active-subscription-plan
+      author: sadigalizada
+
+      changes:
+        - addDefaultValue:
+            tableName: subscription_plans
+            columnName: active
+            defaultValueBoolean: true
+
+      rollback:
+        - dropDefaultValue:
+            tableName: subscription_plans
+            columnName: active

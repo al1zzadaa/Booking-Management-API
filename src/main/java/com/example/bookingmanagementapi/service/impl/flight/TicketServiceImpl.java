@@ -4,7 +4,6 @@ import com.example.bookingmanagementapi.dto.filter.TicketFilter;
 import com.example.bookingmanagementapi.dto.request.PassengerRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.request.TicketRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateTicketRequest;
 import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
@@ -443,19 +442,6 @@ public class TicketServiceImpl implements TicketService {
                 .orElseThrow(() -> new NotFoundException("ticket not found"));
 
         return ticketMapper.toDto(ticket);
-    }
-
-    @Override
-    public void updateTicket(Long ticketId, UpdateTicketRequest updateTicketRequest) {
-
-        validationUtil.validateId(ticketId);
-
-        TicketEntity ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new NotFoundException("ticket not found"));
-
-        ticketMapper.updateTicket(ticketId, updateTicketRequest);
-
-        ticketRepository.save(ticket);
     }
 
     @Override

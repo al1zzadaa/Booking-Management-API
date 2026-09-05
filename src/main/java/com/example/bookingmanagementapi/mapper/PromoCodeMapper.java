@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.mapper;
 
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
-import com.example.bookingmanagementapi.dto.request.UpdatePromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
 import com.example.bookingmanagementapi.entity.PromoCodeEntity;
 import org.mapstruct.Mapper;
@@ -18,6 +17,6 @@ public interface PromoCodeMapper {
 
     List<PromoCodeResponse> toDto(List<PromoCodeEntity> entities);
 
-    void update(UpdatePromoCodeRequest request,  @MappingTarget PromoCodeEntity entity);
+    void update(PromoCodeRequest request,  @MappingTarget PromoCodeEntity entity);
 
 }

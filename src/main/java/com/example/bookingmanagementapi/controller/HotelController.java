@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.filter.HotelFilter;
 import com.example.bookingmanagementapi.dto.request.HotelRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateHotelRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelResponse;
 import com.example.bookingmanagementapi.service.HotelService;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +24,6 @@ public class HotelController {
     @GetMapping("/{id}")
     public HotelResponse getHotelById(@PathVariable Long id) {
         return hotelService.findById(id);
-    }
-
-    @PutMapping("/{id}")
-    public void updateHotel(@RequestBody UpdateHotelRequest updateHotelRequest,
-                            @PathVariable Long id) {
-        hotelService.updateHotel(id, updateHotelRequest);
     }
 
     @DeleteMapping("/{id}")

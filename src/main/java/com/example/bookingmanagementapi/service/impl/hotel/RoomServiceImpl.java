@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl.hotel;
 
 import com.example.bookingmanagementapi.dto.filter.RoomFilter;
 import com.example.bookingmanagementapi.dto.request.RoomRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateRoomRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.RoomResponse;
 import com.example.bookingmanagementapi.entity.RoomEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -28,16 +27,6 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void createRoom(RoomRequest roomRequest) {
         RoomEntity roomEntity = roomMapper.toEntity(roomRequest);
-        roomRepository.save(roomEntity);
-    }
-
-    @Override
-    public void updateRoom(Long id, UpdateRoomRequest updateRoomRequest) {
-
-        validationUtil.validateId(id);
-
-        RoomEntity roomEntity = roomRepository.findById(id).orElseThrow(null);
-        roomMapper.updateRoom(updateRoomRequest, roomEntity);
         roomRepository.save(roomEntity);
     }
 

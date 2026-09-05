@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.SubscriptionPlanRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateSubscriptionPlanRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionPlanResponse;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface SubscriptionPlanService {
 
     void deleteSubscription(Long id);
 
-    void updateSubscription(Long  id, UpdateSubscriptionPlanRequest updateSubscriptionPlanRequest);
+    void updateSubscription(Long  id, SubscriptionPlanRequest updateSubscriptionPlanRequest);
 
     SubscriptionPlanResponse getSubscription(Long id);
 

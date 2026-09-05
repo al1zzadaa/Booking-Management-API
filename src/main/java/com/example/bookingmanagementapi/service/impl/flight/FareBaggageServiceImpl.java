@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.FareBaggageFilter;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 import com.example.bookingmanagementapi.entity.FareBaggageEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -45,20 +44,6 @@ public class FareBaggageServiceImpl implements FareBaggageService {
         }
 
         fareBaggageRepository.deleteById(id);
-    }
-
-    @Transactional
-    @Override
-    public void updateFareBaggageById(UpdateFareBaggageRequest updateFareBaggageRequest, Long id) {
-
-        validationUtil.validateId(id);
-
-        FareBaggageEntity fareBaggageEntity = fareBaggageRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("FareBaggageEntity not found with id: " + id));
-
-        fareBaggageMapper.update(updateFareBaggageRequest, fareBaggageEntity);
-
-        fareBaggageRepository.save(fareBaggageEntity);
     }
 
     @Transactional(readOnly = true)

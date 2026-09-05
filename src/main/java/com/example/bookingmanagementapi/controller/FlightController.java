@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.filter.FlightFilter;
 import com.example.bookingmanagementapi.dto.request.FlightRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFlightRequest;
 import com.example.bookingmanagementapi.dto.response.flight.FlightResponse;
 import com.example.bookingmanagementapi.service.FlightService;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,6 @@ public class FlightController {
     @GetMapping
     public Page<FlightResponse> getAllFlights(FlightFilter flightFilter, Pageable pageable){
         return flightService.findAll(flightFilter, pageable);
-    }
-
-    @PutMapping("/{id}")
-    public void updateFlight(@RequestBody UpdateFlightRequest updateFlightRequest,
-                             @PathVariable Long id){
-        flightService.updateFlight(id, updateFlightRequest);
     }
 
     @DeleteMapping("/{id}")

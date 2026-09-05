@@ -5,6 +5,7 @@ import com.example.bookingmanagementapi.dto.request.AirlineRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateAirlineRequest;
 import com.example.bookingmanagementapi.dto.response.AirlineResponse;
 import com.example.bookingmanagementapi.service.AirlineService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public class AirlineController {
     }
 
     @PostMapping
-    public void create(@RequestBody AirlineRequest airlineRequest) {
+    public void create(@Valid @RequestBody AirlineRequest airlineRequest) {
         airlineService.create(airlineRequest);
     }
 

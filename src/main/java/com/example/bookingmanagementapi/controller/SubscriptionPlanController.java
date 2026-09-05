@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.request.SubscriptionPlanRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateSubscriptionPlanRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionPlanResponse;
 import com.example.bookingmanagementapi.service.SubscriptionPlanService;
 import jakarta.validation.Valid;
@@ -39,7 +38,7 @@ public class SubscriptionPlanController {
     @PutMapping("/{id}")
     public void updateSubscription(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateSubscriptionPlanRequest request
+            @Valid @RequestBody SubscriptionPlanRequest request
     ) {
         subscriptionPlanService.updateSubscription(id, request);
     }

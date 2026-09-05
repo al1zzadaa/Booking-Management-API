@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,5 +30,5 @@ public class SubscriptionPlanEntity {
     private Integer durationDays;
 
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = true;
 }

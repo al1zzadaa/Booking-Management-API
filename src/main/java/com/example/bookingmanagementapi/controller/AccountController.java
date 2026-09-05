@@ -7,6 +7,7 @@ import com.example.bookingmanagementapi.dto.request.UpdateAccountRequest;
 import com.example.bookingmanagementapi.dto.response.AccountResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class AccountController {
 
     @PostMapping
     public void createAccount(@AuthenticationPrincipal CustomUserDetails user,
-                              @RequestBody AccountRequest accountRequest) {
+                              @Valid @RequestBody AccountRequest accountRequest) {
         accountService.create(user.getId(), accountRequest);
     }
 

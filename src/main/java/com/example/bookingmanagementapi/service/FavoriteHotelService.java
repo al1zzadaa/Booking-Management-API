@@ -1,8 +1,6 @@
 package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFavoriteFlightRequest;
-import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse;
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;
 
 import java.util.List;

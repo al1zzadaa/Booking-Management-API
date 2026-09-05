@@ -3,7 +3,6 @@ package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.filter.HotelFilter;
 import com.example.bookingmanagementapi.dto.request.HotelRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateHotelRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelResponse;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -12,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 public interface HotelService {
 
     void createHotel(HotelRequest hotelRequest);
-
-    void updateHotel(Long id, UpdateHotelRequest updateHotelRequest);
 
     void deleteHotel(Long hotelId);
 

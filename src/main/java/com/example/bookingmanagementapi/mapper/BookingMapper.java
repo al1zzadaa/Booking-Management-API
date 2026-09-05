@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.mapper;
 
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateBookingRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.entity.BookingEntity;
 import org.mapstruct.Mapper;
@@ -20,6 +19,4 @@ public interface BookingMapper {
     BookingResponse toDto(BookingEntity bookingEntity);
 
     List<BookingResponse> toDto(List<BookingEntity> bookingEntities);
-
-    void updateBooking(UpdateBookingRequest updateBookingRequest, @MappingTarget BookingEntity bookingEntity);
 }

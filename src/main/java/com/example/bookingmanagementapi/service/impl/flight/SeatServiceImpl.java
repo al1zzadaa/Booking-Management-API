@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.SeatFilter;
 import com.example.bookingmanagementapi.dto.request.SeatRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateSeatRequest;
 import com.example.bookingmanagementapi.dto.response.flight.SeatResponse;
 import com.example.bookingmanagementapi.entity.SeatEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -45,19 +44,6 @@ public class SeatServiceImpl implements SeatService {
         seatRepository.save(seat);
     }
 
-    @Transactional
-    @Override
-    public void updateSeat(Long id, UpdateSeatRequest updateSeatRequest) {
-
-        validationUtil.validateId(id);
-
-        SeatEntity seatEntity = seatRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Seat not found"));
-
-        seatMapper.updateSeat(updateSeatRequest, seatEntity);
-
-        seatRepository.save(seatEntity);
-    }
 
     @Transactional
     @Override

@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteFlightRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFavoriteFlightRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse;
 import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;

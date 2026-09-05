@@ -4,7 +4,6 @@ package com.example.bookingmanagementapi.controller;
 import com.example.bookingmanagementapi.dto.filter.BookingFilter;
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateBookingRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -45,10 +44,6 @@ public class BookingController {
         bookingService.deleteBooking(id);
     }
 
-    @PutMapping("/{id}")
-    public void updateBooking(@RequestBody UpdateBookingRequest updateBookingRequest, @PathVariable Long id) {
-        bookingService.updateBooking(updateBookingRequest, id);
-    }
 
     @GetMapping("/{id}")
     public BookingResponse getBooking(@PathVariable Long id) {

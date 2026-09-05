@@ -3,7 +3,6 @@ package com.example.bookingmanagementapi.service.impl.hotel;
 import com.example.bookingmanagementapi.dto.filter.BookingFilter;
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
 import com.example.bookingmanagementapi.dto.request.PaymentRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateBookingRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
@@ -251,16 +250,6 @@ public class BookingServiceImpl implements BookingService {
 //        return refund.subtract(res);
 //    }
 
-    @Override
-    public void updateBooking(UpdateBookingRequest updateBookingRequest, Long id) {
-        BookingEntity bookingEntity = bookingRepository.findById(id)
-                .orElseThrow(null);
-
-        bookingMapper.updateBooking(updateBookingRequest, bookingEntity);
-
-        bookingRepository.save(bookingEntity);
-
-    }
 
     @Override
     public void deleteBooking(Long id) {

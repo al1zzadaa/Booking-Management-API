@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.controller;
 
 import com.example.bookingmanagementapi.dto.filter.FareBaggageFilter;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 import com.example.bookingmanagementapi.service.FareBaggageService;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +24,6 @@ public class FareBaggageController {
     @DeleteMapping("/{id}")
     public void deleteFareBaggage(@PathVariable Long id) {
         fareBaggageService.deleteFareBaggageById(id);
-    }
-
-    @PutMapping("/{id}")
-    public void updateFareBaggage(@RequestBody UpdateFareBaggageRequest updateFareBaggageRequest,
-                                  @PathVariable Long id) {
-        fareBaggageService.updateFareBaggageById(updateFareBaggageRequest, id);
     }
 
     @GetMapping("/{id}")

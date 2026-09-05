@@ -65,15 +65,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void updateTransaction(UpdateTransactionRequest updateTransactionRequest, Long transactionId) {
-        TransactionEntity transactionEntity = transactionRepository.findById(transactionId).orElseThrow(null);
-
-        transactionMapper.updateTransaction(updateTransactionRequest, transactionEntity);
-
-        transactionRepository.save(transactionEntity);
-    }
-
-    @Override
     public void deleteTransaction(Long transactionId) {
 
         TransactionEntity transactionEntity = transactionRepository.findById(transactionId).orElseThrow(null);

@@ -1,16 +1,9 @@
 package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.NotificationRequest;
-import com.example.bookingmanagementapi.dto.request.PaymentRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateNotificationRequest;
 import com.example.bookingmanagementapi.dto.response.NotificationResponse;
-import com.example.bookingmanagementapi.entity.BookingEntity;
-import com.example.bookingmanagementapi.entity.TicketEntity;
-import com.example.bookingmanagementapi.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface NotificationService {
 

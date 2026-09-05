@@ -2,7 +2,6 @@ package com.example.bookingmanagementapi.service.impl.flight;
 
 import com.example.bookingmanagementapi.dto.filter.FlightFilter;
 import com.example.bookingmanagementapi.dto.request.FlightRequest;
-import com.example.bookingmanagementapi.dto.request.UpdateFlightRequest;
 import com.example.bookingmanagementapi.dto.response.flight.FlightResponse;
 import com.example.bookingmanagementapi.entity.FlightEntity;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -30,24 +29,10 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public void createFlight(FlightRequest flightRequest) {
 
+        validationUtil.checkTime(flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
         validationUtil.validateId(flightRequest.getAirlineId());
 
         flightRepository.save(flightMapper.toEntity(flightRequest));
-    }
-
-    @Transactional
-    @Override
-    public void updateFlight(Long id, UpdateFlightRequest updateFlightRequest) {
-
-        validationUtil.validateId(id);
-
-        FlightEntity flightEntity = flightRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("flight not found"));
-
-        flightMapper.updateFlight(updateFlightRequest, flightEntity);
-
-        flightRepository.save(flightEntity);
-
     }
 
     @Transactional
