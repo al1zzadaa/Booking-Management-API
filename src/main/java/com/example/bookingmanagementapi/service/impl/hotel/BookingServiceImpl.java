@@ -44,17 +44,14 @@ public class BookingServiceImpl implements BookingService {
     private final AccountRepository accountRepository;
     private final TransactionService transactionService;
     private final UserService userService;
-    private final TicketAndBookingLogics ticketAndBookingLogics;
     private final LoyaltyPointService loyaltyPointService;
     private final ApplicationEventPublisher eventPublisher;
     private final AccountService accountService;
+    private final CalculationService calculationService;
 
     @Override
     @Transactional
     public void bookHotel(String username, BookingRequest booking) {
-
-//        validationUtil.validateId(booking.getUserId());
-        validationUtil.validateId(booking.getAccountId());
 
         UserEntity userEntity = userRepository
                 .findByEmail(username).orElseThrow(null);
@@ -102,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
         );
         int adultNumber = booking.getAdultNumber();
 
-        BigDecimal price = ticketAndBookingLogics.getTotalPrice(days, adultNumber, booking.getChildrenAges(), roomEntity);
+        BigDecimal price = calculationService.getBookingTotalPrice(days, adultNumber, booking.getChildrenAges(), roomEntity);
 
         BookingEntity bookingEntity = BookingEntity.builder()
                 .user(userEntity)
@@ -147,7 +144,6 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setBookingStatus(BookingStatus.CONFIRMED);
 
-//        bookingRepository.save(booking);
 
         loyaltyPointService.earnPoints(
                 booking.getUser().getId(),
@@ -156,7 +152,6 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Payment for booking with id: '{}'", bookingId);
 
-//        notificationService.sendBookingPaymentNotification(booking);
         eventPublisher.publishEvent(
                 new BookingPaymentEvent(user.getId())
         );
@@ -165,8 +160,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public void cancel(String username, Long bookingId) {
-
-        validationUtil.validateId(bookingId);
 
         UserEntity userEntity = userRepository
                 .findByEmail(username).orElseThrow(null);
@@ -183,7 +176,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("booking not paid");
         }
 
-        BigDecimal refund = calculateBookingRefund(bookingId);
+        BigDecimal refund = calculationService.calculateBookingRefund(bookingId);
 
         transactionService.refundBooking(booking, refund);
 
@@ -198,7 +191,6 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Booking cancellation for booking with id: '{}'", bookingId);
 
-//        notificationService.sendBookingCancellationNotification(booking.getUser().getId());
         eventPublisher.publishEvent(
                 new BookingCancelledEvent(booking.getUser().getId())
         );
@@ -216,44 +208,11 @@ public class BookingServiceImpl implements BookingService {
         return bookings.map(bookingMapper::toDto);
     }
 
-
-    private BigDecimal calculateBookingRefund(Long bookingId) {
-        validationUtil.validateId(bookingId);
-
-        BookingEntity booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Booking not found"));
-
-        return ticketAndBookingLogics.calculateRefund(
-                booking.getTotalPrice(),
-                booking.getCheckIn(),
-                "Booking has already started"
-        );
-    }
-//    private @NonNull BigDecimal calculateRefund(Long bookingId) {
-//        validationUtil.validateId(bookingId);
-//
-//       BookingEntity booking = bookingRepository.findById(bookingId)
-//               .orElseThrow(() -> new NotFoundException("ticket not found"));
-//
-//        BigDecimal refund = booking.getTotalPrice();
-//
-//        LocalDateTime departure = booking.getCheckIn();
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        if (departure.isBefore(now)) {
-//            throw new IllegalStateException("Booking has already ended");
-//        }
-//
-//        long daysLeft = ChronoUnit.DAYS.between(now, departure);
-//        BigDecimal res = ticketAndBookingLogics.getBigDecimal(daysLeft, refund);
-//
-//        return refund.subtract(res);
-//    }
-
-
     @Override
     public void deleteBooking(Long id) {
-        //Todo
+
+        var entity = bookingRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
 
         bookingRepository.deleteById(id);
     }

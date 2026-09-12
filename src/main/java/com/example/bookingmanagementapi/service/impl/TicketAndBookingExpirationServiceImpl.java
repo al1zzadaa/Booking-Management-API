@@ -7,6 +7,7 @@ import com.example.bookingmanagementapi.entity.TicketEntity;
 import com.example.bookingmanagementapi.enums.BookingStatus;
 import com.example.bookingmanagementapi.enums.Flights;
 import com.example.bookingmanagementapi.enums.TicketStatus;
+import com.example.bookingmanagementapi.event.ExpireUnpaidEvent;
 import com.example.bookingmanagementapi.repository.BookingRepository;
 import com.example.bookingmanagementapi.repository.FlightBookingRepository;
 import com.example.bookingmanagementapi.repository.FlightRepository;
@@ -14,6 +15,7 @@ import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.TicketAndBookingExpirationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +29,13 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
 
     private final FlightBookingRepository flightBookingRepository;
     private final BookingRepository bookingRepository;
-    private final NotificationService notificationService;
     private final FlightRepository flightRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
     public void expireUnpaidFlightBookings() {
+
         List<FlightBookingEntity> bookings =
                 flightBookingRepository
                         .findAllByStatusAndPaymentDeadlineBefore(
@@ -51,9 +54,8 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
                 ticket.setStatus(TicketStatus.EXPIRED);
             }
 
-            notificationService.sendBookingCancellationNotification(
-                    booking.getUser().getId()
-            );
+            eventPublisher.publishEvent(new ExpireUnpaidEvent(booking.getUser().getId()));
+
         }
 
         log.info("Expired {} unpaid flight bookings", bookings.size());
@@ -73,9 +75,7 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
 
             booking.setBookingStatus(BookingStatus.EXPIRED);
 
-            notificationService.sendBookingExpirationNotification(
-                    booking.getUser().getId()
-            );
+            eventPublisher.publishEvent(new ExpireUnpaidEvent(booking.getUser().getId()));
         }
 
         log.info("Expired {} unpaid hotel bookings", bookings.size());

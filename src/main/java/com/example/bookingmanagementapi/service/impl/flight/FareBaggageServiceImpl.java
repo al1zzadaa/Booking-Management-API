@@ -37,8 +37,6 @@ public class FareBaggageServiceImpl implements FareBaggageService {
     @Override
     public void deleteFareBaggageById(Long id) {
 
-        validationUtil.validateId(id);
-
         if (!fareBaggageRepository.existsById(id)) {
             throw new NotFoundException("FareBaggage not found");
         }
@@ -49,8 +47,6 @@ public class FareBaggageServiceImpl implements FareBaggageService {
     @Transactional(readOnly = true)
     @Override
     public FareBaggageResponse findById(Long id) {
-
-        validationUtil.validateId(id);
 
         FareBaggageEntity fareBaggageEntity = fareBaggageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("FareBaggageEntity not found with id: " + id));

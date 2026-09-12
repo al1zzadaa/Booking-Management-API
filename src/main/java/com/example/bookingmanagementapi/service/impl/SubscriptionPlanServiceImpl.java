@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.service.impl;
 import com.example.bookingmanagementapi.dto.request.SubscriptionPlanRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionPlanResponse;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
+import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.SubscriptionPlanMapper;
 import com.example.bookingmanagementapi.repository.SubscriptionPlanRepository;
 import com.example.bookingmanagementapi.service.SubscriptionPlanService;
@@ -27,18 +28,16 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     public void deleteSubscription(Long id) {
-        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
-                .orElseThrow(null);
+        var subscriptionPlan = getSubscriptionPlanEntity(id);
 
-        subscriptionPlanRepository.deleteById(id);
+        subscriptionPlanRepository.delete(subscriptionPlan);
     }
 
     @Override
     public void updateSubscription(Long id, SubscriptionPlanRequest updateSubscriptionPlanRequest) {
-        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
-                .orElseThrow(null);
+        var subscriptionPlanEntity = getSubscriptionPlanEntity(id);
 
-        subscriptionPlanMapper.update(updateSubscriptionPlanRequest,subscriptionPlanEntity);
+        subscriptionPlanMapper.update(updateSubscriptionPlanRequest, subscriptionPlanEntity);
 
         subscriptionPlanRepository.save(subscriptionPlanEntity);
     }
@@ -46,7 +45,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Override
     public SubscriptionPlanResponse getSubscription(Long id) {
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("Subscription Plan Not Found"));
 
         return subscriptionPlanMapper.toDto(subscriptionPlanEntity);
     }
@@ -60,8 +59,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     public void activate(Long id) {
-        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
-                .orElseThrow(null);
+        var subscriptionPlanEntity = getSubscriptionPlanEntity(id);
 
         subscriptionPlanEntity.setActive(true);
         subscriptionPlanRepository.save(subscriptionPlanEntity);
@@ -71,12 +69,20 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     public void deactivate(Long id) {
-        SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(id)
-                .orElseThrow(null);
+
+        var subscriptionPlanEntity = getSubscriptionPlanEntity(id);
 
         subscriptionPlanEntity.setActive(false);
         subscriptionPlanRepository.save(subscriptionPlanEntity);
 
         log.info("Subscription plan with id {} deactivated", id);
     }
+
+    private SubscriptionPlanEntity getSubscriptionPlanEntity(Long id) {
+
+        return subscriptionPlanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Subscription Plan Not Found"));
+
+    }
+
 }

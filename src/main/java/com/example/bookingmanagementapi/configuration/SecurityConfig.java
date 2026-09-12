@@ -181,12 +181,16 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/users/me")
                         .authenticated()
-                        .requestMatchers(HttpMethod.GET, "/users")
-                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/profile-photo")
+                        .authenticated()
                         .requestMatchers(HttpMethod.GET, "/users/*")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/users/*")
                         .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/profile-photo")
+                        .authenticated()
+
 
                         .requestMatchers("/user-promo-codes/**")
                         .authenticated()

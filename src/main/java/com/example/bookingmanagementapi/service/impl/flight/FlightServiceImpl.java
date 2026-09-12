@@ -30,7 +30,6 @@ public class FlightServiceImpl implements FlightService {
     public void createFlight(FlightRequest flightRequest) {
 
         validationUtil.checkTime(flightRequest.getDepartureTime(), flightRequest.getArrivalTime());
-        validationUtil.validateId(flightRequest.getAirlineId());
 
         flightRepository.save(flightMapper.toEntity(flightRequest));
     }
@@ -38,8 +37,6 @@ public class FlightServiceImpl implements FlightService {
     @Transactional
     @Override
     public void deleteFlight(Long flightId) {
-
-        validationUtil.validateId(flightId);
 
         if (!flightRepository.existsById(flightId)) {
             throw new NotFoundException("flight not found");
@@ -62,8 +59,6 @@ public class FlightServiceImpl implements FlightService {
     @Transactional(readOnly = true)
     @Override
     public FlightResponse findById(Long id) {
-
-        validationUtil.validateId(id);
 
         FlightEntity flightEntity = flightRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("flight not found"));

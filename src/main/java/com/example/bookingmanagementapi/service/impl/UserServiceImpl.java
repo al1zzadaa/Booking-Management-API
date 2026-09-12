@@ -7,12 +7,8 @@ import com.example.bookingmanagementapi.entity.AccountEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.Roles;
 import com.example.bookingmanagementapi.enums.UserStatus;
-import com.example.bookingmanagementapi.exception.NotFoundException;
-import com.example.bookingmanagementapi.exception.UserBlockedException;
-import com.example.bookingmanagementapi.exception.UserDeletedException;
-import com.example.bookingmanagementapi.exception.UserNotVerifiedException;
+import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.UserMapper;
-import com.example.bookingmanagementapi.repository.EmailVerificationTokenRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.AccountService;
 import com.example.bookingmanagementapi.service.EmailVerificationService;
@@ -26,8 +22,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -75,8 +77,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
 
-        validationUtil.validateId(userId);
-
         UserEntity entity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -89,8 +89,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(Long userId, UpdateUserRequest updateUserRequest) {
 
-        validationUtil.validateId(userId);
-
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -98,14 +96,12 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(userEntity);
 
-        log.info("Updated user {} to update request {}", userEntity.getEmail(),  updateUserRequest);
+        log.info("Updated user {} to update request {}", userEntity.getEmail(), updateUserRequest);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserResponse findById(Long userId) {
-
-        validationUtil.validateId(userId);
 
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -126,8 +122,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void blockUser(Long userId) {
 
-        validationUtil.validateId(userId);
-
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -140,8 +134,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void unblockUser(Long userId) {
 
-        validationUtil.validateId(userId);
-
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -150,7 +142,8 @@ public class UserServiceImpl implements UserService {
         log.info("Unblocked user {}", userEntity.getEmail());
     }
 
-    @Override public UserResponse getCurrentUser(Long userId) {
+    @Override
+    public UserResponse getCurrentUser(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         return userMapper.toDto(user);
@@ -171,6 +164,75 @@ public class UserServiceImpl implements UserService {
 
         if (user.getIsActive().equals(UserStatus.NOT_VERIFIED)) {
             throw new UserNotVerifiedException("This user is not verified");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void uploadProfilePhoto(String email, MultipartFile file) {
+
+        if (file.isEmpty()) {
+            throw new ValidationException("File is empty");
+        }
+
+        String contentType = file.getContentType();
+
+        if (contentType == null ||
+                (!contentType.equals("image/jpeg")
+                        && !contentType.equals("image/png"))) {
+            throw new ValidationException("Only JPEG and PNG images are allowed");
+        }
+
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new ValidationException("File size must not exceed 5 MB");
+        }
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        try {
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+            Path path = Paths.get("uploads/profile-photos/" + fileName);
+
+            Files.createDirectories(path.getParent());
+
+            Files.write(path, file.getBytes());
+
+            userEntity.setProfilePhotoUrl("/uploads/profile-photos/" + fileName);
+
+            log.info("Profile photo uploaded successfully for user {}", email);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save profile photo");
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteProfilePhoto(String email) {
+
+        System.out.println("Deleting profile photo for user " + email);
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (user.getProfilePhotoUrl() == null) {
+            return;
+        }
+
+        try {
+            Path path = Paths.get(user.getProfilePhotoUrl().substring(1));
+
+            Files.deleteIfExists(path);
+
+            user.setProfilePhotoUrl(null);
+
+            log.info("Profile photo deleted successfully for user {}", email);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete profile photo");
         }
     }
 }

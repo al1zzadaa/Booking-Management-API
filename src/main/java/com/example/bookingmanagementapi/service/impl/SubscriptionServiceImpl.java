@@ -7,6 +7,7 @@ import com.example.bookingmanagementapi.entity.SubscriptionEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.event.*;
+import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.SubscriptionMapper;
 import com.example.bookingmanagementapi.repository.AccountRepository;
 import com.example.bookingmanagementapi.repository.SubscriptionPlanRepository;
@@ -41,24 +42,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final UserRepository userRepository;
     private final TransactionService transactionService;
     private final ApplicationEventPublisher eventPublisher;
-    @Value("${subscription.size}")
-    private int size;
-    @Value("${subscription.page}")
-    private int page;
-
 
     @Transactional
     @Override
     public void subscribe(Long userId, SubscriptionRequest subscriptionRequest) {
 
-        System.out.println(userId);
-
-        UserEntity user = userRepository.findById(userId).orElseThrow(null);
+        UserEntity user = userRepository.findById(userId).orElseThrow(() ->  new NotFoundException("User Not Found"));
 
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findByIdAndActive(subscriptionRequest.getPlanId(), true);
 
-        AccountEntity account = accountRepository.findById(subscriptionRequest.getAccountId()).orElseThrow(null);
-
+        AccountEntity account = accountRepository.findById(subscriptionRequest.getAccountId()).orElseThrow(() ->  new NotFoundException("Account Not Found"));
 
         SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
                 .user(user)
@@ -67,10 +60,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .autoRenewAccount(account)
                 .autoRenew(true)
                 .isActive(true)
-                .endDate(LocalDateTime.now().toLocalDate()
-                        .plusDays(subscriptionPlanEntity.getDurationDays()))
+                .endDate(LocalDateTime.now().toLocalDate().plusDays(subscriptionPlanEntity.getDurationDays()))
                 .build();
-
 
         transactionService.processSubscriptionPayment(
                 subscriptionRequest,
@@ -124,7 +115,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void renew(Long userId, SubscriptionRequest subscriptionRequest) {
 
         SubscriptionPlanEntity subscriptionPlanEntity = subscriptionPlanRepository.findById(subscriptionRequest.getPlanId())
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("Subscription Plan Not Found"));
 
         Integer durationDays = subscriptionPlanEntity.getDurationDays();
 
@@ -158,26 +149,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         );
     }
 
-//    @Override
-//    public void autoRenew() {
-//        while (true) {
-//            Pageable pageable = PageRequest.of(0, size);
-//            Page<SubscriptionEntity> result = subscriptionRepository.findDueForRenewal(pageable);
-//            if (result.isEmpty()) {
-//                break;
-//            }
-//            for (SubscriptionEntity subscription : result.getContent()) {
-//                try {
-//                    SubscriptionRequest request = SubscriptionRequest.builder().userId(subscription.getUser().getId()).accountId(subscription.getAutoRenewAccount().getId()).planId(subscription.getSubscriptionPlan().getId()).paymentMethod(PaymentMethods.ACCOUNT_BALANCE).build();
-//                    renew(request);
-//                } catch (Exception e){
-//                // Log the failure and continue with the next subscription
-
-    /// /                 log.error( "Auto-renew failed for subscription {}", subscription.getId(), e );
-//                 }
-//            }
-//        }
-//    }
     @Transactional
     @Override
     public void enableAutoRenew(Long userId) {

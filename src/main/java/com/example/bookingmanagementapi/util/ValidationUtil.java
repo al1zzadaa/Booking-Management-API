@@ -19,12 +19,6 @@ import java.util.stream.Collectors;
 @Component
 public class ValidationUtil {
 
-    public void validateId(Long id) {
-        if (id == null || id <= 0) {
-            throw new ValidationException("id is null or 0");
-        }
-    }
-
     public void validateSeatNumber(Integer seatNumber) {
         if (seatNumber == null ||  seatNumber < 1 || seatNumber > 20) {
             throw new ValidationException("seatNumber is null or wrong");

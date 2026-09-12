@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AirlineServiceImpl implements AirlineService {
 
     private final AirlineRepository airlineRepository;
-    private final ValidationUtil validationUtil;
     private final AirlineMapper airlineMapper;
     private final FlightRepository flightRepository;
 
@@ -52,7 +51,6 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public void update(UpdateAirlineRequest updateAirlineRequest, Long id) {
 
-        validationUtil.validateId(id);
 
         AirlineEntity airlineEntity = airlineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Airline not found"));
@@ -66,7 +64,6 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public void delete(Long id) {
 
-        validationUtil.validateId(id);
 
         AirlineEntity airlineEntity = airlineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Airline not found"));
@@ -80,8 +77,6 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public AirlineResponse getById(Long id) {
-
-        validationUtil.validateId(id);
 
         AirlineEntity airlineEntity = airlineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Airline not found"));

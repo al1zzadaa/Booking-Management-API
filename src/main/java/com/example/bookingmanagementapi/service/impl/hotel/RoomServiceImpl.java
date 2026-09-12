@@ -32,7 +32,6 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void deleteRoom(Long roomId) {
-        validationUtil.validateId(roomId);
 
         if (!roomRepository.existsById(roomId)) {
             throw new NotFoundException("Room not found");
@@ -62,9 +61,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponse findById(Long id) {
 
-        validationUtil.validateId(id);
-
-        RoomEntity roomEntity = roomRepository.findById(id).orElseThrow(null);
+        RoomEntity roomEntity = roomRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Room not found"));
         return roomMapper.toDto(roomEntity);
     }
 }

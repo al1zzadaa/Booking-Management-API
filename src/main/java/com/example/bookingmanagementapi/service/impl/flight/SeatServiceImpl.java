@@ -29,8 +29,6 @@ public class SeatServiceImpl implements SeatService {
     @Transactional
     @Override
     public void createSeat(SeatRequest seatRequest) {
-
-        validationUtil.validateId(seatRequest.getFlightId());
         validationUtil.validateSeatRow(seatRequest.getSeatRow());
         validationUtil.validateSeatNumber(seatRequest.getSeatNumber());
         validationUtil.validateTicketClass(seatRequest.getTicketClass());
@@ -49,16 +47,12 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public void deleteSeat(Long id) {
 
-        validationUtil.validateId(id);
-
         seatRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     @Override
     public SeatResponse getSeat(Long id) {
-
-        validationUtil.validateId(id);
 
         SeatEntity seatEntity = seatRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Seat not found"));

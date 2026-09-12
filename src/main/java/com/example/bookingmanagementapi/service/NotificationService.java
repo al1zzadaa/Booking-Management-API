@@ -46,4 +46,10 @@ public interface NotificationService {
     void sendFlightExpirationNotification(Long  userId);
 
     void sendBookingExpirationNotification(Long  userId);
+
+    void sendApplyPromoCodeNotification(Long  userId);
+
+    void expireUnpaidNotification(Long userId);
+
+    void passwordResetNotification(Long userId);
 }

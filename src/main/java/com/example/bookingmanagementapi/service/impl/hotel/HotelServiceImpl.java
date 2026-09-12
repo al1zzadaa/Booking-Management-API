@@ -28,8 +28,6 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public void createHotel(HotelRequest hotelRequest) {
 
-        //TODO validate
-
         HotelEntity hotelEntity = hotelMapper.toEntity(hotelRequest);
         hotelRepository.save(hotelEntity);
     }
@@ -37,8 +35,6 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public void deleteHotel(Long hotelId) {
-
-        validationUtil.validateId(hotelId);
 
         if(!hotelRepository.existsById(hotelId)){
             throw new NotFoundException("Hotel with id " + hotelId + " not found");
@@ -60,10 +56,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public HotelResponse findById(Long id) {
 
-        validationUtil.validateId(id);
-
         HotelEntity hotelEntity = hotelRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(()  -> new NotFoundException("Hotel with id " + id + " not found"));
 
         return hotelMapper.toDto(hotelEntity);
     }

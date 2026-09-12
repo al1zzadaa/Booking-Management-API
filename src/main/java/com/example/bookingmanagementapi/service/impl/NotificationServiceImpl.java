@@ -250,4 +250,31 @@ public class NotificationServiceImpl implements NotificationService {
                 "Hotel bookings expired"
         );
     }
+
+    @Override
+    public void sendApplyPromoCodeNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.PROMO_CODE,
+                "Promo Code",
+                "Promo Code Applied"
+        );
+    }
+
+    @Override
+    public void passwordResetNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.PASSWORD_RESET,
+                "Password Reset",
+                "Password reset was successful"
+        );
+    }
+
+    @Override
+    public void expireUnpaidNotification(Long userId) {
+        notifyUser(userId,
+                NotificationType.PROMO_CODE,
+                "Expire",
+                "Expired due to time (15 minutes)"
+        );
+    }
 }

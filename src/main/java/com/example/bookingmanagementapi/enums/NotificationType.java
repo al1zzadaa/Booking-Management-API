@@ -10,5 +10,7 @@ public enum NotificationType {
     SYSTEM,
     CANCELLED,
     RENEW,
-    EXPIRE
+    EXPIRE,
+    PASSWORD_RESET,
+    PROMO_CODE
 }

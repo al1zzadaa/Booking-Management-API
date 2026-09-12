@@ -5,6 +5,7 @@ import com.example.bookingmanagementapi.dto.request.HotelReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateHotelReviewRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelReviewResponse;
 import com.example.bookingmanagementapi.entity.HotelReviewEntity;
+import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.HotelReviewMapper;
 import com.example.bookingmanagementapi.repository.HotelReviewRepository;
 import com.example.bookingmanagementapi.service.HotelReviewService;
@@ -38,7 +39,7 @@ public class HotelReviewServiceImpl implements HotelReviewService {
     public void updateHotelReview(Long userId, Long id, UpdateHotelReviewRequest updateHotelReviewRequest) {
 
         HotelReviewEntity hotelReviewEntity = hotelReviewRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("HotelReviewEntity not found with id: " + id));
 
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, hotelReviewEntity.getUser().getId());
 
@@ -53,7 +54,7 @@ public class HotelReviewServiceImpl implements HotelReviewService {
     public void deleteHotelReview(Long userId, Long id){
 
         HotelReviewEntity hotelReviewEntity = hotelReviewRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("HotelReviewEntity not found with id: " + id));
 
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, hotelReviewEntity.getUser().getId());
 
@@ -74,8 +75,10 @@ public class HotelReviewServiceImpl implements HotelReviewService {
 
     @Override
     public HotelReviewResponse findById(Long id) {
+
         HotelReviewEntity hotelReviewEntity = hotelReviewRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("HotelReviewEntity not found with id: " + id));
+
         return hotelReviewMapper.toDto(hotelReviewEntity);
 
     }

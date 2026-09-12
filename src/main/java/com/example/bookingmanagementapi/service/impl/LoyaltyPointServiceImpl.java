@@ -77,8 +77,6 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
     @Override
     public Integer getPoints(Long userId) {
 
-//        UserEntity user = userRepository.findById(userId).orElseThrow(null);
-
         Integer earned = loyaltyPointRepository.sumByUserAndType(
                 userId,
                 LoyaltyType.EARN
@@ -141,7 +139,8 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
             String description
     ) {
 
-        AccountEntity account = accountRepository.findById(accountEntity.getId()).orElseThrow();
+        AccountEntity account = accountRepository.findById(accountEntity.getId())
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         BigDecimal amountCurrencyConvert = convertService.convert(amount, Currency.USD, account.getCurrency());
 

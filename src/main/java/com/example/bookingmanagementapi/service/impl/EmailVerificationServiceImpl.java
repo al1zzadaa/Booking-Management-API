@@ -34,7 +34,6 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     @Transactional
     public EmailVerificationTokenEntity create(UserEntity user) {
 
-        // remove old token if exists
         verificationRepository.deleteByUser(user);
 
         EmailVerificationTokenEntity verification =

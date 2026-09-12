@@ -31,15 +31,14 @@ public class ConvertServiceImpl implements ConvertService {
             return amount;
         }
 
-        // Convert source currency to USD
+        // Convert to USD
         BigDecimal amountInUsd = switch (from) {
             case USD -> amount;
 
             case AZN -> amount.divide(
                     usdToAzn,
                     2,
-                    RoundingMode.HALF_UP
-            );
+                    RoundingMode.HALF_UP);
 
             case EUR -> amount.multiply(
                     eurToUsd
@@ -48,18 +47,16 @@ public class ConvertServiceImpl implements ConvertService {
             case TR -> amount.divide(
                     usdToTry,
                     2,
-                    RoundingMode.HALF_UP
-            );
+                    RoundingMode.HALF_UP);
 
             case RUB -> amount.divide(
                     usdToRub,
                     2,
-                    RoundingMode.HALF_UP
-            );
+                    RoundingMode.HALF_UP);
         };
 
 
-        // Convert USD to target currency
+        // Convert from USD
         return switch (to) {
             case USD -> amountInUsd;
 
@@ -70,8 +67,7 @@ public class ConvertServiceImpl implements ConvertService {
             case EUR -> amountInUsd.divide(
                     eurToUsd,
                     2,
-                    RoundingMode.HALF_UP
-            );
+                    RoundingMode.HALF_UP);
 
             case TR -> amountInUsd.multiply(
                     usdToTry

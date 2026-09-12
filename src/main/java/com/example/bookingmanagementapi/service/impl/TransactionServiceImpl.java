@@ -105,7 +105,7 @@ public class TransactionServiceImpl implements TransactionService {
                         referenceType,
                         TransactionType.PAYMENT))
         {
-            throw new PaymentException("Already paid");
+            throw new PaymentAlreadyCompletedException("Already paid");
         }
     }
 
@@ -259,8 +259,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional()
     public void withdraw(WithdrawRequest withdrawRequest) {
 
-        validationUtil.validateId(withdrawRequest.getAccountId());
-
         AccountEntity accountEntity = accountRepository.findById(withdrawRequest.getAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
@@ -298,8 +296,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void deposit(DepositRequest depositRequest) {
-
-        validationUtil.validateId(depositRequest.getAccountId());
 
         AccountEntity accountEntity = accountRepository.findById(depositRequest.getAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));

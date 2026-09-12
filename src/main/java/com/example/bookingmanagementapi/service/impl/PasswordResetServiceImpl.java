@@ -6,6 +6,7 @@ import com.example.bookingmanagementapi.dto.request.ResetPasswordRequest;
 import com.example.bookingmanagementapi.entity.EmailVerificationTokenEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.TokenType;
+import com.example.bookingmanagementapi.event.PasswordResetEvent;
 import com.example.bookingmanagementapi.exception.InvalidTokenException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.exception.TokenExpiredException;
@@ -15,6 +16,7 @@ import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.PasswordResetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +34,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
+    @Override
     public void resetPassword(ResetPasswordRequest request) {
 
         EmailVerificationTokenEntity verification =
@@ -54,6 +58,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         log.info("Password reset request received for user {}", user.getEmail());
+
+        applicationEventPublisher.publishEvent(new PasswordResetEvent(user.getId()));
 
         emailVerificationTokenRepository.delete(verification);
     }

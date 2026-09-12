@@ -36,7 +36,6 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
 
     @Override
     public void removeFavoriteHotel(Long userId, Long id) {
-        validationUtil.validateId(id);
 
         FavoriteHotelEntity favoriteHotelEntity = favoriteHotelRepository
                 .findByIdAndUserId(id, userId)
@@ -58,8 +57,6 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
     @Override
     public void clearFavoriteHotels(Long userId) {
 
-        validationUtil.validateId(userId);
-
         favoriteHotelRepository.deleteAllByUserId(userId);
 
     }
@@ -68,10 +65,8 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
     @Override
     public FavoriteHotelResponse getById(Long id) {
 
-        validationUtil.validateId(id);
-
         FavoriteHotelEntity hotel = favoriteHotelRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("Hotel not found with id: " + id));
 
         return favoriteHotelMapper.toResponse(hotel);
     }

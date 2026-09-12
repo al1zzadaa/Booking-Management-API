@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,8 +65,6 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void delete(Long userId, Long accountId) {
 
-        validationUtil.validateId(accountId);
-
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
@@ -83,8 +82,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void update(UpdateAccountRequest updateAccountRequest, Long id) {
 
-        validationUtil.validateId(id);
-
         AccountEntity accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
@@ -97,8 +94,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse getById(Long id) {
-
-        validationUtil.validateId(id);
 
         AccountEntity accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
@@ -120,10 +115,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void blockAccount(Long id) {
 
-        validationUtil.validateId(id);
 
         AccountEntity accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        if (accountEntity.getStatus().equals(AccountStatus.BLOCKED)) {
+            throw new AccountBlockedException("Account is blocked");
+        }
 
         accountEntity.setStatus(AccountStatus.BLOCKED);
 
@@ -133,8 +131,6 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public void unblockAccount(Long id) {
-
-        validationUtil.validateId(id);
 
         AccountEntity accountEntity = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
@@ -165,10 +161,6 @@ public class AccountServiceImpl implements AccountService {
 
         if (account.getStatus().equals(AccountStatus.BLOCKED)) {
             throw new AccountBlockedException("This account has been blocked");
-        }
-
-        if (account.getStatus().equals(AccountStatus.INACTIVE)) {
-            throw new AccountInactiveException("This account is not active");
         }
     }
 

@@ -39,8 +39,6 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     @Override
     public void createFlightReview(Long userId, FlightReviewRequest flightReviewRequest) {
 
-        validationUtil.validateId(flightReviewRequest.getFlightId());
-
         validationUtil.validateRating(flightReviewRequest.getRating());
 
         FlightReviewEntity flightReview = flightReviewMapper.toEntity(flightReviewRequest);
@@ -53,9 +51,8 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     @Override
     public void updateFlightReview(Long id, Long userId, UpdateFlightReviewRequest updateFlightReviewRequest) {
 
-        validationUtil.validateId(id);
-
-        FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
+        FlightReviewEntity flightReview = flightReviewRepository.findById(id)
+                .orElseThrow(() ->  new NotFoundException("Flight review not found with id: " + id));
 
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, flightReview.getUser().getId());
 
@@ -70,9 +67,8 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     @Override
     public void deleteFlightReview(Long userId, Long id) {
 
-        validationUtil.validateId(id);
-
-        FlightReviewEntity flightReview = flightReviewRepository.findById(id).orElseThrow();
+        FlightReviewEntity flightReview = flightReviewRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Flight review not found with id: " + id));
 
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, flightReview.getUser().getId());
 
@@ -95,8 +91,6 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     @Transactional(readOnly = true)
     @Override
     public FlightReviewResponse findById(Long id) {
-
-        validationUtil.validateId(id);
 
         FlightReviewEntity flightReview = flightReviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Flight Review Not Found"));

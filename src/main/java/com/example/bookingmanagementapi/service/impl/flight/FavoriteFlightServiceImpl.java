@@ -33,7 +33,7 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     public void addFavoriteFlight(Long userId, FavoriteFlightRequest favoriteFlightRequest) {
 
         UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
         FavoriteFlightEntity favoriteFlightEntity = favoriteFlightMapper.toEntity(favoriteFlightRequest);
 
@@ -48,8 +48,6 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     @Override
     public void removeFavoriteFlight(Long userId, Long id) {
 
-        validationUtil.validateId(id);
-
         FavoriteFlightEntity favoriteFlight = favoriteFlightRepository
                 .findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException("Flight not found in favorites"));
@@ -63,8 +61,6 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     @Override
     public Page<@NonNull FavoriteFlightResponse> getAll(Long userId, Pageable pageable) {
 
-        validationUtil.validateId(userId);
-
         Page<@NonNull FavoriteFlightEntity> list = favoriteFlightRepository.findAllByUserId(userId, pageable);
 
         return list.map(favoriteFlightMapper::toResponse);
@@ -74,8 +70,6 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     @Override
     public void clearFavoriteFlights(Long userId) {
 
-        validationUtil.validateId(userId);
-
         favoriteFlightRepository.deleteAllByUserId(userId);
 
     }
@@ -84,10 +78,8 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
     @Override
     public FavoriteFlightResponse getById(Long id) {
 
-        validationUtil.validateId(id);
-
         FavoriteFlightEntity flight = favoriteFlightRepository.findById(id)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("Flight not found with id: " + id));
 
         return favoriteFlightMapper.toResponse(flight);
     }

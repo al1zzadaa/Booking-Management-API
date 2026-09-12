@@ -49,18 +49,12 @@ public class TicketServiceImpl implements TicketService {
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
     private final NotificationService notificationService;
-    private final TicketAndBookingLogics ticketAndBookingLogics;
     private final LoyaltyPointService loyaltyPointService;
     private final ApplicationEventPublisher eventPublisher;
     private final FlightBookingRepository flightBookingRepository;
     private final AccountService accountService;
     private final FlightBookingMapper flightBookingMapper;
-    @Value("${booking.children.young-max-age}")
-    private Integer youngChildMaxAge;
-    @Value("${booking.children.teen-max-age}")
-    private Integer teenChildMaxAge;
-    @Value("${booking.children.teen-discount-percent}")
-    private BigDecimal teenChildDiscountPercent;
+    private final CalculationService calculationService;
 
     @Override
     @Transactional
@@ -73,12 +67,12 @@ public class TicketServiceImpl implements TicketService {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        AccountEntity accountEntity = accountRepository.findById(ticketRequest.getAccountId())
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
         userService.validateUserCanBook(user.getId());
         accountService.validateAccountCanBook(ticketRequest.getAccountId());
 
-
-        AccountEntity accountEntity = accountRepository.findById(ticketRequest.getAccountId())
-                .orElseThrow();
 
         FlightEntity flightEntity = flightRepository.findById(ticketRequest.getFlightId())
                 .orElseThrow(() -> new NotFoundException("flight not found"));
@@ -95,10 +89,6 @@ public class TicketServiceImpl implements TicketService {
             throw new ValidationException("account not owned by user");
         }
 
-        System.out.println("Passenger count: " +
-                ticketRequest.getPassengers().size());
-
-
         FlightBookingEntity flightBooking = FlightBookingEntity.builder()
                 .user(user)
                 .account(accountEntity)
@@ -113,8 +103,6 @@ public class TicketServiceImpl implements TicketService {
 
 
         for (PassengerRequest passenger : ticketRequest.getPassengers()) {
-
-            validationUtil.validateId(passenger.getSeatId());
 
             System.out.println("Seat ID: " + passenger.getSeatId());
 
@@ -136,7 +124,7 @@ public class TicketServiceImpl implements TicketService {
                     .orElseThrow(() ->
                             new NotFoundException("Fare baggage policy not found"));
 
-            totalBookingPrice = calculateTotalPrice(ticketRequest, flightEntity);
+            totalBookingPrice = calculationService.calculateFlightTotalPrice(ticketRequest, flightEntity);
 
             TicketEntity ticket = TicketEntity.builder()
                     .seat(seatEntity)
@@ -172,97 +160,7 @@ public class TicketServiceImpl implements TicketService {
 
     }
 
-    private BigDecimal calculatePassengerPrice(
-            PassengerRequest passenger,
-            FlightEntity flight,
-            SeatEntity seat,
-            FareBaggageEntity baggagePolicy
-    ) {
 
-        BigDecimal baseFare = calculateBaseFare(
-                passenger.getAge()
-        );
-
-        BigDecimal seatPrice = calculateSeatPrice(seat);
-
-        BigDecimal baggagePrice = calculateBaggagePrice(
-                baggagePolicy
-        );
-
-        return baseFare
-                .add(seatPrice)
-                .add(baggagePrice);
-    }
-
-    private BigDecimal calculateBaseFare(
-            Integer age
-    ) {
-
-        BigDecimal basePrice = BigDecimal.ZERO;
-
-        if (age <= youngChildMaxAge) {
-            return BigDecimal.ZERO;
-        }
-
-        if (age <= teenChildMaxAge) {
-            BigDecimal discountPercent = teenChildDiscountPercent;
-
-            return basePrice
-                    .multiply(
-                            BigDecimal.valueOf(100)
-                                    .subtract(discountPercent)
-                    )
-                    .divide(
-                            BigDecimal.valueOf(100),
-                            2,
-                            RoundingMode.HALF_UP
-                    );
-        }
-
-        return basePrice;
-    }
-
-    private BigDecimal calculateTotalPrice(
-            TicketRequest request,
-            FlightEntity flight
-    ) {
-
-        BigDecimal total = BigDecimal.ZERO;
-
-        for (PassengerRequest passenger : request.getPassengers()) {
-
-            SeatEntity seat = seatRepository.findById(passenger.getSeatId())
-                    .orElseThrow(() ->
-                            new NotFoundException("Seat not found"));
-
-            FareBaggageEntity policy = fareBaggageRepository
-                    .findByAirlineAndTicketClass(
-                            flight.getAirline(),
-                            seat.getTicketClass()
-                    ).orElseThrow(() -> new NotFoundException("Fare baggage policy not found"));
-
-            BigDecimal passengerPrice = calculatePassengerPrice(
-                    passenger,
-                    flight,
-                    seat,
-                    policy
-            );
-
-            total = total.add(passengerPrice);
-        }
-
-        return total;
-    }
-
-    private BigDecimal calculateSeatPrice(SeatEntity seat) {
-        return seat.getPrice();
-    }
-
-    private BigDecimal calculateBaggagePrice(
-            FareBaggageEntity baggagePolicy
-    ) {
-        return baggagePolicy.getPrice();
-    }
 
     @Transactional
     @Override
@@ -273,15 +171,6 @@ public class TicketServiceImpl implements TicketService {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-//        TicketEntity ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NotFoundException("Ticket not found"));
-//
-//        FlightEntity flight = flightRepository.findById(ticket.getFlight().getId()).orElseThrow(() -> new NotFoundException("Flight not found"));
-
-//        List<TicketEntity> tickets = ticketRepository.findAllById(ticketIds);
-//
-//        if (tickets.isEmpty()) {
-//            throw new NotFoundException("No reserved tickets found");
-//        }
         FlightBookingEntity flightBooking =
                 flightBookingRepository.findById(flightBookingId)
                         .orElseThrow(() ->
@@ -315,22 +204,6 @@ public class TicketServiceImpl implements TicketService {
 
         flightBooking.setStatus(TicketStatus.CONFIRMED);
 
-//        TicketEntity ticket = ticketRepository.findById(ticketId)
-//                .orElseThrow(null);
-//
-//        transactionService.payForTicket(ticket, request);
-//
-//        ticket.setStatus(TicketStatus.CONFIRMED);
-////
-//        ticketRepository.saveAll(tickets);
-//        flightBookingRepository.save(flightBooking);
-//        loyaltyPointService.earnPoints(
-//                ticket.getUser().getId(),
-//                ticket.getPrice(),
-//                "Points earned from ticket payment");
-
-//        notificationService.sendTicketPaymentNotification(ticket);
-
         log.info("Payment for flightBooking with id: '{}'", flightBookingId);
 
         eventPublisher.publishEvent(
@@ -341,8 +214,6 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public void cancel(String username, Long flightBookingId) {
-
-        validationUtil.validateId(flightBookingId);
 
         UserEntity userEntity = userRepository
                 .findByEmail(username).orElseThrow(null);
@@ -359,8 +230,6 @@ public class TicketServiceImpl implements TicketService {
 
         List<TicketEntity> tickets = flightBooking.getTickets();
 
-//        TicketEntity ticket = ticketRepository.findById(ticketId)
-//                .orElseThrow(() -> new NotFoundException("ticket not found"));
 
         for (TicketEntity ticket : tickets) {
             if (ticket.getStatus() != TicketStatus.CONFIRMED) {
@@ -369,7 +238,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
 
-        BigDecimal refund = calculateTicketRefund(flightBookingId);
+        BigDecimal refund = calculationService.calculateTicketRefund(flightBookingId);
 
         transactionService.refundTicket(flightBooking, refund);
 
@@ -385,44 +254,6 @@ public class TicketServiceImpl implements TicketService {
         notificationService.sendTicketCancellationNotification(flightBooking.getUser().getId());
     }
 
-
-    private BigDecimal calculateTicketRefund(Long flightBookingId) {
-        validationUtil.validateId(flightBookingId);
-
-        FlightBookingEntity flightBooking =
-                flightBookingRepository.findById(flightBookingId)
-                        .orElseThrow(() ->
-                                new NotFoundException("Flight booking not found"));
-
-        return ticketAndBookingLogics.calculateRefund(
-                flightBooking.getTotalPrice(),
-                flightBooking.getFlight().getDepartureTime(),
-                "Flight has already departed"
-        );
-    }
-
-//    private @NonNull BigDecimal calculateRefund(Long ticketId) {
-//        validationUtil.validateId(ticketId);
-//
-//        TicketEntity ticket = ticketRepository.findById(ticketId)
-//                .orElseThrow();
-//
-//        BigDecimal refund = ticket.getPrice();
-//
-//        LocalDateTime departure = ticket.getFlight().getDepartureTime();
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        if (departure.isBefore(now)) {
-//            throw new IllegalStateException("Flight has already departed");
-//        }
-//
-//        long daysLeft = ChronoUnit.DAYS.between(now, departure);
-//        BigDecimal res = ticketAndBookingLogics.getBigDecimal(daysLeft, refund);
-//
-//        return refund.subtract(res);
-//    }
-
-
     @Override
     public List<TicketResponse> findAll(TicketFilter ticketFilter) {
 
@@ -436,8 +267,6 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public TicketResponse findById(Long id) {
 
-        validationUtil.validateId(id);
-
         TicketEntity ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("ticket not found"));
 
@@ -446,8 +275,6 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void deleteTicketById(Long id) {
-
-        validationUtil.validateId(id);
 
         if (!ticketRepository.existsById(id)) {
             throw new NotFoundException("ticket not found");

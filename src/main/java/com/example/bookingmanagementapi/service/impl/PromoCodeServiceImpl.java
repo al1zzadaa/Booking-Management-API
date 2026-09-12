@@ -10,7 +10,6 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.PromoCodeMapper;
 import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.service.PromoCodeService;
-import com.example.bookingmanagementapi.service.UserPromoCodeService;
 import com.example.bookingmanagementapi.service.specifications.PromoCodeSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
     private final PromoCodeMapper promoCodeMapper;
     private final PromoCodeRepository promoCodeRepository;
-    private final UserPromoCodeService userPromoCodeService;
     private final ValidationUtil validationUtil;
 
     @Override
@@ -61,18 +59,17 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         return promoCodeEntities.map(promoCodeMapper::toDto);
     }
 
+
     @Override
     public void deleteById(Long id) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository
-                .findById(id).orElseThrow(null);
+        var promoCodeEntity = getPromoCodeEntity(id);
 
         promoCodeRepository.delete(promoCodeEntity);
     }
 
     @Override
     public void update(Long id, PromoCodeRequest updatePromoCodeResuest) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository
-                .findById(id).orElseThrow(null);
+        var promoCodeEntity = getPromoCodeEntity(id);
 
         promoCodeMapper.update(updatePromoCodeResuest, promoCodeEntity);
 
@@ -81,26 +78,21 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
     @Override
     public PromoCodeResponse findByCode(String code) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(code).orElseThrow();
+        var promoCodeEntity = getPromoCodeEntity(code);
 
         return promoCodeMapper.toDto(promoCodeEntity);
     }
 
     @Override
     public boolean isValid(String code) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(code).orElseThrow();
+        var promoCodeEntity = getPromoCodeEntity(code);
 
-        if (promoCodeEntity.getUsedCount().equals(promoCodeEntity.getUsageLimit())) {
-            return false;
-        }
-
-        return true;
+        return !promoCodeEntity.getUsedCount().equals(promoCodeEntity.getUsageLimit());
     }
 
     @Override
     public void activate(Long id) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository.findById(id)
-                .orElseThrow(null);
+        var promoCodeEntity = getPromoCodeEntity(id);
 
         promoCodeEntity.setActive(true);
 
@@ -111,8 +103,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
     @Override
     public void deactivate(Long id) {
-        PromoCodeEntity promoCodeEntity = promoCodeRepository.findById(id)
-                .orElseThrow(null);
+        var promoCodeEntity = getPromoCodeEntity(id);
 
         promoCodeEntity.setActive(false);
 
@@ -121,46 +112,6 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         log.info("Promo code {} deactivated", promoCodeEntity.getId());
     }
 
-    //    @Override
-//    public BigDecimal discount(BigDecimal amountToWithdraw, String code) {
-//
-//        if (code == null || code.isBlank()) {
-//            return amountToWithdraw;
-//        }
-//
-//        PromoCodeEntity promoCodeEntity = promoCodeRepository.findByCode(code).orElseThrow();
-//
-//        if (!promoCodeEntity.getActive()) {
-//            throw new BadRequestException("Promo code is inactive");
-//        }
-//
-//        if (promoCodeEntity.getEndDate().isBefore(LocalDateTime.now())) {
-//            throw new BadRequestException("Promo code has expired");
-//        }
-//
-//        BigDecimal discountValue = promoCodeEntity.getDiscountValue();
-//
-//
-//        if (promoCodeEntity.getDiscountType() == DiscountType.PERCENTAGE) {
-//            if (discountValue.compareTo(BigDecimal.ZERO) < 0
-//                    || discountValue.compareTo(BigDecimal.valueOf(100)) > 0) {
-//                throw new BadRequestException("Invalid percentage discount");
-//            }
-//
-//            discountValue = amountToWithdraw
-//                    .multiply(discountValue)
-//                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-//        } else {
-//            discountValue = discountValue.min(amountToWithdraw);
-//        }
-//
-//        BigDecimal finalAmount = amountToWithdraw.subtract(discountValue);
-//
-//        promoCodeEntity.setUsedCount(promoCodeEntity.getUsedCount() + 1);
-//        promoCodeRepository.save(promoCodeEntity);
-//
-//        return finalAmount;
-//    }
     @Override
     public BigDecimal calculateFinalAmount(BigDecimal amount, String code) {
 
@@ -168,16 +119,15 @@ public class PromoCodeServiceImpl implements PromoCodeService {
             return amount;
         }
 
-        PromoCodeEntity promoCode = promoCodeRepository.findByCode(code)
-                .orElseThrow(() -> new NotFoundException("Promo code not found"));
+        var promoCodeEntity = getPromoCodeEntity(code);
 
-        validatePromoCode(promoCode);
+        validatePromoCode(promoCodeEntity);
 
         BigDecimal discount;
 
-        if (promoCode.getDiscountType() == DiscountType.PERCENTAGE) {
+        if (promoCodeEntity.getDiscountType() == DiscountType.PERCENTAGE) {
 
-            BigDecimal percent = promoCode.getDiscountValue();
+            BigDecimal percent = promoCodeEntity.getDiscountValue();
 
             if (percent.compareTo(BigDecimal.ZERO) < 0
                     || percent.compareTo(BigDecimal.valueOf(100)) > 0) {
@@ -189,7 +139,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
         } else {
 
-            discount = promoCode.getDiscountValue().min(amount);
+            discount = promoCodeEntity.getDiscountValue().min(amount);
         }
 
         return amount.subtract(discount);
@@ -202,15 +152,15 @@ public class PromoCodeServiceImpl implements PromoCodeService {
             return;
         }
 
-        PromoCodeEntity promoCode = promoCodeRepository.findByCode(code)
-                .orElseThrow(() -> new NotFoundException("Promo code not found"));
+        var promoCodeEntity = getPromoCodeEntity(code);
 
-        if (promoCode.getUsageLimit() != null
-                && promoCode.getUsedCount() >= promoCode.getUsageLimit()) {
+
+        if (promoCodeEntity.getUsageLimit() != null
+                && promoCodeEntity.getUsedCount() >= promoCodeEntity.getUsageLimit()) {
             throw new BadRequestException("Promo code usage limit exceeded");
         }
 
-        promoCode.setUsedCount(promoCode.getUsedCount() + 1);
+        promoCodeEntity.setUsedCount(promoCodeEntity.getUsedCount() + 1);
     }
 
     private void validatePromoCode(PromoCodeEntity promoCode) {
@@ -227,10 +177,14 @@ public class PromoCodeServiceImpl implements PromoCodeService {
                 && promoCode.getUsedCount() >= promoCode.getUsageLimit()) {
             throw new BadRequestException("Promo code usage limit exceeded");
         }
+    }
 
-//        if (!isValid(promoCode.getCode())) {
-//            throw new BadRequestException("Invalid promo code");
-//        }
+    private PromoCodeEntity getPromoCodeEntity(Long id) {
+        return promoCodeRepository.findById(id).orElseThrow(() -> new NotFoundException("PromoCode not found"));
+    }
+
+    private PromoCodeEntity getPromoCodeEntity(String code) {
+        return promoCodeRepository.findByCode(code).orElseThrow(() -> new NotFoundException("PromoCode not found"));
     }
 
 }

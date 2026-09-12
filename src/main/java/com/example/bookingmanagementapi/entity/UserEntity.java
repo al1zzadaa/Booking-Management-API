@@ -64,4 +64,7 @@ public class UserEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "profile_photo_url")
+    private String profilePhotoUrl;
 }

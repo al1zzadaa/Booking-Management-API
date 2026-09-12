@@ -7,8 +7,10 @@ import com.example.bookingmanagementapi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
@@ -37,4 +39,24 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    @PostMapping(
+            value = "/profile-photo",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public void uploadProfilePhoto(
+            @RequestPart("file") MultipartFile file,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userService.uploadProfilePhoto(
+                userDetails.getEmail(),
+                file
+        );
+    }
+
+    @DeleteMapping("/profile-photo")
+    public void deleteProfilePhoto(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userService.deleteProfilePhoto(userDetails.getEmail());
+    }
 }

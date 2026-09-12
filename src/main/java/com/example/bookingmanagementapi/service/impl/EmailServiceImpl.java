@@ -1,6 +1,7 @@
 package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.MailRequest;
+import com.example.bookingmanagementapi.exception.EmailSendingException;
 import com.example.bookingmanagementapi.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -50,20 +51,14 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(request.getSubject());
             helper.setText(request.getMessage());
 
-//            FileSystemResource file =
-//                    new FileSystemResource(file);
-
-//            helper.addAttachment(file.getFilename(), file);
             helper.addAttachment(
                     Objects.requireNonNull(file.getOriginalFilename()),
                     new ByteArrayResource(file.getBytes()));
 
             mailSender.send(mimeMessage);
 
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email.", e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (MessagingException | IOException e) {
+            throw new EmailSendingException("Failed to send email.", e);
         }
     }
 }
