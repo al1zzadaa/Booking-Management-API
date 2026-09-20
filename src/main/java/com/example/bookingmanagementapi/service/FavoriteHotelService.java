@@ -2,6 +2,8 @@ package com.example.bookingmanagementapi.service;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ public interface FavoriteHotelService {
 
     void removeFavoriteHotel(Long userId, Long id);
 
-    List<FavoriteHotelResponse> getAll(Long userId);
+    Page<FavoriteHotelResponse> getAll(Long userId, Pageable pageable);
 
     void clearFavoriteHotels(Long userId);
 

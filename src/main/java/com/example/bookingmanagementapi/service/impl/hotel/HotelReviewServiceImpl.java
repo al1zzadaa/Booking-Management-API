@@ -39,7 +39,7 @@ public class HotelReviewServiceImpl implements HotelReviewService {
     public void updateHotelReview(Long userId, Long id, UpdateHotelReviewRequest updateHotelReviewRequest) {
 
         HotelReviewEntity hotelReviewEntity = hotelReviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("HotelReviewEntity not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("Hotel review not found with id: " + id));
 
         validationUtil.checkUserIdEqualsToUsedUsedId(userId, hotelReviewEntity.getUser().getId());
 

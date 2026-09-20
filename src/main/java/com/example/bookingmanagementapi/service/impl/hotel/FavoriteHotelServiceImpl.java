@@ -2,19 +2,23 @@ package com.example.bookingmanagementapi.service.impl.hotel;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;
-import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
 import com.example.bookingmanagementapi.entity.FavoriteHotelEntity;
+import com.example.bookingmanagementapi.entity.HotelEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.exception.DuplicateEntityException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FavoriteHotelMapper;
 import com.example.bookingmanagementapi.repository.FavoriteHotelRepository;
+import com.example.bookingmanagementapi.repository.HotelRepository;
+import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FavoriteHotelService;
-import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +27,27 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
 
     private final FavoriteHotelMapper favoriteHotelMapper;
     private final FavoriteHotelRepository favoriteHotelRepository;
-    private final ValidationUtil validationUtil;
+    private final HotelRepository hotelRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void addFavoriteHotel(Long userId, FavoriteHotelRequest favoriteHotelRequest) {
-        FavoriteHotelEntity favoriteHotelEntity = favoriteHotelMapper.toEntity(favoriteHotelRequest);
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
-        favoriteHotelRepository.save(favoriteHotelEntity);
+        HotelEntity hotel = hotelRepository.findById(favoriteHotelRequest.getHotelId())
+                .orElseThrow(() -> new NotFoundException("Hotel not found"));
+
+        if (favoriteHotelRepository.existsByUserAndHotel(userEntity, hotel)) {
+            throw new DuplicateEntityException("Hotel is already in favorites");
+        }
+
+        FavoriteHotelEntity favoriteHotel = FavoriteHotelEntity.builder()
+                .user(userEntity)
+                .hotel(hotel)
+                .build();
+
+        favoriteHotelRepository.save(favoriteHotel);
 
         log.info("Added to favorite hotels by  userId {}", userId);
     }
@@ -39,7 +57,7 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
 
         FavoriteHotelEntity favoriteHotelEntity = favoriteHotelRepository
                 .findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException("Flight not found in favorites"));
+                .orElseThrow(() -> new NotFoundException("Hotel not found in favorites"));
 
         favoriteHotelRepository.delete(favoriteHotelEntity);
 
@@ -47,10 +65,12 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
     }
 
     @Override
-    public List<FavoriteHotelResponse> getAll(Long userId) {
-        List<FavoriteHotelEntity> favoriteHotelEntities = favoriteHotelRepository.findAllByUserId(userId);
+    public Page<FavoriteHotelResponse> getAll(Long userId, Pageable pageable) {
 
-        return favoriteHotelMapper.toListDto(favoriteHotelEntities);
+        Page<@NonNull FavoriteHotelEntity> favoriteHotelEntities = favoriteHotelRepository
+                .findAllByUserId(userId, pageable);
+
+        return favoriteHotelEntities.map(favoriteHotelMapper::toResponse);
     }
 
     @Transactional

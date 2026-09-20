@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -55,6 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public NotificationResponse getById(Long id, Long userId) {
         NotificationEntity notificationEntity = notificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Notification Not Found"));
@@ -65,6 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<NotificationResponse> getAll(Long userId, Pageable pageable) {
 
         Page<NotificationEntity> notificationEntities = notificationRepository.findAllByUserId(userId, pageable);
@@ -133,6 +136,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<NotificationResponse> getUnreadNotifications(Long userId, Pageable pageable) {
 
         Page<NotificationEntity> notificationEntities = notificationRepository.findUnreadByUserId(userId, pageable);

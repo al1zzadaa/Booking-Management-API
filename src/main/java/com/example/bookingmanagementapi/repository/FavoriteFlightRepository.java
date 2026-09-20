@@ -1,6 +1,8 @@
 package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
+import com.example.bookingmanagementapi.entity.FlightEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +19,8 @@ public interface FavoriteFlightRepository extends JpaRepository<@NonNull Favorit
     void deleteAllByUserId(Long userId);
 
     Optional<FavoriteFlightEntity> findByIdAndUserId(Long id, Long userId);
+
+    UserEntity user(UserEntity user);
+
+    boolean existsByUserAndFlight(UserEntity userEntity, FlightEntity flight);
 }

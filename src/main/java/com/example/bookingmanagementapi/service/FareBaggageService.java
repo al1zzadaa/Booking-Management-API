@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service;
 
 
-import com.example.bookingmanagementapi.dto.filter.FareBaggageFilter;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 
@@ -15,6 +14,6 @@ public interface FareBaggageService {
 
     FareBaggageResponse findById(Long id);
 
-    List<FareBaggageResponse> getAll(FareBaggageFilter fareBaggageFilter);
+    List<FareBaggageResponse> getAll();
 
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AirlineResponse {
+    private Long id;
     private String name;
     private String model;
     private String country;

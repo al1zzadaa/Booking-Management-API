@@ -6,6 +6,8 @@ import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.FavoriteHotelService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +27,8 @@ public class FavoriteHotelController {
     }
 
     @GetMapping("/{userId}")
-    public List<FavoriteHotelResponse> getFavoriteHotels(@PathVariable Long userId) {
-        return favoriteHotelService.getAll(userId);
+    public Page<FavoriteHotelResponse> getFavoriteHotels(@PathVariable Long userId, Pageable pageable) {
+        return favoriteHotelService.getAll(userId,  pageable);
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,5 @@
 package com.example.bookingmanagementapi.controller;
 
-import com.example.bookingmanagementapi.dto.filter.FareBaggageFilter;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 import com.example.bookingmanagementapi.service.FareBaggageService;
@@ -32,8 +31,8 @@ public class FareBaggageController {
     }
 
     @GetMapping
-    public List<FareBaggageResponse> getAll(FareBaggageFilter fareBaggageFilter) {
-        return fareBaggageService.getAll(fareBaggageFilter);
+    public List<FareBaggageResponse> getAll() {
+        return fareBaggageService.getAll();
     }
 
 }

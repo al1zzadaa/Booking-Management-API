@@ -1,6 +1,5 @@
 package com.example.bookingmanagementapi.service.impl.flight;
 
-import com.example.bookingmanagementapi.dto.filter.FareBaggageFilter;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 import com.example.bookingmanagementapi.entity.FareBaggageEntity;
@@ -8,7 +7,6 @@ import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FareBaggageMapper;
 import com.example.bookingmanagementapi.repository.FareBaggageRepository;
 import com.example.bookingmanagementapi.service.FareBaggageService;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +19,6 @@ public class FareBaggageServiceImpl implements FareBaggageService {
 
     private final FareBaggageRepository fareBaggageRepository;
     private final FareBaggageMapper fareBaggageMapper;
-    private final ValidationUtil validationUtil;
 
     @Transactional
     @Override
@@ -56,7 +53,7 @@ public class FareBaggageServiceImpl implements FareBaggageService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<FareBaggageResponse> getAll(FareBaggageFilter fareBaggageFilter) {
+    public List<FareBaggageResponse> getAll() {
 
         List<FareBaggageEntity> fareBaggageEntities = fareBaggageRepository.findAll();
 

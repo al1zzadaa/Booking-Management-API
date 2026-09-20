@@ -34,7 +34,6 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final ValidationUtil validationUtil;
     private final UserRepository userRepository;
     private final ConvertService convertService;
 

@@ -3,13 +3,15 @@ package com.example.bookingmanagementapi.service.impl.flight;
 import com.example.bookingmanagementapi.dto.request.FavoriteFlightRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse;
 import com.example.bookingmanagementapi.entity.FavoriteFlightEntity;
+import com.example.bookingmanagementapi.entity.FlightEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
+import com.example.bookingmanagementapi.exception.DuplicateEntityException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FavoriteFlightMapper;
 import com.example.bookingmanagementapi.repository.FavoriteFlightRepository;
+import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FavoriteFlightService;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +27,8 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
 
     private final FavoriteFlightRepository favoriteFlightRepository;
     private final FavoriteFlightMapper favoriteFlightMapper;
-    private final ValidationUtil validationUtil;
     private final UserRepository userRepository;
+    private final FlightRepository flightRepository;
 
     @Transactional
     @Override
@@ -35,11 +37,19 @@ public class FavoriteFlightServiceImpl implements FavoriteFlightService {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
-        FavoriteFlightEntity favoriteFlightEntity = favoriteFlightMapper.toEntity(favoriteFlightRequest);
+        FlightEntity flight = flightRepository.findById(favoriteFlightRequest.getFlightId())
+                .orElseThrow(() -> new NotFoundException("Flight not found"));
 
-        favoriteFlightEntity.setUser(userEntity);
+        if (favoriteFlightRepository.existsByUserAndFlight(userEntity, flight)) {
+            throw new DuplicateEntityException("Flight is already in favorites");
+        }
 
-        favoriteFlightRepository.save(favoriteFlightEntity);
+        FavoriteFlightEntity favoriteFlight = FavoriteFlightEntity.builder()
+                .user(userEntity)
+                .flight(flight)
+                .build();
+
+        favoriteFlightRepository.save(favoriteFlight);
 
         log.info("Added to favorite flights by  userId {}", userId);
     }
