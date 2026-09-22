@@ -25,8 +25,8 @@ public class HotelSpecification implements Specification<HotelEntity> {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (hotelFilter.getCity() != null && !hotelFilter.getCity().isEmpty()){
-            predicates.add(criteriaBuilder.equal(root.get("city"), hotelFilter.getCity()));
+        if (hotelFilter.getCity() != null && !hotelFilter.getCity().isEmpty()) {
+            predicates.add(root.get("city").in(hotelFilter.getCity()));
         }
 
         if (hotelFilter.getCountry() != null && !hotelFilter.getCountry().isEmpty()){

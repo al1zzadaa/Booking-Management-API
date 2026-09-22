@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.flight;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.TicketFilter;
 import com.example.bookingmanagementapi.dto.request.PassengerRequest;
@@ -20,7 +20,6 @@ import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +214,7 @@ public class TicketServiceImpl implements TicketService {
     public void cancel(String username, Long flightBookingId) {
 
         UserEntity userEntity = userRepository
-                .findByEmail(username).orElseThrow(null);
+                .findByEmail(username).orElseThrow(() -> new NotFoundException("User not found"));
 
 
         FlightBookingEntity flightBooking =
@@ -284,11 +282,12 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Page<FlightBookingResponse> getUserTickets(String username, Pageable pageable) {
+    public Page<@NonNull FlightBookingResponse> getUserTickets(String username, Pageable pageable) {
+
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Page<@NonNull FlightBookingEntity> flightBookingEntities = flightBookingRepository.findAllByUserId(user.getId(), pageable);
+        Page<@NonNull FlightBookingEntity> flightBookingEntities = flightBookingRepository.findAllByUser(user, pageable);
 
         return flightBookingEntities.map(flightBookingMapper::toDto);
     }

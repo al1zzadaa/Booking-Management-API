@@ -13,6 +13,7 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
 public class TicketRequest {
 
     @NotNull

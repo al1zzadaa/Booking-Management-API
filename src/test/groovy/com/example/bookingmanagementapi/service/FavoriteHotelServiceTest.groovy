@@ -1,7 +1,6 @@
 package com.example.bookingmanagementapi.service
 
 import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest
-import com.example.bookingmanagementapi.dto.response.FavoriteFlightResponse
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse
 import com.example.bookingmanagementapi.entity.FavoriteHotelEntity
 import com.example.bookingmanagementapi.entity.HotelEntity
@@ -12,15 +11,11 @@ import com.example.bookingmanagementapi.mapper.FavoriteHotelMapper
 import com.example.bookingmanagementapi.repository.FavoriteHotelRepository
 import com.example.bookingmanagementapi.repository.HotelRepository
 import com.example.bookingmanagementapi.repository.UserRepository
-import com.example.bookingmanagementapi.service.impl.hotel.FavoriteHotelServiceImpl
-import lombok.RequiredArgsConstructor
+import com.example.bookingmanagementapi.service.impl.FavoriteHotelServiceImpl
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class FavoriteHotelServiceTest extends Specification {
     def favoriteHotelRepository = Mock(FavoriteHotelRepository)
     def favoriteHotelMapper = Mock(FavoriteHotelMapper)

@@ -31,7 +31,6 @@ public class UserPromoCodeServiceImpl implements UserPromoCodeService {
     private final UserRepository userRepository;
     private final PromoCodeRepository promoCodeRepository;
     private final UserPromoCodeRepository userPromoCodeRepository;
-    private final NotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override

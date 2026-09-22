@@ -8,18 +8,14 @@ import com.example.bookingmanagementapi.enums.Flights
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.FlightMapper
 import com.example.bookingmanagementapi.repository.FlightRepository
-import com.example.bookingmanagementapi.service.impl.flight.FlightServiceImpl
+import com.example.bookingmanagementapi.service.impl.FlightServiceImpl
 import com.example.bookingmanagementapi.util.ValidationUtil
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
 import java.time.LocalDateTime
 
-@Component
-@RequiredArgsConstructor
 class FlightServiceTest extends Specification {
 
     def flightRepository = Mock(FlightRepository)

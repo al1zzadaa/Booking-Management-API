@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.FlightBookingEntity;
+import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -20,5 +21,5 @@ public interface FlightBookingRepository extends JpaRepository<FlightBookingEnti
             LocalDateTime deadline
     );
 
-    Page<@NonNull FlightBookingEntity> findAllByUserId(Long id, Pageable pageable);
+    Page<@NonNull FlightBookingEntity> findAllByUser(UserEntity user, Pageable pageable);
 }

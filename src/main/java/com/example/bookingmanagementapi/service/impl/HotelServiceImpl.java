@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.hotel;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.HotelFilter;
 import com.example.bookingmanagementapi.dto.request.HotelRequest;
@@ -14,6 +14,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,6 +50,7 @@ public class HotelServiceImpl implements HotelService {
         var specification = new HotelSpecification(hotelFilter);
 
         Page<@NonNull HotelEntity> hotelEntities = hotelRepository.findAll(specification,  pageable);
+
         return hotelEntities.map(hotelMapper::toDto);
     }
 

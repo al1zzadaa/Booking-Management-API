@@ -8,14 +8,10 @@ import com.example.bookingmanagementapi.exception.AccessDeniedException
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.HotelReviewMapper
 import com.example.bookingmanagementapi.repository.HotelReviewRepository
-import com.example.bookingmanagementapi.service.impl.hotel.HotelReviewServiceImpl
+import com.example.bookingmanagementapi.service.impl.HotelReviewServiceImpl
 import com.example.bookingmanagementapi.util.ValidationUtil
-import lombok.RequiredArgsConstructor
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class HotelReviewServiceTest extends Specification {
 
     def hotelReviewRepository = Mock(HotelReviewRepository)

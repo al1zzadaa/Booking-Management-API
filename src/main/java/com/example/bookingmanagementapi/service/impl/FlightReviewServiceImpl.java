@@ -1,18 +1,13 @@
-package com.example.bookingmanagementapi.service.impl.flight;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.FlightReviewFilter;
 import com.example.bookingmanagementapi.dto.request.FlightReviewRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateFlightReviewRequest;
 import com.example.bookingmanagementapi.dto.response.flight.FlightReviewResponse;
-import com.example.bookingmanagementapi.entity.FlightEntity;
 import com.example.bookingmanagementapi.entity.FlightReviewEntity;
-import com.example.bookingmanagementapi.entity.UserEntity;
-import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.FlightReviewMapper;
-import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.repository.FlightReviewRepository;
-import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.FlightReviewService;
 import com.example.bookingmanagementapi.service.specifications.FlightReviewSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;

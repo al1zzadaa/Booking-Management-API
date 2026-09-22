@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.hotel;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.BookingFilter;
 import com.example.bookingmanagementapi.dto.request.BookingRequest;
@@ -39,7 +39,6 @@ public class BookingServiceImpl implements BookingService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
-    private final ValidationUtil validationUtil;
     private final NotificationService notificationService;
     private final AccountRepository accountRepository;
     private final TransactionService transactionService;
@@ -54,13 +53,16 @@ public class BookingServiceImpl implements BookingService {
     public void bookHotel(String username, BookingRequest booking) {
 
         UserEntity userEntity = userRepository
-                .findByEmail(username).orElseThrow(null);
+                .findByEmail(username).orElseThrow(() -> new NotFoundException("User not found!"));
 
-        AccountEntity accountEntity = accountRepository.findById(booking.getAccountId()).orElseThrow(null);
+        AccountEntity accountEntity = accountRepository.findById(booking.getAccountId())
+                .orElseThrow(() -> new NotFoundException("Account not found!"));
 
-        HotelEntity hotelEntity = hotelRepository.findById(booking.getHotel()).orElseThrow(null);
+        HotelEntity hotelEntity = hotelRepository.findById(booking.getHotel())
+                .orElseThrow(() -> new NotFoundException("Hotel not found!"));
 
-        RoomEntity roomEntity = roomRepository.findByIdForUpdate(booking.getRoom()).orElseThrow(null);
+        RoomEntity roomEntity = roomRepository.findByIdForUpdate(booking.getRoom())
+                .orElseThrow(() -> new NotFoundException("Room not found!"));
 
         userService.validateUserCanBook(userEntity.getId());
         accountService.validateAccountCanBook(booking.getAccountId());
@@ -211,8 +213,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void deleteBooking(Long id) {
 
-        var entity = bookingRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Booking not found"));
+        if (!bookingRepository.existsById(id)) {
+            throw new NotFoundException("Booking not found");
+        }
 
         bookingRepository.deleteById(id);
     }

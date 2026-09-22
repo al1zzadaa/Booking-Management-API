@@ -1,6 +1,9 @@
 package com.example.bookingmanagementapi.service.impl;
 
-import com.example.bookingmanagementapi.dto.request.*;
+import com.example.bookingmanagementapi.dto.request.DepositRequest;
+import com.example.bookingmanagementapi.dto.request.PaymentRequest;
+import com.example.bookingmanagementapi.dto.request.SubscriptionRequest;
+import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
 import com.example.bookingmanagementapi.dto.response.PaymentResult;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.entity.*;
@@ -15,7 +18,6 @@ import com.example.bookingmanagementapi.repository.BookingRepository;
 import com.example.bookingmanagementapi.repository.FlightBookingRepository;
 import com.example.bookingmanagementapi.repository.TransactionRepository;
 import com.example.bookingmanagementapi.service.*;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
-    private final ValidationUtil validationUtil;
     private final AccountRepository accountRepository;
     private final ConvertService convert;
     private final PromoCodeService promoCodeService;
@@ -93,18 +94,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validateNotAlreadyPaid(Long referenceId, ReferenceType referenceType) {
-//        if (transactionRepository.existsByReferenceIdAndReferenceTypeAndPaymentStatus(
-//                referenceId,
-//                referenceType,
-//                PaymentStatus.PAID)) {
-//            throw new PaymentAlreadyCompletedException("Payment is already paid");
-//        }
         if (transactionRepository
                 .existsByReferenceIdAndReferenceTypeAndType(
                         referenceId,
                         referenceType,
-                        TransactionType.PAYMENT))
-        {
+                        TransactionType.PAYMENT)) {
             throw new PaymentAlreadyCompletedException("Already paid");
         }
     }
@@ -172,24 +166,6 @@ public class TransactionServiceImpl implements TransactionService {
                 flightBookingId,
                 "Payment for ticket"
         );
-//        TransactionEntity transactionEntity = TransactionEntity.builder()
-//                .amount(paymentResult.finalAmount())
-//                .amountInUsd(paymentResult.finalAmountInUsd())
-//                .currency(paymentResult.account().getCurrency())
-//                .account(paymentResult.account())
-//                .paymentStatus(PaymentStatus.PAID)
-//                .referenceType(ReferenceType.FLIGHT_TICKET)
-//                .type(TransactionType.PAYMENT)
-//                .description("Payment for ticket")
-//                .referenceId(flightBookingId)
-//                .build();
-//
-//        transactionRepository.save(transactionEntity);
-
-
-//    / /        ticketRepository.saveAll(tickets);
-//    / /        transactionRepository.save(transactionEntity);
-
         log.info("Payment for ticket with id: '{}'", flightBookingId);
 
         applyUserPromoCode(flightBooking.getUser().getId(), paymentRequest.getPromoCode());
@@ -302,21 +278,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         BigDecimal deposit = depositRequest.getAmount();
 
-//        if (!depositRequest.getCurrency().equals(accountEntity.getCurrency())) {
-//            deposit = convert.convert(
-//                    deposit,
-//                    depositRequest.getCurrency(),
-//                    accountEntity.getCurrency()
-//            );
-//        }
-
         BigDecimal usdAmount = convert.convert(
-                depositRequest.getAmount(),
+                deposit,
                 depositRequest.getCurrency(),
                 Currency.USD);
 
         BigDecimal convertedAmount = convert.convert(
-                depositRequest.getAmount(),
+                deposit,
                 depositRequest.getCurrency(),
                 accountEntity.getCurrency());
 
@@ -341,36 +309,6 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Deposit for account with id: '{}'", accountEntity.getId());
     }
 
-    //    @Transactional
-//    @Override
-//    public void payForBooking(BookingEntity booking, PaymentRequest paymentRequest) {
-//
-//        validateNotAlreadyPaid(booking.getId(), ReferenceType.HOTEL_BOOKING);
-//
-//        PaymentResult result = processAccountPayment(
-//                paymentRequest.getAccountId(),
-//                booking.getTotalPrice(),
-//                paymentRequest.getPromoCode()
-//        );
-//
-//        booking.setTotalPrice(result.finalAmount());
-//        bookingRepository.save(booking);
-//
-//        TransactionEntity transactionEntity = TransactionEntity.builder()
-//                .amount(result.finalAmount())
-//                .account(result.account())
-//                .paymentStatus(PaymentStatus.SUCCESS)
-//                .referenceType(ReferenceType.HOTEL_BOOKING)
-//                .paymentMethod(PaymentMethods.ACCOUNT_BALANCE)
-//                .type(TransactionType.PAYMENT)
-//                .description("Payment for booking")
-//                .referenceId(booking.getId())
-//                .build();
-//
-//        transactionRepository.save(transactionEntity);
-//
-//        applyUserPromoCode(booking.getUser().getId(), paymentRequest.getPromoCode());
-//    }
     @Transactional
     @Override
     public void payForBooking(
@@ -417,21 +355,6 @@ public class TransactionServiceImpl implements TransactionService {
                 "Payment for booking"
         );
 
-//        TransactionEntity transactionEntity = TransactionEntity.builder()
-//                .amount(paymentResult.finalAmount())
-//                .amountInUsd(paymentResult.finalAmountInUsd())
-//                .currency(paymentResult.account().getCurrency())
-//                .account(paymentResult.account())
-//                .paymentStatus(PaymentStatus.PAID)
-//                .referenceType(ReferenceType.HOTEL_BOOKING)
-//                .type(TransactionType.PAYMENT)
-//                .description("Payment for booking")
-//                .referenceId(booking.getId())
-//                .build();
-//
-//        transactionRepository.save(transactionEntity);
-
-
         log.info("Payment for booking with id: '{}'", booking.getId());
 
         applyUserPromoCode(
@@ -451,14 +374,12 @@ public class TransactionServiceImpl implements TransactionService {
         AccountEntity account = accountRepository.findByIdForUpdate(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        // 1. Apply promo in USD
         BigDecimal finalAmountInUsd =
                 promoCodeService.calculateFinalAmount(
                         amountInUsd,
                         promoCode
                 );
 
-        // 2. Apply loyalty points in USD
         if (loyaltyPointsValueInUsd != null
                 && loyaltyPointsValueInUsd.compareTo(BigDecimal.ZERO) > 0) {
 
@@ -473,28 +394,22 @@ public class TransactionServiceImpl implements TransactionService {
             );
         }
 
-        // 3. Convert FINAL USD amount to account currency
         BigDecimal finalAmount = convert.convert(
                 finalAmountInUsd,
                 Currency.USD,
                 account.getCurrency()
         );
 
-        // 4. Check balance
         if (account.getBalance().compareTo(finalAmount) < 0) {
             throw new InsufficientBalanceException("Not enough balance");
         }
 
-        // 5. Withdraw
         account.setBalance(
                 account.getBalance().subtract(finalAmount)
         );
 
-        // 6. Mark promo as used
         promoCodeService.markAsUsed(promoCode);
 
-        // finalAmount       = account currency
-        // finalAmountInUsd   = USD
         return new PaymentResult(
                 account,
                 finalAmountInUsd,
@@ -526,57 +441,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         log.info("Subscription payment for user with id: '{}'", subscriptionId);
 
-//        TransactionEntity transactionEntity = TransactionEntity.builder()
-//                .amount(paymentResult.finalAmount())
-//                .amountInUsd(paymentResult.finalAmountInUsd())
-//                .account(paymentResult.account())
-//                .currency(paymentResult.account().getCurrency())
-//                .paymentStatus(PaymentStatus.PAID)
-//                .referenceType(ReferenceType.SUBSCRIPTION)
-//                .type(TransactionType.PAYMENT)
-//                .description(description)
-//                .referenceId(subscriptionId)
-//                .build();
-//
-//        transactionRepository.save(transactionEntity);
     }
-
-//    @Transactional
-//    @Override
-//    public void subscriptionRenew(SubscriptionRequest subscriptionRequest,
-//                                  Long subscriptionId,
-//                                  SubscriptionPlanEntity subscriptionPlanEntity,
-//                                  String description) {
-//
-//        BigDecimal subscriptionAmount = subscriptionPlanEntity.getPrice();
-//
-//        PaymentResult paymentResult = processAccountPayment(
-//                subscriptionRequest.getAccountId(),
-//                subscriptionAmount,
-//                null,
-//                null);
-//
-//        createPayment(
-//                paymentResult,
-//                ReferenceType.SUBSCRIPTION,
-//                subscriptionId,
-//                description
-//        );
-//
-//        TransactionEntity transactionEntity = TransactionEntity.builder()
-//                .amount(paymentResult.finalAmount())
-//                .amountInUsd(paymentResult.finalAmountInUsd())
-//                .currency(paymentResult.account().getCurrency())
-//                .account(paymentResult.account())
-//                .paymentStatus(PaymentStatus.PAID)
-//                .referenceType(ReferenceType.SUBSCRIPTION)
-//                .type(TransactionType.PAYMENT)
-//                .description(description)
-//                .referenceId(subscriptionId)
-//                .build();
-//
-//        transactionRepository.save(transactionEntity);
-//    }
 
 
 }

@@ -10,7 +10,7 @@ import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.AirlineMapper
 import com.example.bookingmanagementapi.repository.AirlineRepository
 import com.example.bookingmanagementapi.repository.FlightRepository
-import com.example.bookingmanagementapi.service.impl.flight.AirlineServiceImpl
+import com.example.bookingmanagementapi.service.impl.AirlineServiceImpl
 import spock.lang.Specification
 
 class AirlineServiceTest extends Specification {

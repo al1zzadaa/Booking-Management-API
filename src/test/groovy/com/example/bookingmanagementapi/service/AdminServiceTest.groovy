@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class AdminServiceTest extends Specification {
 
     def userRepository = Mock(UserRepository)

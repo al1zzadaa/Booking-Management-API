@@ -22,8 +22,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestBody
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class AuthServiceTest extends Specification {
 
     def userRepository = Mock(UserRepository)

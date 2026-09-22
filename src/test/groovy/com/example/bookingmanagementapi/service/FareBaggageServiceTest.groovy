@@ -6,7 +6,7 @@ import com.example.bookingmanagementapi.entity.FareBaggageEntity
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.FareBaggageMapper
 import com.example.bookingmanagementapi.repository.FareBaggageRepository
-import com.example.bookingmanagementapi.service.impl.flight.FareBaggageServiceImpl
+import com.example.bookingmanagementapi.service.impl.FareBaggageServiceImpl
 import spock.lang.Specification
 
 class FareBaggageServiceTest extends Specification {

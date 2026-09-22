@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.hotel;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;

@@ -44,7 +44,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Override
     public PromoCodeResponse getById(Long id) {
         PromoCodeEntity promoCodeEntity = promoCodeRepository
-                .findById(id).orElseThrow(null);
+                .findById(id).orElseThrow(() -> new NotFoundException("PromoCode not found"));
 
         return promoCodeMapper.toDto(promoCodeEntity);
     }

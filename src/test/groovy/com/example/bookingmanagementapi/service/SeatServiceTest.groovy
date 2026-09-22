@@ -10,17 +10,13 @@ import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.exception.ValidationException
 import com.example.bookingmanagementapi.mapper.SeatMapper
 import com.example.bookingmanagementapi.repository.SeatRepository
-import com.example.bookingmanagementapi.service.impl.flight.SeatServiceImpl
+import com.example.bookingmanagementapi.service.impl.SeatServiceImpl
 import com.example.bookingmanagementapi.util.ValidationUtil
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class SeatServiceTest extends Specification {
 
     def seatRepository = Mock(SeatRepository)

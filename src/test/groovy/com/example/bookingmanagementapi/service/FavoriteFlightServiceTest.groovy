@@ -11,15 +11,11 @@ import com.example.bookingmanagementapi.mapper.FavoriteFlightMapper
 import com.example.bookingmanagementapi.repository.FavoriteFlightRepository
 import com.example.bookingmanagementapi.repository.FlightRepository
 import com.example.bookingmanagementapi.repository.UserRepository
-import com.example.bookingmanagementapi.service.impl.flight.FavoriteFlightServiceImpl
-import lombok.RequiredArgsConstructor
+import com.example.bookingmanagementapi.service.impl.FavoriteFlightServiceImpl
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class FavoriteFlightServiceTest extends Specification {
 
     def favoriteFlightRepository = Mock(FavoriteFlightRepository)

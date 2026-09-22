@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.flight;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.FlightFilter;
 import com.example.bookingmanagementapi.dto.request.FlightRequest;

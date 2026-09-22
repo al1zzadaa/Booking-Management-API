@@ -18,8 +18,6 @@ import spock.lang.Specification
 import java.time.Instant
 import java.time.LocalDateTime
 
-@Component
-@RequiredArgsConstructor
 class EmailVerificationServiceTest extends Specification {
 
     def verificationRepository = Mock(EmailVerificationTokenRepository)

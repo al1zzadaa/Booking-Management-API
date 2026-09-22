@@ -7,17 +7,13 @@ import com.example.bookingmanagementapi.entity.RoomEntity
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.RoomMapper
 import com.example.bookingmanagementapi.repository.RoomRepository
-import com.example.bookingmanagementapi.service.impl.hotel.RoomServiceImpl
+import com.example.bookingmanagementapi.service.impl.RoomServiceImpl
 import com.example.bookingmanagementapi.util.ValidationUtil
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class RoomServiceTest extends Specification {
 
     def roomRepository = Mock(RoomRepository)

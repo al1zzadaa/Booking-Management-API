@@ -12,11 +12,13 @@ import com.example.bookingmanagementapi.repository.NotificationRepository
 import com.example.bookingmanagementapi.repository.UserRepository
 import com.example.bookingmanagementapi.service.impl.NotificationServiceImpl
 import com.example.bookingmanagementapi.util.ValidationUtil
+import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-class NotificationServiceImplTest extends Specification {
+class NotificationServiceTest extends Specification {
 
     def notificationRepository = Mock(NotificationRepository)
     def notificationMapper = Mock(NotificationMapper)

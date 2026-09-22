@@ -24,8 +24,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import spock.lang.Specification
 
-@Component
-@RequiredArgsConstructor
 class AccountServiceTest extends Specification {
 
     def accountRepository = Mock(AccountRepository)

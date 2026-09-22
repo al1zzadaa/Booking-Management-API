@@ -1,4 +1,4 @@
-package com.example.bookingmanagementapi.service.impl.flight;
+package com.example.bookingmanagementapi.service.impl;
 
 import com.example.bookingmanagementapi.dto.filter.AirlineFilter;
 import com.example.bookingmanagementapi.dto.request.AirlineRequest;
@@ -14,7 +14,6 @@ import com.example.bookingmanagementapi.repository.AirlineRepository;
 import com.example.bookingmanagementapi.repository.FlightRepository;
 import com.example.bookingmanagementapi.service.AirlineService;
 import com.example.bookingmanagementapi.service.specifications.AirlineSpecification;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final ValidationUtil validationUtil;
     private final PasswordEncoder passwordEncoder;
     private final AccountService accountService;
     private final EmailVerificationService emailVerificationService;
