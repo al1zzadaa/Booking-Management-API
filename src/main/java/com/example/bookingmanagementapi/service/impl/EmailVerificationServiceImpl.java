@@ -78,15 +78,6 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         UserEntity user = verification.getUser();
 
-
-//        if (verification.getTokenType() == TokenType.EMAIL_VERIFICATION) {
-//            user.setIsActive(UserStatus.ACTIVE);
-//            user.setEmailVerifiedAt(LocalDateTime.now());
-//            verificationRepository.delete(verification);
-//        }
-//        else if (verification.getTokenType() == TokenType.PASSWORD_RESET) {
-//            // allow password reset
-//        }
         user.setIsActive(UserStatus.ACTIVE);
         user.setEmailVerifiedAt(LocalDateTime.now());
 

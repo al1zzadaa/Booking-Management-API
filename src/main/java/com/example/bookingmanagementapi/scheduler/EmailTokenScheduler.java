@@ -16,7 +16,6 @@ public class EmailTokenScheduler {
 
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
-    //hour
     @Scheduled(fixedRate = 3600000)
     @Transactional
     public void deleteExpiredTokens() {

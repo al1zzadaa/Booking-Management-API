@@ -16,6 +16,7 @@ import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.SubscriptionService;
 import com.example.bookingmanagementapi.service.TransactionService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionMapper subscriptionMapper;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final AccountRepository accountRepository;
-    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final TransactionService transactionService;
     private final ApplicationEventPublisher eventPublisher;
@@ -183,7 +183,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
             Pageable pageable = PageRequest.of(0, 20);
 
-            Page<SubscriptionEntity> result =
+            Page<@NonNull SubscriptionEntity> result =
                     subscriptionRepository.findExpiredSubscriptions(
                             LocalDate.now(),
                             pageable

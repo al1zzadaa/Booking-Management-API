@@ -2,7 +2,7 @@ package com.example.bookingmanagementapi.service
 
 import com.example.bookingmanagementapi.entity.*
 import com.example.bookingmanagementapi.enums.BookingStatus
-import com.example.bookingmanagementapi.enums.Flights
+import com.example.bookingmanagementapi.enums.FlightStatus
 import com.example.bookingmanagementapi.enums.TicketStatus
 import com.example.bookingmanagementapi.event.ExpireUnpaidEvent
 import com.example.bookingmanagementapi.repository.BookingRepository
@@ -11,7 +11,6 @@ import com.example.bookingmanagementapi.repository.FlightRepository
 import com.example.bookingmanagementapi.service.impl.TicketAndBookingExpirationServiceImpl
 import org.springframework.context.ApplicationEventPublisher
 import spock.lang.Specification
-import spock.lang.Subject
 
 class TicketAndBookingExpirationServiceTest extends Specification {
 
@@ -139,14 +138,14 @@ class TicketAndBookingExpirationServiceTest extends Specification {
 
         then:
         1 * flightRepository.startFlights(
-                Flights.SCHEDULED,
-                Flights.IN_PROGRESS,
+                FlightStatus.SCHEDULED,
+                FlightStatus.IN_PROGRESS,
                 _
         ) >> 4
 
         1 * flightRepository.landFlights(
-                Flights.IN_PROGRESS,
-                Flights.LANDED,
+                FlightStatus.IN_PROGRESS,
+                FlightStatus.LANDED,
                 _
         ) >> 2
     }

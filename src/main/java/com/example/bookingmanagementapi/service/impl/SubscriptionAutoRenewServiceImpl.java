@@ -59,29 +59,20 @@ public class SubscriptionAutoRenewServiceImpl implements SubscriptionAutoRenewSe
 
                     renewedCount++;
 
-                    log.info(
-                            "Auto-renewed subscription {} for user {}",
-                            subscription.getId(),
-                            userEntity.getId()
+                    log.info("Auto-renewed subscription {} for user {}", subscription.getId(), userEntity.getId()
                     );
 
                 } catch (Exception e) {
 
                     failedCount++;
 
-                    log.error(
-                            "Auto-renew failed for subscription {}",
-                            subscription.getId(),
-                            e
+                    log.error("Auto-renew failed for subscription {}", subscription.getId(), e
                     );
                 }
             }
         }
 
-        log.info(
-                "Auto-renew job completed: {} renewed, {} failed",
-                renewedCount,
-                failedCount
+        log.info("Auto-renew job completed: {} renewed, {} failed", renewedCount, failedCount
         );
 
     }

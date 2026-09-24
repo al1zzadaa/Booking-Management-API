@@ -25,6 +25,4 @@ public interface FlightReviewMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     void updateFlightReview(UpdateFlightReviewRequest updateFlightReviewRequest, @MappingTarget FlightReviewEntity flightReviewEntity);
-
-    List<FlightReviewResponse> toListDto(List<FlightReviewEntity> flightReviewsEntity);
 }

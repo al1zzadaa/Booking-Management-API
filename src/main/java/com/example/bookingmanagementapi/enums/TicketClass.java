@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.enums;
 
-public enum Tickets {
+public enum TicketClass {
     ECONOMY,
     COMFORT,
     BUSINESS,

@@ -12,6 +12,7 @@ import com.example.bookingmanagementapi.repository.PromoCodeRepository;
 import com.example.bookingmanagementapi.service.PromoCodeService;
 import com.example.bookingmanagementapi.service.specifications.PromoCodeSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,11 +51,11 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public Page<PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable) {
+    public Page<@NonNull PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable) {
 
         var specification = new PromoCodeSpecification(promoCodeFilter);
 
-        Page<PromoCodeEntity> promoCodeEntities = promoCodeRepository.findAll(specification, pageable);
+        Page<@NonNull PromoCodeEntity> promoCodeEntities = promoCodeRepository.findAll(specification, pageable);
 
         return promoCodeEntities.map(promoCodeMapper::toDto);
     }

@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.dto.filter;
 
-import com.example.bookingmanagementapi.enums.Tickets;
+import com.example.bookingmanagementapi.enums.TicketClass;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,5 +14,5 @@ public class TicketFilter {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private Long flightId;
-    private Tickets ticketClass;
+    private TicketClass ticketClass;
 }

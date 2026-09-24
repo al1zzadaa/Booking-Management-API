@@ -1,12 +1,11 @@
 package com.example.bookingmanagementapi.entity;
 
-import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.FlightStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -48,7 +47,7 @@ public class FlightEntity {
     private Long flightNumber;
 
     @Enumerated(EnumType.STRING)
-    private Flights status;
+    private FlightStatus status;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.dto.request;
 
-import com.example.bookingmanagementapi.enums.Tickets;
+import com.example.bookingmanagementapi.enums.TicketClass;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +21,7 @@ public class FareBaggageRequest {
     private Long airlineId;
 
     @NotNull
-    private Tickets ticket;
+    private TicketClass ticket;
 
     @NotNull
     @Min(0)

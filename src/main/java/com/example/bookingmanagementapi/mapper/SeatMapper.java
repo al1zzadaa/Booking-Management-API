@@ -14,6 +14,4 @@ public interface SeatMapper {
     SeatResponse toDto(SeatEntity seatEntity);
 
     SeatEntity toEntity(SeatRequest seatRequest);
-
-    List<SeatResponse> toDto(List<SeatEntity> seatEntityList);
 }

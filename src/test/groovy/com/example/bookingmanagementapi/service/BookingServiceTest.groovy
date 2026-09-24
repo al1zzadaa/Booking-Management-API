@@ -6,7 +6,7 @@ import com.example.bookingmanagementapi.dto.request.PaymentRequest
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse
 import com.example.bookingmanagementapi.entity.*
 import com.example.bookingmanagementapi.enums.BookingStatus
-import com.example.bookingmanagementapi.enums.Hotels
+import com.example.bookingmanagementapi.enums.HotelStatus
 import com.example.bookingmanagementapi.event.BookingCancelledEvent
 import com.example.bookingmanagementapi.event.BookingPaymentEvent
 import com.example.bookingmanagementapi.exception.*
@@ -64,7 +64,7 @@ class BookingServiceTest extends Specification {
 
         def hotel = new HotelEntity()
         hotel.setId(20L)
-        hotel.setStatus(Hotels.OPEN)
+        hotel.setStatus(HotelStatus.OPEN)
 
         def room = new RoomEntity()
         room.setId(30L)
@@ -212,7 +212,7 @@ class BookingServiceTest extends Specification {
         account.setUser(user)
 
         def hotel = new HotelEntity(id: 20L)
-        hotel.setStatus(Hotels.CLOSED)
+        hotel.setStatus(HotelStatus.CLOSED)
 
         def room = new RoomEntity(id: 30L)
         room.setHotel(hotel)
@@ -248,7 +248,7 @@ class BookingServiceTest extends Specification {
         account.setUser(user)
 
         def hotel = new HotelEntity(id: 20L)
-        hotel.setStatus(Hotels.OPEN)
+        hotel.setStatus(HotelStatus.OPEN)
 
         def room = new RoomEntity(id: 30L)
         room.setHotel(hotel)
@@ -296,7 +296,7 @@ class BookingServiceTest extends Specification {
         account.setUser(user)
 
         def hotel = new HotelEntity(id: 20L)
-        hotel.setStatus(Hotels.OPEN)
+        hotel.setStatus(HotelStatus.OPEN)
 
         def room = new RoomEntity(id: 30L)
         room.setHotel(hotel)

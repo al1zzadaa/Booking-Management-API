@@ -25,7 +25,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
                 .user(user)
                 .token(token)
-//                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
                 .expiresAt(Instant.now().plus(refreshExpirationDays, ChronoUnit.DAYS))
                 .build();
 
@@ -53,10 +52,5 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public void deleteByToken(String token) {
         refreshTokenRepository.deleteByToken(token);
-    }
-
-    @Transactional
-    public void deleteAllByUser(Long userId) {
-        refreshTokenRepository.deleteAllByUser_Id(userId);
     }
 }

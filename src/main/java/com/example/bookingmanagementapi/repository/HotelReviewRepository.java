@@ -8,16 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HotelReviewRepository extends JpaRepository<HotelReviewEntity, Long>,
                                                JpaSpecificationExecutor<HotelReviewEntity> {
-
-//    @Query("select r from HotelEntity h join h.reviews r where h.id = :hotelId")
-//    List<HotelReview> findByHotelId(Long hotelId);
-//
-//    @Query("select r from HotelEntity h join h.reviews r where h.hotelName = :hotelName")
-//    List<HotelReview> findByName(String hotelName);
-//
-//    @Query("select u from HotelReview u where u.userId = :userId")
-//    List<HotelReview> findAllHotelReviewsByUserId(Long userId);
-//
-//    List<HotelReview> findAllByRating(Integer rating);
-
 }

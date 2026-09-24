@@ -8,6 +8,7 @@ import com.example.bookingmanagementapi.dto.response.AccountResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.AccountService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,19 +33,19 @@ public class AccountController {
 
     @DeleteMapping("/{accountId}")
     public void deleteAccount(@AuthenticationPrincipal CustomUserDetails user,
-                              @PathVariable Long accountId) {
+                              @PathVariable @Positive Long accountId) {
 
         accountService.delete(user.getId(), accountId);
     }
 
     @PutMapping("/{id}")
     public void updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest,
-                              @PathVariable Long id) {
+                              @PathVariable @Positive Long id) {
         accountService.update(updateAccountRequest, id);
     }
 
     @GetMapping("/{id}")
-    public AccountResponse findAccountById(@PathVariable Long id) {
+    public AccountResponse findAccountById(@PathVariable @Positive Long id) {
         return accountService.getById(id);
     }
 
@@ -54,19 +55,19 @@ public class AccountController {
     }
 
     @PatchMapping("/block/{id}")
-    public void blockAccount(@PathVariable Long id) {
+    public void blockAccount(@PathVariable @Positive Long id) {
         accountService.blockAccount(id);
     }
 
     @PatchMapping("/unblock/{id}")
-    public void unblockAccount(@PathVariable Long id) {
+    public void unblockAccount(@PathVariable @Positive Long id) {
         accountService.unblockAccount(id);
     }
 
     @PatchMapping("/{accountId}/currency")
     public void changeCurrency(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long accountId,
+            @PathVariable @Positive Long accountId,
             @RequestBody CurrencyRequest request) {
 
         accountService.changeCurrency(user.getId(), accountId, request.getCurrency());

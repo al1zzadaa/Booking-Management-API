@@ -10,13 +10,11 @@ import com.example.bookingmanagementapi.exception.TokenExpiredException
 import com.example.bookingmanagementapi.repository.EmailVerificationTokenRepository
 import com.example.bookingmanagementapi.repository.UserRepository
 import com.example.bookingmanagementapi.service.impl.EmailVerificationServiceImpl
-import lombok.RequiredArgsConstructor
-import org.springframework.stereotype.Component
-import java.time.temporal.ChronoUnit
 import spock.lang.Specification
 
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class EmailVerificationServiceTest extends Specification {
 

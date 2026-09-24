@@ -20,4 +20,6 @@ public interface AirlineService {
     AirlineResponse getById(Long id);
 
     Page<@NonNull AirlineResponse> getAll(AirlineFilter airlineFilter, Pageable pageable);
+
+    void activate(Long id);
 }

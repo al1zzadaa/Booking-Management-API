@@ -4,7 +4,7 @@ import com.example.bookingmanagementapi.dto.request.AirlineRequest
 import com.example.bookingmanagementapi.dto.request.UpdateAirlineRequest
 import com.example.bookingmanagementapi.dto.response.AirlineResponse
 import com.example.bookingmanagementapi.entity.AirlineEntity
-import com.example.bookingmanagementapi.enums.Flights
+import com.example.bookingmanagementapi.enums.FlightStatus
 import com.example.bookingmanagementapi.exception.FlightScheduleException
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.AirlineMapper
@@ -138,9 +138,9 @@ class AirlineServiceTest extends Specification {
 
         airlineRepository.findById(1L) >> Optional.of(airline)
 
-        flightRepository.findAllByAirlineAndStatus(
+        flightRepository.existsByAirlineAndStatus(
                 airline,
-                Flights.SCHEDULED
+                FlightStatus.SCHEDULED
         ) >> false
 
         when:
@@ -156,9 +156,9 @@ class AirlineServiceTest extends Specification {
 
         airlineRepository.findById(1L) >> Optional.of(airline)
 
-        flightRepository.findAllByAirlineAndStatus(
+        flightRepository.existsByAirlineAndStatus(
                 airline,
-                Flights.SCHEDULED
+                FlightStatus.SCHEDULED
         ) >> true
 
         when:

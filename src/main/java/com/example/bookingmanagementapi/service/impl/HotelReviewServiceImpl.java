@@ -11,8 +11,11 @@ import com.example.bookingmanagementapi.repository.HotelReviewRepository;
 import com.example.bookingmanagementapi.service.HotelReviewService;
 import com.example.bookingmanagementapi.service.specifications.HotelReviewSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -65,12 +68,13 @@ public class HotelReviewServiceImpl implements HotelReviewService {
 
 
     @Override
-    public List<HotelReviewResponse> findAll(HotelReviewFilter hotelReviewFilter){
+    public Page<@NonNull HotelReviewResponse> findAll(HotelReviewFilter hotelReviewFilter, Pageable pageable) {
 
         var specifications = new HotelReviewSpecification(hotelReviewFilter);
 
-        List<HotelReviewEntity> hotelReviewEntities = hotelReviewRepository.findAll(specifications);
-        return hotelReviewMapper.toListDto(hotelReviewEntities);
+        Page<@NonNull HotelReviewEntity> hotelReviewEntities = hotelReviewRepository.findAll(specifications, pageable);
+
+        return hotelReviewEntities.map(hotelReviewMapper::toDto);
     }
 
     @Override

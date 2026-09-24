@@ -22,7 +22,6 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
-    private final ValidationUtil validationUtil;
 
     @Override
     public void createRoom(RoomRequest roomRequest) {
@@ -42,8 +41,6 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomResponse findByRoomNo(Integer roomNo) {
-
-        validationUtil.validateRoomNo(roomNo);
 
         RoomEntity roomEntity = roomRepository.findByRoomNumber(roomNo);
         return roomMapper.toDto(roomEntity);

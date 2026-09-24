@@ -13,10 +13,7 @@ import com.example.bookingmanagementapi.enums.ReferenceType;
 import com.example.bookingmanagementapi.enums.TransactionType;
 import com.example.bookingmanagementapi.exception.*;
 import com.example.bookingmanagementapi.mapper.TransactionMapper;
-import com.example.bookingmanagementapi.repository.AccountRepository;
-import com.example.bookingmanagementapi.repository.BookingRepository;
-import com.example.bookingmanagementapi.repository.FlightBookingRepository;
-import com.example.bookingmanagementapi.repository.TransactionRepository;
+import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +48,10 @@ public class TransactionServiceImpl implements TransactionService {
             String description
     ) {
         TransactionEntity transaction = TransactionEntity.builder()
-                .amount(paymentResult.finalAmount())
-                .amountInUsd(paymentResult.finalAmountInUsd())
-                .currency(paymentResult.account().getCurrency())
-                .account(paymentResult.account())
+                .amount(paymentResult.getFinalAmount())
+                .amountInUsd(paymentResult.getFinalAmountInUsd())
+                .currency(paymentResult.getAccount().getCurrency())
+                .account(paymentResult.getAccount())
                 .paymentStatus(PaymentStatus.PAID)
                 .referenceType(referenceType)
                 .type(TransactionType.PAYMENT)
@@ -77,18 +74,16 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionResponse getTransactionById(Long transactionId) {
-        TransactionEntity transactionEntity = transactionRepository.findById(transactionId).orElseThrow(null);
+        TransactionEntity transactionEntity = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new NotFoundException("Transaction with id: '"+transactionId+"' not found"));
 
         return transactionMapper.toDto(transactionEntity);
     }
 
     @Override
-    public Page<@NonNull TransactionResponse> getTransactionsByUserId(Long accountId, Pageable pageable) {
+    public Page<@NonNull TransactionResponse> getTransactionsByUserId(String email, Pageable pageable) {
 
-
-        AccountEntity accountEntity = transactionRepository.findById(accountId).orElseThrow(null).getAccount();
-
-        Page<@NonNull TransactionEntity> responses = transactionRepository.findAllByAccount(accountEntity, pageable);
+        Page<@NonNull TransactionEntity> responses = transactionRepository.findAllByAccount_User_Email(email, pageable);
 
         return responses.map(transactionMapper::toDto);
     }
@@ -151,13 +146,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (points != null && points > 0) {
             loyaltyPointService.usePoints(
-                    paymentResult.account().getId(),
+                    paymentResult.getAccount().getId(),
                     points,
                     "Points used for flight ticket payment"
             );
         }
 
-        flightBooking.setTotalPrice(paymentResult.finalAmountInUsd());
+        flightBooking.setTotalPrice(paymentResult.getFinalAmountInUsd());
         flightBookingRepository.save(flightBooking);
 
         createPayment(
@@ -339,13 +334,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (points != null && points > 0) {
             loyaltyPointService.usePoints(
-                    paymentResult.account().getId(),
+                    paymentResult.getAccount().getId(),
                     points,
                     "Points used for hotel booking payment"
             );
         }
 
-        booking.setTotalPrice(paymentResult.finalAmountInUsd());
+        booking.setTotalPrice(paymentResult.getFinalAmountInUsd());
         bookingRepository.save(booking);
 
         createPayment(

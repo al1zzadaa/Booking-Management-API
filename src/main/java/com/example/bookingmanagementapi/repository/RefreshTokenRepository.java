@@ -1,6 +1,7 @@
 package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.RefreshTokenEntity;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity, Long> {
+public interface RefreshTokenRepository extends JpaRepository<@NonNull RefreshTokenEntity, @NonNull Long> {
 
     Optional<RefreshTokenEntity> findByToken(String token);
 

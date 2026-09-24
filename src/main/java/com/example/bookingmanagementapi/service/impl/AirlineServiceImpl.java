@@ -5,7 +5,7 @@ import com.example.bookingmanagementapi.dto.request.AirlineRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateAirlineRequest;
 import com.example.bookingmanagementapi.dto.response.AirlineResponse;
 import com.example.bookingmanagementapi.entity.AirlineEntity;
-import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.FlightStatus;
 import com.example.bookingmanagementapi.exception.DuplicateEntityException;
 import com.example.bookingmanagementapi.exception.FlightScheduleException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
@@ -67,7 +67,7 @@ public class AirlineServiceImpl implements AirlineService {
         AirlineEntity airlineEntity = airlineRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Airline not found"));
 
-        if (flightRepository.findAllByAirlineAndStatus(airlineEntity, Flights.SCHEDULED)){
+        if (flightRepository.existsByAirlineAndStatus(airlineEntity, FlightStatus.SCHEDULED)){
             throw new FlightScheduleException("Airline scheduled for flight");
         }
 
@@ -91,6 +91,14 @@ public class AirlineServiceImpl implements AirlineService {
         Page<@NonNull AirlineEntity> airlineEntities = airlineRepository.findAll(specification, pageable);
 
         return airlineEntities.map(airlineMapper::toDto);
+    }
+
+    @Override
+    public void activate(Long id) {
+        AirlineEntity airlineEntity = airlineRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Airline not found"));
+
+        airlineEntity.setIsActive(true);
     }
 
 }

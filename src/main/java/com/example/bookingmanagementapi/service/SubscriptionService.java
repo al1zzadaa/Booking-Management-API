@@ -16,8 +16,6 @@ public interface SubscriptionService {
 
     void renew(Long userId, SubscriptionRequest subscriptionRequest);
 
-//    void autoRenew();
-
     void enableAutoRenew(Long userId);
 
     void disableAutoRenew(Long userId);

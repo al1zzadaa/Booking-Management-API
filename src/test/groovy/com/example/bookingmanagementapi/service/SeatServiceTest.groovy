@@ -5,7 +5,7 @@ import com.example.bookingmanagementapi.dto.request.SeatRequest
 import com.example.bookingmanagementapi.dto.response.flight.SeatResponse
 import com.example.bookingmanagementapi.entity.SeatEntity
 import com.example.bookingmanagementapi.enums.Rows
-import com.example.bookingmanagementapi.enums.Tickets
+import com.example.bookingmanagementapi.enums.TicketClass
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.exception.ValidationException
 import com.example.bookingmanagementapi.mapper.SeatMapper
@@ -21,13 +21,10 @@ class SeatServiceTest extends Specification {
 
     def seatRepository = Mock(SeatRepository)
     def seatMapper = Mock(SeatMapper)
-    def validationUtil = Mock(ValidationUtil)
-
 
     def seatService = new SeatServiceImpl(
             seatRepository,
-            seatMapper,
-            validationUtil
+            seatMapper
     )
 
 
@@ -38,7 +35,7 @@ class SeatServiceTest extends Specification {
                 "A1",
                 Rows.A,
                 1,
-                Tickets.ECONOMY
+                TicketClass.ECONOMY
         )
 
         def entity = new SeatEntity()
@@ -47,10 +44,6 @@ class SeatServiceTest extends Specification {
         seatService.createSeat(request)
 
         then:
-        1 * validationUtil.validateSeatRow(Rows.A)
-        1 * validationUtil.validateSeatNumber(1)
-        1 * validationUtil.validateTicketClass(Tickets.ECONOMY)
-
         1 * seatRepository.findBySeatAndFlightId("A1", 1L) >> null
         1 * seatMapper.toEntity(request) >> entity
         1 * seatRepository.save(entity)
@@ -63,7 +56,7 @@ class SeatServiceTest extends Specification {
                 "A1",
                 Rows.A,
                 1,
-                Tickets.ECONOMY
+                TicketClass.ECONOMY
         )
 
         def existingSeat = new SeatEntity()
@@ -72,9 +65,6 @@ class SeatServiceTest extends Specification {
         seatService.createSeat(request)
 
         then:
-        1 * validationUtil.validateSeatRow(Rows.A)
-        1 * validationUtil.validateSeatNumber(1)
-        1 * validationUtil.validateTicketClass(Tickets.ECONOMY)
 
         1 * seatRepository.findBySeatAndFlightId("A1", 1L) >> existingSeat
 

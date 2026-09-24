@@ -4,6 +4,8 @@ package com.example.bookingmanagementapi.controller;
 import com.example.bookingmanagementapi.dto.response.UserResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.UserService;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +22,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Page<UserResponse> getAllUsers(Pageable pageable) {
+    public Page<@NonNull UserResponse> getAllUsers(Pageable pageable) {
         return userService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public UserResponse getUserById(@PathVariable Long id) {
+    public UserResponse getUserById(@PathVariable @Positive Long id) {
         return userService.findById(id);
     }
 
@@ -35,7 +37,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUserById(@PathVariable Long id) {
+    public void deleteUserById(@PathVariable @Positive Long id) {
         userService.deleteUser(id);
     }
 
@@ -46,7 +48,6 @@ public class UserController {
     public void uploadProfilePhoto(
             @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-
         userService.uploadProfilePhoto(
                 userDetails.getEmail(),
                 file
@@ -56,7 +57,6 @@ public class UserController {
     @DeleteMapping("/profile-photo")
     public void deleteProfilePhoto(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-
         userService.deleteProfilePhoto(userDetails.getEmail());
     }
 }

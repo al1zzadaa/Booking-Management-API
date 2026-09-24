@@ -5,6 +5,9 @@ import com.example.bookingmanagementapi.dto.request.WithdrawRequest;
 import com.example.bookingmanagementapi.dto.response.TransactionResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.TransactionService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,31 +22,28 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/deposit")
-    public void deposit(@RequestBody DepositRequest depositRequest) {
+    public void deposit(@Valid @RequestBody DepositRequest depositRequest) {
         transactionService.deposit(depositRequest);
     }
 
     @PostMapping("/withdraw")
-    public void withdraw(@RequestBody WithdrawRequest withdrawRequest) {
+    public void withdraw(@Valid @RequestBody WithdrawRequest withdrawRequest) {
         transactionService.withdraw(withdrawRequest);
     }
 
-    @GetMapping
-    public Page<TransactionResponse> getMyTransactions(
+    @GetMapping("/my")
+    public Page<@NonNull TransactionResponse> getMyTransactions(
             @AuthenticationPrincipal CustomUserDetails user,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         return transactionService.getTransactionsByUserId(
-                user.getId(),
+                user.getEmail(),
                 pageable
         );
     }
 
     @GetMapping("/{id}")
     public TransactionResponse getTransactionById(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails user
-    ) {
+            @PathVariable @Positive Long id) {
         return transactionService.getTransactionById(id);
     }
 }

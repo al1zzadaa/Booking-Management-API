@@ -7,9 +7,9 @@ import com.example.bookingmanagementapi.dto.request.TicketRequest
 import com.example.bookingmanagementapi.dto.response.FlightBookingResponse
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse
 import com.example.bookingmanagementapi.entity.*
-import com.example.bookingmanagementapi.enums.Flights
+import com.example.bookingmanagementapi.enums.FlightStatus
 import com.example.bookingmanagementapi.enums.TicketStatus
-import com.example.bookingmanagementapi.enums.Tickets
+import com.example.bookingmanagementapi.enums.TicketClass
 import com.example.bookingmanagementapi.event.BookingPaymentEvent
 import com.example.bookingmanagementapi.exception.*
 import com.example.bookingmanagementapi.mapper.FlightBookingMapper
@@ -85,7 +85,7 @@ class TicketServiceTest extends Specification {
         def flight = new FlightEntity()
         flight.setId(20L)
         flight.setAirline(airline)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(
                 LocalDateTime.of(2026, 10, 20, 15, 0)
         )
@@ -93,7 +93,7 @@ class TicketServiceTest extends Specification {
         def seat = new SeatEntity()
         seat.setId(30L)
         seat.setFlight(flight)
-        seat.setTicketClass(Tickets.ECONOMY)
+        seat.setTicketClass(TicketClass.ECONOMY)
         seat.setIsAvailable(true)
 
         def policy = new FareBaggageEntity()
@@ -129,7 +129,7 @@ class TicketServiceTest extends Specification {
 
         1 * fareBaggageRepository.findByAirlineAndTicketClass(
                 airline,
-                Tickets.ECONOMY
+                TicketClass.ECONOMY
         ) >> Optional.of(policy)
 
         1 * calculationService.calculateFlightTotalPrice(
@@ -207,7 +207,7 @@ class TicketServiceTest extends Specification {
         account.setUser(user)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.CANCELLED)
+        flight.setStatus(FlightStatus.CANCELLED)
 
         def request = new TicketRequest()
         request.setAccountId(10L)
@@ -241,7 +241,7 @@ class TicketServiceTest extends Specification {
         account.setUser(user)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(LocalDateTime.now().minusMinutes(1))
 
         def request = new TicketRequest()
@@ -277,7 +277,7 @@ class TicketServiceTest extends Specification {
         account.setUser(anotherUser)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(LocalDateTime.now().plusDays(1))
 
         def request = new TicketRequest()
@@ -311,7 +311,7 @@ class TicketServiceTest extends Specification {
         account.setUser(user)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(LocalDateTime.now().plusDays(1))
 
         def passenger = new PassengerRequest()
@@ -349,7 +349,7 @@ class TicketServiceTest extends Specification {
         account.setUser(user)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(LocalDateTime.now().plusDays(1))
 
         def anotherFlight = new FlightEntity(id: 99L)
@@ -392,7 +392,7 @@ class TicketServiceTest extends Specification {
         account.setUser(user)
 
         def flight = new FlightEntity(id: 20L)
-        flight.setStatus(Flights.SCHEDULED)
+        flight.setStatus(FlightStatus.SCHEDULED)
         flight.setDepartureTime(LocalDateTime.now().plusDays(1))
 
         def seat = new SeatEntity(id: 30L)

@@ -34,9 +34,8 @@ public class FlightReviewServiceImpl implements FlightReviewService {
     @Override
     public void createFlightReview(Long userId, FlightReviewRequest flightReviewRequest) {
 
-        validationUtil.validateRating(flightReviewRequest.getRating());
-
         FlightReviewEntity flightReview = flightReviewMapper.toEntity(flightReviewRequest);
+
         flightReviewRepository.save(flightReview);
 
         log.info("Flight review created successfully by userId {}", userId);

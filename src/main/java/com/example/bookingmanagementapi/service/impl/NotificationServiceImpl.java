@@ -6,7 +6,6 @@ import com.example.bookingmanagementapi.dto.response.NotificationResponse;
 import com.example.bookingmanagementapi.entity.NotificationEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.NotificationType;
-import com.example.bookingmanagementapi.exception.AccessDeniedException;
 import com.example.bookingmanagementapi.exception.NotFoundException;
 import com.example.bookingmanagementapi.mapper.NotificationMapper;
 import com.example.bookingmanagementapi.repository.NotificationRepository;
@@ -14,6 +13,7 @@ import com.example.bookingmanagementapi.repository.UserRepository;
 import com.example.bookingmanagementapi.service.EmailService;
 import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -68,24 +68,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<NotificationResponse> getAll(Long userId, Pageable pageable) {
+    public Page<@NonNull NotificationResponse> getAll(Long userId, Pageable pageable) {
 
-        Page<NotificationEntity> notificationEntities = notificationRepository.findAllByUserId(userId, pageable);
+        Page<@NonNull NotificationEntity> notificationEntities = notificationRepository.findAllByUserId(userId, pageable);
 
         return notificationEntities.map(notificationMapper::toDto);
     }
 
-    //    @Override
-//    public void update(Long id, UpdateNotificationRequest updateNotificationRequest) {
-//
-//        NotificationEntity notificationEntity = notificationRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException("Notification Not Found"));
-//
-//        notificationMapper.updateNotification(updateNotificationRequest,notificationEntity);
-//
-//        notificationRepository.save(notificationEntity);
-//    }
-//
     @Override
     public void delete(Long notificationId, Long userId) {
 
@@ -186,7 +175,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendTicketCancellationNotification(Long userId) {
         notifyUser(userId,
-                NotificationType.CANCELLED,
+                NotificationType.REFUND,
                 "Cancellation",
                 "Ticket cancellation was successful"
         );
@@ -195,7 +184,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendBookingCancellationNotification(Long userId) {
         notifyUser(userId,
-                NotificationType.CANCELLED,
+                NotificationType.REFUND,
                 "Cancellation",
                 "Booking cancellation was successful"
         );

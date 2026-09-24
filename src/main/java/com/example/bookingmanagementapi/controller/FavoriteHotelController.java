@@ -5,6 +5,9 @@ import com.example.bookingmanagementapi.dto.request.FavoriteHotelRequest;
 import com.example.bookingmanagementapi.dto.response.FavoriteHotelResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.FavoriteHotelService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,18 +25,19 @@ public class FavoriteHotelController {
 
     @PostMapping
     public void addHotel(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                         @RequestBody FavoriteHotelRequest favoriteHotelRequest) {
+                         @Valid @RequestBody FavoriteHotelRequest favoriteHotelRequest) {
         favoriteHotelService.addFavoriteHotel(customUserDetails.getId(), favoriteHotelRequest);
     }
 
     @GetMapping("/{userId}")
-    public Page<FavoriteHotelResponse> getFavoriteHotels(@PathVariable Long userId, Pageable pageable) {
+    public Page<@NonNull FavoriteHotelResponse> getFavoriteHotels(@PathVariable @Positive Long userId,
+                                                                  Pageable pageable) {
         return favoriteHotelService.getAll(userId,  pageable);
     }
 
     @DeleteMapping("/{id}")
     public void removeHotel(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                            @PathVariable Long id) {
+                            @PathVariable @Positive Long id) {
         favoriteHotelService.removeFavoriteHotel(customUserDetails.getId(), id);
     }
 }

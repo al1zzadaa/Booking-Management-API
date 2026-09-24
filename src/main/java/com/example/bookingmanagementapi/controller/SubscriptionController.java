@@ -4,6 +4,7 @@ import com.example.bookingmanagementapi.dto.request.SubscriptionRequest;
 import com.example.bookingmanagementapi.dto.response.SubscriptionResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.SubscriptionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class SubscriptionController {
 
     @PostMapping("/subscribe")
     public void subscribe(@AuthenticationPrincipal CustomUserDetails user,
-                          @RequestBody SubscriptionRequest subscriptionRequest) {
+                          @Valid @RequestBody SubscriptionRequest subscriptionRequest) {
         subscriptionService.subscribe(user.getId(), subscriptionRequest);
     }
 
@@ -37,7 +38,7 @@ public class SubscriptionController {
 
     @PostMapping("/renew")
     public void renew(@AuthenticationPrincipal CustomUserDetails user,
-                      @RequestBody SubscriptionRequest subscriptionRequest) {
+                      @Valid @RequestBody SubscriptionRequest subscriptionRequest) {
         subscriptionService.renew(user.getId(), subscriptionRequest);
     }
 }

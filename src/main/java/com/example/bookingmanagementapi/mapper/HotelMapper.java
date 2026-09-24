@@ -19,7 +19,4 @@ public interface HotelMapper {
     @Mapping(source = "stars", target = "starRating")
     HotelEntity toEntity(HotelRequest hotelRequest);
 
-
-    List<HotelResponse> toListDto(List<HotelEntity> hotelEntities);
-
 }

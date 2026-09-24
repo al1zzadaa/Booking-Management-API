@@ -15,8 +15,6 @@ public interface PromoCodeMapper {
 
     PromoCodeEntity toEntity(PromoCodeRequest request);
 
-    List<PromoCodeResponse> toDto(List<PromoCodeEntity> entities);
-
     void update(PromoCodeRequest request,  @MappingTarget PromoCodeEntity entity);
 
 }

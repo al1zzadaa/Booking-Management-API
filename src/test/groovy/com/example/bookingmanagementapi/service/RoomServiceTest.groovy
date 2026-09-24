@@ -81,7 +81,6 @@ class RoomServiceTest extends Specification {
         def result = roomService.findByRoomNo(roomNo)
 
         then:
-        1 * validationUtil.validateRoomNo(roomNo)
         1 * roomRepository.findByRoomNumber(roomNo) >> entity
         1 * roomMapper.toDto(entity) >> response
 

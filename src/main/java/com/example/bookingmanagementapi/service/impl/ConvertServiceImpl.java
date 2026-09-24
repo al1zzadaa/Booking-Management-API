@@ -34,48 +34,20 @@ public class ConvertServiceImpl implements ConvertService {
         // Convert to USD
         BigDecimal amountInUsd = switch (from) {
             case USD -> amount;
-
-            case AZN -> amount.divide(
-                    usdToAzn,
-                    2,
-                    RoundingMode.HALF_UP);
-
-            case EUR -> amount.multiply(
-                    eurToUsd
-            ).setScale(2, RoundingMode.HALF_UP);
-
-            case TR -> amount.divide(
-                    usdToTry,
-                    2,
-                    RoundingMode.HALF_UP);
-
-            case RUB -> amount.divide(
-                    usdToRub,
-                    2,
-                    RoundingMode.HALF_UP);
+            case AZN -> amount.divide(usdToAzn, 2, RoundingMode.HALF_UP);
+            case EUR -> amount.multiply(eurToUsd).setScale(2, RoundingMode.HALF_UP);
+            case TR -> amount.divide(usdToTry, 2, RoundingMode.HALF_UP);
+            case RUB -> amount.divide(usdToRub, 2, RoundingMode.HALF_UP);
         };
 
 
         // Convert from USD
         return switch (to) {
             case USD -> amountInUsd;
-
-            case AZN -> amountInUsd.multiply(
-                    usdToAzn
-            ).setScale(2, RoundingMode.HALF_UP);
-
-            case EUR -> amountInUsd.divide(
-                    eurToUsd,
-                    2,
-                    RoundingMode.HALF_UP);
-
-            case TR -> amountInUsd.multiply(
-                    usdToTry
-            ).setScale(2, RoundingMode.HALF_UP);
-
-            case RUB -> amountInUsd.multiply(
-                    usdToRub
-            ).setScale(2, RoundingMode.HALF_UP);
+            case AZN -> amountInUsd.multiply(usdToAzn).setScale(2, RoundingMode.HALF_UP);
+            case EUR -> amountInUsd.divide(eurToUsd, 2, RoundingMode.HALF_UP);
+            case TR -> amountInUsd.multiply(usdToTry).setScale(2, RoundingMode.HALF_UP);
+            case RUB -> amountInUsd.multiply(usdToRub).setScale(2, RoundingMode.HALF_UP);
         };
     }
 }

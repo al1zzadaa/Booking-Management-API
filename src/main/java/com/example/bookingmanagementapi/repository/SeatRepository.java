@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.SeatEntity;
 import jakarta.persistence.LockModeType;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
@@ -12,9 +13,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SeatRepository extends JpaRepository<SeatEntity, Long>,
-                                        JpaSpecificationExecutor<SeatEntity> {
-    boolean findBySeat(String seat);
+public interface SeatRepository extends JpaRepository<@NonNull SeatEntity, @NonNull Long>,
+                                        JpaSpecificationExecutor<@NonNull SeatEntity> {
 
     @Query("select f from SeatEntity f where f.seat = :seat and f.flight.id = :flightId")
     SeatEntity findBySeatAndFlightId(String seat, Long flightId);
@@ -26,7 +26,4 @@ public interface SeatRepository extends JpaRepository<SeatEntity, Long>,
     WHERE s.id = :id
 """)
     Optional<SeatEntity> findByIdForUpdate(@Param("id") Long id);
-//    @Modifying
-//    @Query("update SeatEntity f set f.isAvailable = false where f.id = :seatId")
-//    void makeSeatUnavailable(@Param("seatId") Long seatId);
 }

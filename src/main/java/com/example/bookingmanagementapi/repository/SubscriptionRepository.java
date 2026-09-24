@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 @Repository
 
-public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity, Long> {
+public interface SubscriptionRepository extends JpaRepository<@NonNull SubscriptionEntity, @NonNull Long> {
 
     SubscriptionEntity findByUserIdAndIsActive(Long userId, Boolean isActive);
 
@@ -36,7 +36,7 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     WHERE s.isActive = true
       AND s.endDate <= :today
 """)
-    Page<SubscriptionEntity> findExpiredSubscriptions(
+    Page<@NonNull SubscriptionEntity> findExpiredSubscriptions(
             @Param("today") LocalDate today, Pageable pageable
     );
     boolean existsByUserIdAndIsActiveTrueAndEndDateAfter(Long userId, LocalDate now);

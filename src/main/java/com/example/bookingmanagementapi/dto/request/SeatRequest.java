@@ -1,11 +1,8 @@
 package com.example.bookingmanagementapi.dto.request;
 
 import com.example.bookingmanagementapi.enums.Rows;
-import com.example.bookingmanagementapi.enums.Tickets;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import com.example.bookingmanagementapi.enums.TicketClass;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,9 +22,10 @@ public class SeatRequest {
     private Rows seatRow;
 
     @NotNull
-    @Positive
+    @Min(0)
+    @Max(20)
     private Integer seatNumber;
 
     @NotNull
-    private Tickets ticketClass;
+    private TicketClass ticketClass;
 }

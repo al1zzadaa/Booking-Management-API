@@ -15,5 +15,4 @@ public interface RefreshTokenService {
 
      void deleteByToken(String token);
 
-     void deleteAllByUser(Long  userId);
 }

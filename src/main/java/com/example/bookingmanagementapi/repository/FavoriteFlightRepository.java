@@ -20,7 +20,5 @@ public interface FavoriteFlightRepository extends JpaRepository<@NonNull Favorit
 
     Optional<FavoriteFlightEntity> findByIdAndUserId(Long id, Long userId);
 
-    UserEntity user(UserEntity user);
-
     boolean existsByUserAndFlight(UserEntity userEntity, FlightEntity flight);
 }

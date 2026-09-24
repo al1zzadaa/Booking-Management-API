@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.enums;
 
-public enum Flights {
+public enum FlightStatus {
     SCHEDULED,
     IN_PROGRESS,
     CANCELLED,

@@ -4,6 +4,9 @@ import com.example.bookingmanagementapi.dto.filter.RoomFilter;
 import com.example.bookingmanagementapi.dto.request.RoomRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.RoomResponse;
 import com.example.bookingmanagementapi.service.RoomService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,27 +20,27 @@ public class RoomController {
     private final RoomService roomService;
 
     @DeleteMapping("/{id}")
-    public void deleteRoom(@PathVariable Long id) {
+    public void deleteRoom(@PathVariable @Positive Long id) {
         roomService.deleteRoom(id);
     }
 
     @PostMapping
-    public void createRoom(@RequestBody RoomRequest roomRequest) {
+    public void createRoom(@Valid @RequestBody RoomRequest roomRequest) {
         roomService.createRoom(roomRequest);
     }
 
     @GetMapping("/{id}")
-    public RoomResponse getRoomById(@PathVariable Long id) {
+    public RoomResponse getRoomById(@PathVariable @Positive Long id) {
         return roomService.findById(id);
     }
 
     @GetMapping
-    public Page<RoomResponse> getRooms(RoomFilter roomFilter, Pageable pageable) {
+    public Page<@NonNull RoomResponse> getRooms(RoomFilter roomFilter, Pageable pageable) {
         return roomService.findAll(roomFilter, pageable);
     }
 
     @GetMapping("/number")
-    public RoomResponse findByRoomNo(@RequestParam Integer roomNo) {
+    public RoomResponse findByRoomNo(@RequestParam @Positive Integer roomNo) {
         return roomService.findByRoomNo(roomNo);
     }
 

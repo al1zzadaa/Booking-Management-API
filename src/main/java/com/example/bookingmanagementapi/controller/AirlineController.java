@@ -6,6 +6,7 @@ import com.example.bookingmanagementapi.dto.request.UpdateAirlineRequest;
 import com.example.bookingmanagementapi.dto.response.AirlineResponse;
 import com.example.bookingmanagementapi.service.AirlineService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class AirlineController {
     }
 
     @GetMapping("/{id}")
-    public AirlineResponse getAirlineById(@PathVariable Long id) {
+    public AirlineResponse getAirlineById(@PathVariable @Positive Long id) {
         return airlineService.getById(id);
     }
 
@@ -35,13 +36,18 @@ public class AirlineController {
     }
 
     @PutMapping("/{id}")
-    public void update(@RequestBody UpdateAirlineRequest updateAirlineRequest,
-                       @PathVariable Long id) {
+    public void update(@Valid @RequestBody UpdateAirlineRequest updateAirlineRequest,
+                       @PathVariable @Positive Long id) {
         airlineService.update(updateAirlineRequest, id);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
+    public void deleteById(@PathVariable @Positive Long id) {
         airlineService.delete(id);
+    }
+
+    @PatchMapping("/{id}")
+    public void activate(@PathVariable @Positive Long id) {
+        airlineService.activate(id);
     }
 }

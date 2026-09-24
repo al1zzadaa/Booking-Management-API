@@ -5,13 +5,12 @@ import com.example.bookingmanagementapi.entity.FlightBookingEntity;
 import com.example.bookingmanagementapi.entity.SeatEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
 import com.example.bookingmanagementapi.enums.BookingStatus;
-import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.FlightStatus;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.ExpireUnpaidEvent;
 import com.example.bookingmanagementapi.repository.BookingRepository;
 import com.example.bookingmanagementapi.repository.FlightBookingRepository;
 import com.example.bookingmanagementapi.repository.FlightRepository;
-import com.example.bookingmanagementapi.service.NotificationService;
 import com.example.bookingmanagementapi.service.TicketAndBookingExpirationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,14 +108,14 @@ public class TicketAndBookingExpirationServiceImpl implements TicketAndBookingEx
         LocalDateTime now = LocalDateTime.now();
 
         int startedFlights = flightRepository.startFlights(
-                Flights.SCHEDULED,
-                Flights.IN_PROGRESS,
+                FlightStatus.SCHEDULED,
+                FlightStatus.IN_PROGRESS,
                 now
         );
 
         int landedFlights = flightRepository.landFlights(
-                Flights.IN_PROGRESS,
-                Flights.LANDED,
+                FlightStatus.IN_PROGRESS,
+                FlightStatus.LANDED,
                 now
         );
 

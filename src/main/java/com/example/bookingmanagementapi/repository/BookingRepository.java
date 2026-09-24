@@ -2,6 +2,7 @@ package com.example.bookingmanagementapi.repository;
 
 import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.enums.BookingStatus;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingRepository extends JpaRepository<BookingEntity, Long>,
-        JpaSpecificationExecutor<BookingEntity> {
+public interface BookingRepository extends JpaRepository<@NonNull BookingEntity, @NonNull Long>,
+        JpaSpecificationExecutor<@NonNull BookingEntity> {
 
     @Modifying
     @Query("""
@@ -43,27 +44,6 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long>,
             @Param("newStatus") BookingStatus newStatus,
             @Param("now") LocalDateTime now
     );
-//    Page<BookingEntity> findAll(BookingFilter bookingFilter,  Pageable pageable);
-
-//    @Query("""
-//    SELECT b
-//    FROM BookingEntity b
-//    WHERE b.room.id = :roomId
-//      AND b.checkIn < :checkIn
-//      AND b.checkOut > :checkOut
-//""")
-//    List<BookingEntity> findRoomAvailability(
-//            @Param("roomId") Long roomId,
-//            @Param("checkIn") LocalDateTime checkIn,
-//            @Param("checkOut") LocalDateTime checkOut
-//    );
-
-//    boolean existsByRoomIdAndCheckInLessThanAndCheckOutGreaterThan(
-//            Long roomId,
-//            LocalDateTime checkOut,
-//            LocalDateTime checkIn
-//    );
-
     List<BookingEntity> findAllByBookingStatusAfterAndPaymentDeadlineBefore
             (BookingStatus bookingStatus, LocalDateTime now);
 
@@ -74,25 +54,5 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long>,
             LocalDateTime checkIn
     );
 
-    Page<BookingEntity> findAllByUserId(Long userId, Pageable pageable);
-
-    List<BookingEntity> findAllByBookingStatusAndCheckInLessThanEqual(BookingStatus bookingStatus, LocalDateTime now);
-
-    List<BookingEntity> findAllByBookingStatusAndCheckOutLessThanEqual(BookingStatus bookingStatus, LocalDateTime now);
-
-//    @Query("""
-//    SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END
-//    FROM BookingEntity b
-//    WHERE b.room.id = :roomId
-//    AND (
-//        b.checkIn < :checkOut
-//        OR
-//        b.checkOut > :checkIn
-//    )
-//""")
-//    boolean existsOverlappingBooking(
-//            @Param("roomId") Long roomId,
-//            @Param("checkIn") LocalDateTime checkIn,
-//            @Param("checkOut") LocalDateTime checkOut
-//    );
+    Page<@NonNull BookingEntity> findAllByUserId(Long userId, Pageable pageable);
 }

@@ -1,7 +1,7 @@
 package com.example.bookingmanagementapi.entity;
 
 import com.example.bookingmanagementapi.enums.Rows;
-import com.example.bookingmanagementapi.enums.Tickets;
+import com.example.bookingmanagementapi.enums.TicketClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +38,7 @@ public class SeatEntity {
     private Integer seatNumber;
 
     @Enumerated(EnumType.STRING)
-    private Tickets ticketClass;
+    private TicketClass ticketClass;
 
     @Column(nullable = false)
     private BigDecimal price;

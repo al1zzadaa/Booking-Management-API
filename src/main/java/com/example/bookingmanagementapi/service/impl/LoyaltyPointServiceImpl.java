@@ -110,11 +110,6 @@ public class LoyaltyPointServiceImpl implements LoyaltyPointService {
                 .intValueExact();
     }
 
-//    public int calculateRemovedPoints(BigDecimal amount) {
-//        return amount
-//                .multiply(earningRate)
-//                .intValue();
-//    }
 
     public void earnPoints(
             Long userId,

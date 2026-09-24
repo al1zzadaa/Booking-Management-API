@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.service;
 import com.example.bookingmanagementapi.dto.filter.PromoCodeFilter;
 import com.example.bookingmanagementapi.dto.request.PromoCodeRequest;
 import com.example.bookingmanagementapi.dto.response.PromoCodeResponse;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,7 +15,7 @@ public interface PromoCodeService {
 
     PromoCodeResponse getById(Long id);
 
-    Page<PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable);
+    Page<@NonNull PromoCodeResponse> getAll(PromoCodeFilter promoCodeFilter, Pageable pageable);
 
     void deleteById(Long id);
 
@@ -28,11 +29,8 @@ public interface PromoCodeService {
 
     void deactivate(Long id);
 
-//    BigDecimal discount(BigDecimal amountToWithdraw, String code);
-
     BigDecimal calculateFinalAmount(BigDecimal amount, String code);
 
     void markAsUsed(String code);
 
-//    DiscountResult applyPromoCode(Long userId, String code);
 }

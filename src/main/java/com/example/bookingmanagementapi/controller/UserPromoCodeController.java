@@ -3,6 +3,7 @@ package com.example.bookingmanagementapi.controller;
 import com.example.bookingmanagementapi.dto.response.UserPromoCodeResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.UserPromoCodeService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public class UserPromoCodeController {
     private final UserPromoCodeService userPromoCodeService;
 
     @GetMapping
-    public Page<UserPromoCodeResponse> getMyPromoCodes(
+    public Page<@NonNull UserPromoCodeResponse> getMyPromoCodes(
             @AuthenticationPrincipal CustomUserDetails user,
             Pageable pageable) {
         return userPromoCodeService.getUserPromoCodes(

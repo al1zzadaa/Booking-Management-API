@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 
@@ -26,5 +27,6 @@ public class UserResponse {
     private LocalDateTime emailVerifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Set<AccountResponse> accounts;
 
 }

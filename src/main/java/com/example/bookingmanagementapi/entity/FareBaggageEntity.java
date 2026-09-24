@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.entity;
 
-import com.example.bookingmanagementapi.enums.Tickets;
+import com.example.bookingmanagementapi.enums.TicketClass;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,7 +36,7 @@ public class FareBaggageEntity {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    private Tickets ticketClass;
+    private TicketClass ticketClass;
 
     @CreationTimestamp
     @Column(nullable = false,  updatable = false)

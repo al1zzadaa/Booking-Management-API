@@ -16,6 +16,7 @@ import com.example.bookingmanagementapi.service.AccountService;
 import com.example.bookingmanagementapi.service.ConvertService;
 import com.example.bookingmanagementapi.service.specifications.AccountSpecification;
 import com.example.bookingmanagementapi.util.ValidationUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -101,11 +102,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<AccountResponse> getAll(AccountFilter accountFilter, Pageable pageable) {
+    public Page<@NonNull AccountResponse> getAll(AccountFilter accountFilter, Pageable pageable) {
 
         var specification = new AccountSpecification(accountFilter);
 
-        Page<AccountEntity> accountEntities = accountRepository.findAll(specification, pageable);
+        Page<@NonNull AccountEntity> accountEntities = accountRepository.findAll(specification, pageable);
 
         return accountEntities.map(accountMapper::toDto);
     }

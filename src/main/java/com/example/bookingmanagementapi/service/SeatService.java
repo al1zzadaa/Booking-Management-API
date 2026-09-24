@@ -4,6 +4,7 @@ package com.example.bookingmanagementapi.service;
 import com.example.bookingmanagementapi.dto.filter.SeatFilter;
 import com.example.bookingmanagementapi.dto.request.SeatRequest;
 import com.example.bookingmanagementapi.dto.response.flight.SeatResponse;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,5 +16,5 @@ public interface SeatService {
 
     SeatResponse getSeat(Long id);
 
-    Page<SeatResponse> getSeats(SeatFilter seatFilter, Pageable pageable);
+    Page<@NonNull SeatResponse> getSeats(SeatFilter seatFilter, Pageable pageable);
 }

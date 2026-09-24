@@ -45,7 +45,6 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
 
         Instant now = Instant.now();
-//        Instant exp = now.plusSeconds(refreshExpirationDays * 24 * 60 * 60);
         Instant exp = now.plus(refreshExpirationDays, ChronoUnit.DAYS);
 
         return Jwts.builder()
@@ -56,20 +55,6 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(key)
                 .compact();
     }
-
-
-//    public String generateToken(UserDetails userDetails) {
-//
-//        Instant now = Instant.now();
-//        Instant exp = now.plusSeconds( expirationMinutes * 60);
-//
-//        return Jwts.builder()
-//                .subject(userDetails.getUsername())
-//                .issuedAt(Date.from(now))
-//                .expiration(Date.from(exp)) // 1 час
-//                .signWith(key)
-//                .compact();
-//    }
 
     public String extractEmail(String token) {
         return parseAllClaims(token).getSubject();
@@ -90,7 +75,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
+                .parseSignedClaims(token)
                 .getPayload();
     }
 }

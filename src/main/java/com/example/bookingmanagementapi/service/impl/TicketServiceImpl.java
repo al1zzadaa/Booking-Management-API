@@ -7,7 +7,7 @@ import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.entity.*;
-import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.FlightStatus;
 import com.example.bookingmanagementapi.enums.TicketStatus;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.*;
@@ -56,7 +56,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public void book(TicketRequest ticketRequest,
+    public void bookTicket(TicketRequest ticketRequest,
                      String username) {
 
         validationUtil.validateRequestSeats(ticketRequest);
@@ -75,7 +75,7 @@ public class TicketServiceImpl implements TicketService {
         FlightEntity flightEntity = flightRepository.findById(ticketRequest.getFlightId())
                 .orElseThrow(() -> new NotFoundException("flight not found"));
 
-        if (flightEntity.getStatus() != Flights.SCHEDULED) {
+        if (flightEntity.getStatus() != FlightStatus.SCHEDULED) {
             throw new FlightException("Flight is not available for booking");
         }
 
@@ -211,7 +211,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public void cancel(String username, Long flightBookingId) {
+    public void refundTicket(String username, Long flightBookingId) {
 
         UserEntity userEntity = userRepository
                 .findByEmail(username).orElseThrow(() -> new NotFoundException("User not found"));

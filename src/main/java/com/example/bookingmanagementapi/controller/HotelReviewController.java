@@ -6,7 +6,12 @@ import com.example.bookingmanagementapi.dto.request.UpdateHotelReviewRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.HotelReviewResponse;
 import com.example.bookingmanagementapi.security.CustomUserDetails;
 import com.example.bookingmanagementapi.service.HotelReviewService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +26,7 @@ public class HotelReviewController {
 
     @PostMapping
     public void createHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                  @RequestBody HotelReviewRequest hotelReviewRequest) {
+                                  @Valid @RequestBody HotelReviewRequest hotelReviewRequest) {
         hotelReviewService.createHotelReview(userDetails.getId(), hotelReviewRequest);
     }
 
@@ -32,20 +37,20 @@ public class HotelReviewController {
 
     @PutMapping("/{id}")
     public void updateHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                  @RequestBody UpdateHotelReviewRequest updateHotelReviewRequest,
-                                  @PathVariable Long id) {
+                                  @Valid @RequestBody UpdateHotelReviewRequest updateHotelReviewRequest,
+                                  @PathVariable @Positive Long id) {
         hotelReviewService.updateHotelReview(userDetails.getId(), id, updateHotelReviewRequest);
     }
 
     @DeleteMapping("/{id}")
     public void deleteHotelReview(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                  @PathVariable Long id) {
+                                  @PathVariable @Positive Long id) {
         hotelReviewService.deleteHotelReview(userDetails.getId(), id);
     }
 
     @GetMapping("/search")
-    public List<HotelReviewResponse> getAllHotelReviews(HotelReviewFilter hotelReviewFilter) {
-        return hotelReviewService.findAll(hotelReviewFilter);
+    public Page<@NonNull HotelReviewResponse> getAllHotelReviews(HotelReviewFilter hotelReviewFilter, Pageable pageable) {
+        return hotelReviewService.findAll(hotelReviewFilter, pageable);
     }
 
 }

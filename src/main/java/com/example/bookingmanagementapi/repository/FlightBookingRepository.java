@@ -1,6 +1,5 @@
 package com.example.bookingmanagementapi.repository;
 
-import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.FlightBookingEntity;
 import com.example.bookingmanagementapi.entity.UserEntity;
 import com.example.bookingmanagementapi.enums.TicketStatus;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface FlightBookingRepository extends JpaRepository<FlightBookingEntity,Long> {
+public interface FlightBookingRepository extends JpaRepository<@NonNull FlightBookingEntity,@NonNull Long> {
 
     List<FlightBookingEntity> findAllByStatusAndPaymentDeadlineBefore(
              TicketStatus status,

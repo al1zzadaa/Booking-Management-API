@@ -5,30 +5,22 @@ import com.example.bookingmanagementapi.entity.TransactionEntity;
 import com.example.bookingmanagementapi.enums.PaymentStatus;
 import com.example.bookingmanagementapi.enums.ReferenceType;
 import com.example.bookingmanagementapi.enums.TransactionType;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<TransactionEntity, Long> {
-    Page<TransactionEntity> findAllByAccount(AccountEntity account,  Pageable pageable);
+public interface TransactionRepository extends JpaRepository<@NonNull TransactionEntity, @NonNull Long> {
 
-//    boolean existsByReferenceIdAndReferenceTypeAndPaymentStatus(
-//            Long referenceId,
-//            ReferenceType referenceType,
-//            PaymentStatus paymentStatus
-//    );
-
-//    boolean existsByReferenceIdAndReferenceTypeAndTypeAndPaymentStatus(
-//            Long referenceId,
-//            ReferenceType referenceType,
-//            TransactionType transactionType,
-//            PaymentStatus paymentStatus);
+    Page<@NonNull TransactionEntity> findAllByAccount(AccountEntity account,  Pageable pageable);
 
     boolean existsByReferenceIdAndReferenceTypeAndType(
             Long referenceId,
             ReferenceType referenceType,
             TransactionType type
     );
+
+    Page<@NonNull TransactionEntity> findAllByAccount_User_Email(String accountUserEmail, Pageable pageable);
 }

@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.enums;
 
-public enum Hotels {
+public enum HotelStatus {
     OPEN,
     CLOSED,
     UNDER_RENOVATION

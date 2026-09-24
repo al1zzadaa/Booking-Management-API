@@ -1,16 +1,12 @@
 package com.example.bookingmanagementapi.service;
 
 
-import com.example.bookingmanagementapi.dto.request.ForgotPasswordRequest;
-import com.example.bookingmanagementapi.dto.request.ResetPasswordRequest;
 import com.example.bookingmanagementapi.dto.request.UpdateUserRequest;
 import com.example.bookingmanagementapi.dto.request.UserRequest;
 import com.example.bookingmanagementapi.dto.response.UserResponse;
-import com.example.bookingmanagementapi.security.CustomUserDetails;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {

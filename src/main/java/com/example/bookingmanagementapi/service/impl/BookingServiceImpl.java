@@ -6,7 +6,7 @@ import com.example.bookingmanagementapi.dto.request.PaymentRequest;
 import com.example.bookingmanagementapi.dto.response.hotel.BookingResponse;
 import com.example.bookingmanagementapi.entity.*;
 import com.example.bookingmanagementapi.enums.BookingStatus;
-import com.example.bookingmanagementapi.enums.Hotels;
+import com.example.bookingmanagementapi.enums.HotelStatus;
 import com.example.bookingmanagementapi.event.BookingCancelledEvent;
 import com.example.bookingmanagementapi.event.BookingPaymentEvent;
 import com.example.bookingmanagementapi.exception.*;
@@ -14,7 +14,6 @@ import com.example.bookingmanagementapi.mapper.BookingMapper;
 import com.example.bookingmanagementapi.repository.*;
 import com.example.bookingmanagementapi.service.*;
 import com.example.bookingmanagementapi.service.specifications.BookingSpecification;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Room does not belong to the hotel");
         }
 
-        if (hotelEntity.getStatus().equals(Hotels.CLOSED) || hotelEntity.getStatus().equals(Hotels.UNDER_RENOVATION)) {
+        if (hotelEntity.getStatus().equals(HotelStatus.CLOSED) || hotelEntity.getStatus().equals(HotelStatus.UNDER_RENOVATION)) {
             throw new HotelException("Hotel is closed or under renovation");
         }
 
@@ -161,7 +160,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public void cancel(String username, Long bookingId) {
+    public void refundBooking(String username, Long bookingId) {
 
         UserEntity userEntity = userRepository
                 .findByEmail(username).orElseThrow(null);
@@ -238,10 +237,4 @@ public class BookingServiceImpl implements BookingService {
         return bookingEntities.map(bookingMapper::toDto);
     }
 
-    @Override
-    public void cancelBooking(Long bookingId) {
-        BookingEntity booking = bookingRepository.findById(bookingId).orElseThrow(null);
-
-        booking.setBookingStatus(BookingStatus.CANCELLED);
-    }
 }

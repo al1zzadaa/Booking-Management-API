@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.entity;
 
-import com.example.bookingmanagementapi.enums.Hotels;
+import com.example.bookingmanagementapi.enums.HotelStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,7 +41,7 @@ public class HotelEntity {
     private Integer distanceToSea;
 
     @Enumerated(EnumType.STRING)
-    private Hotels status;
+    private HotelStatus status;
 
     @CreationTimestamp
     @Column(nullable = false,  updatable = false)

@@ -13,16 +13,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface HotelReviewMapper {
 
-
     @Mapping(source = "id", target = "reviewId")
     HotelReviewResponse toDto(HotelReviewEntity hotelReviewEntity);
 
     HotelReviewEntity toEntity(HotelReviewRequest hotelReviewRequest);
 
-    List<HotelReviewResponse> toListDto(List<HotelReviewEntity> hotelReviewEntities);
-
-
     void updateHotelReview(UpdateHotelReviewRequest updateHotelReviewRequest, @MappingTarget HotelReviewEntity hotelReviewEntity);
-
-
 }

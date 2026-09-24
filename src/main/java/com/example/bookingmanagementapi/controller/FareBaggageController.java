@@ -3,6 +3,8 @@ package com.example.bookingmanagementapi.controller;
 import com.example.bookingmanagementapi.dto.request.FareBaggageRequest;
 import com.example.bookingmanagementapi.dto.response.FareBaggageResponse;
 import com.example.bookingmanagementapi.service.FareBaggageService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +18,17 @@ public class FareBaggageController {
     private final FareBaggageService fareBaggageService;
 
     @PostMapping
-    public void createFareBaggage(@RequestBody FareBaggageRequest fareBaggageRequest) {
+    public void createFareBaggage(@Valid @RequestBody FareBaggageRequest fareBaggageRequest) {
         fareBaggageService.createFareBaggage(fareBaggageRequest);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFareBaggage(@PathVariable Long id) {
+    public void deleteFareBaggage(@PathVariable @Positive Long id) {
         fareBaggageService.deleteFareBaggageById(id);
     }
 
     @GetMapping("/{id}")
-    public FareBaggageResponse getById(@PathVariable Long id) {
+    public FareBaggageResponse getById(@PathVariable @Positive Long id) {
         return fareBaggageService.findById(id);
     }
 

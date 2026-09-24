@@ -4,7 +4,7 @@ import com.example.bookingmanagementapi.dto.filter.FlightFilter
 import com.example.bookingmanagementapi.dto.request.FlightRequest
 import com.example.bookingmanagementapi.dto.response.flight.FlightResponse
 import com.example.bookingmanagementapi.entity.FlightEntity
-import com.example.bookingmanagementapi.enums.Flights
+import com.example.bookingmanagementapi.enums.FlightStatus
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.mapper.FlightMapper
 import com.example.bookingmanagementapi.repository.FlightRepository
@@ -40,7 +40,7 @@ class FlightServiceTest extends Specification {
                 LocalDateTime.of(2026, 10, 1, 10, 35),
                 5L,
                 13L,
-                Flights.SCHEDULED,
+                FlightStatus.SCHEDULED,
                 1500.00)
 
         def entity = new FlightEntity()
@@ -72,7 +72,7 @@ class FlightServiceTest extends Specification {
                 LocalDateTime.of(2026, 10, 1, 10, 35),
                 5L,
                 13L,
-                Flights.SCHEDULED,
+                FlightStatus.SCHEDULED,
                 1500.00)
 
         request.setDepartureTime(LocalDateTime.of(2026, 10, 1, 12, 0))

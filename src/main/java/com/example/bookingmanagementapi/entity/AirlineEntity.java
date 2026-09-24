@@ -13,13 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "airlines",
-        uniqueConstraints = {
-        @UniqueConstraint(
-                name = "uk_airline_name_model_country",
-                columnNames = {"airline_name", "model", "country"}
-        )
-})
+@Table(name = "airlines")
 public class AirlineEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

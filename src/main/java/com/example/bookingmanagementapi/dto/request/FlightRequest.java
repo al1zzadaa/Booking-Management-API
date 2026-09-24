@@ -1,6 +1,6 @@
 package com.example.bookingmanagementapi.dto.request;
 
-import com.example.bookingmanagementapi.enums.Flights;
+import com.example.bookingmanagementapi.enums.FlightStatus;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,7 +45,7 @@ public class FlightRequest {
     private Long flightNumber;
 
     @NotNull
-    private Flights status;
+    private FlightStatus status;
 
     @NotNull
     @DecimalMin("0.01")

@@ -65,7 +65,7 @@ public class FavoriteHotelServiceImpl implements FavoriteHotelService {
     }
 
     @Override
-    public Page<FavoriteHotelResponse> getAll(Long userId, Pageable pageable) {
+    public Page<@NonNull FavoriteHotelResponse> getAll(Long userId, Pageable pageable) {
 
         Page<@NonNull FavoriteHotelEntity> favoriteHotelEntities = favoriteHotelRepository
                 .findAllByUserId(userId, pageable);

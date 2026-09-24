@@ -4,6 +4,8 @@ import com.example.bookingmanagementapi.dto.filter.SeatFilter;
 import com.example.bookingmanagementapi.dto.request.SeatRequest;
 import com.example.bookingmanagementapi.dto.response.flight.SeatResponse;
 import com.example.bookingmanagementapi.service.SeatService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,17 +20,17 @@ public class SeatController {
     private final SeatService seatService;
 
     @DeleteMapping("/{id}")
-    public void deleteSeat(@PathVariable Long id) {
+    public void deleteSeat(@PathVariable @Positive Long id) {
         seatService.deleteSeat(id);
     }
 
     @PostMapping
-    public void createSeat(@RequestBody SeatRequest seatRequest) {
+    public void createSeat(@Valid @RequestBody SeatRequest seatRequest) {
         seatService.createSeat(seatRequest);
     }
 
     @GetMapping("/{id}")
-    public SeatResponse getSeatById(@PathVariable Long id) {
+    public SeatResponse getSeatById(@PathVariable @Positive Long id) {
         return seatService.getSeat(id);
     }
 

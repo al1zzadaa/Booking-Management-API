@@ -24,15 +24,10 @@ public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
     private final SeatMapper seatMapper;
-    private final ValidationUtil validationUtil;
 
     @Transactional
     @Override
     public void createSeat(SeatRequest seatRequest) {
-        validationUtil.validateSeatRow(seatRequest.getSeatRow());
-        validationUtil.validateSeatNumber(seatRequest.getSeatNumber());
-        validationUtil.validateTicketClass(seatRequest.getTicketClass());
-
 
         if (seatRepository.findBySeatAndFlightId(seatRequest.getSeat(), seatRequest.getFlightId()) != null) {
             throw new ValidationException("Seat already exists");
@@ -70,7 +65,4 @@ public class SeatServiceImpl implements SeatService {
         return seatEntities.map(seatMapper::toDto);
     }
 
-//    public void makeSeatUnavailable(Long seatId) {
-//        seatRepository.makeSeatUnavailbale(seatId);
-//    }
 }

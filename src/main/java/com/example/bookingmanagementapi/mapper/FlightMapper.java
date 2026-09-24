@@ -17,7 +17,5 @@ public interface FlightMapper {
     @Mapping(source = "airline.airlineName", target = "airlineName")
     FlightResponse toDto(FlightEntity flightEntity);
 
-    List<FlightResponse> toListDto(List<FlightEntity> flightEntities);
-
     FlightEntity toEntity(FlightRequest flightRequest);
 }

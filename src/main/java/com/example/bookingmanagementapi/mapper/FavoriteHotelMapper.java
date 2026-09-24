@@ -11,9 +11,5 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface FavoriteHotelMapper {
 
-    FavoriteHotelEntity toEntity(FavoriteHotelRequest request);
-
     FavoriteHotelResponse toResponse(FavoriteHotelEntity entity);
-
-    List<FavoriteHotelResponse> toListDto(List<FavoriteHotelEntity> list);
 }

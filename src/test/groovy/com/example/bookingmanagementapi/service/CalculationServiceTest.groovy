@@ -4,7 +4,7 @@ import com.example.bookingmanagementapi.dto.request.PassengerRequest
 import com.example.bookingmanagementapi.dto.request.TicketRequest
 import com.example.bookingmanagementapi.entity.*
 import com.example.bookingmanagementapi.enums.PassengerType
-import com.example.bookingmanagementapi.enums.Tickets
+import com.example.bookingmanagementapi.enums.TicketClass
 import com.example.bookingmanagementapi.exception.NotFoundException
 import com.example.bookingmanagementapi.repository.BookingRepository
 import com.example.bookingmanagementapi.repository.FareBaggageRepository
@@ -13,10 +13,8 @@ import com.example.bookingmanagementapi.repository.SeatRepository
 import com.example.bookingmanagementapi.service.impl.CalculationServiceImpl
 import org.springframework.test.util.ReflectionTestUtils
 import spock.lang.Specification
-import spock.lang.Subject
 
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class CalculationServiceTest extends Specification {
 
@@ -360,12 +358,12 @@ class CalculationServiceTest extends Specification {
 
         def seat1 = new SeatEntity()
         seat1.setId(1L)
-        seat1.setTicketClass(Tickets.ECONOMY)
+        seat1.setTicketClass(TicketClass.ECONOMY)
         seat1.setPrice(new BigDecimal("20"))
 
         def seat2 = new SeatEntity()
         seat2.setId(2L)
-        seat2.setTicketClass(Tickets.BUSINESS)
+        seat2.setTicketClass(TicketClass.BUSINESS)
         seat2.setPrice(new BigDecimal("50"))
 
         def baggage1 = new FareBaggageEntity()
@@ -404,12 +402,12 @@ class CalculationServiceTest extends Specification {
 
         1 * fareBaggageRepository.findByAirlineAndTicketClass(
                 airline,
-                Tickets.ECONOMY
+                TicketClass.ECONOMY
         ) >> Optional.of(baggage1)
 
         1 * fareBaggageRepository.findByAirlineAndTicketClass(
                 airline,
-                Tickets.BUSINESS
+                TicketClass.BUSINESS
         ) >> Optional.of(baggage2)
 
         // Both passengers have base fare = 0
@@ -455,7 +453,7 @@ class CalculationServiceTest extends Specification {
 
         def seat = new SeatEntity()
         seat.setId(1L)
-        seat.setTicketClass(Tickets.ECONOMY)
+        seat.setTicketClass(TicketClass.ECONOMY)
         seat.setPrice(new BigDecimal("20"))
 
         def passenger = new PassengerRequest()
@@ -479,7 +477,7 @@ class CalculationServiceTest extends Specification {
 
         1 * fareBaggageRepository.findByAirlineAndTicketClass(
                 airline,
-                Tickets.ECONOMY
+                TicketClass.ECONOMY
         ) >> Optional.empty()
 
         def exception = thrown(NotFoundException)

@@ -18,16 +18,6 @@ public class LoyaltyPointsController {
 
     private final LoyaltyPointService loyaltyPointService;
 
-//    @PostMapping("/add-points")
-//    public void addPoints(@RequestBody LoyaltyPointRequest loyaltyPointRequest) {
-//        loyaltyPointService.addPoints(loyaltyPointRequest);
-//    }
-//
-//    @PostMapping("/delete-points")
-//    public void removePoints(@RequestBody LoyaltyPointRequest loyaltyPointRequest) {
-//        loyaltyPointService.removePoints(loyaltyPointRequest);
-//    }
-
     @GetMapping
     public Integer getPoints(@AuthenticationPrincipal CustomUserDetails user) {
         return loyaltyPointService.getPoints(user.getId());

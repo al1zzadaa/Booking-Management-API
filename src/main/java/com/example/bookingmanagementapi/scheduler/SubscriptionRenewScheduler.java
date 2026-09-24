@@ -15,7 +15,6 @@ public class SubscriptionRenewScheduler {
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void runAutoRenew() {
         subscriptionAutoRenewService.autoRenew();
-
         subscriptionService.deactivateExpiredSubscriptions();
     }
 }

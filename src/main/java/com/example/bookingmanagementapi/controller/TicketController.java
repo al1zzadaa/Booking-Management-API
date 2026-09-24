@@ -6,6 +6,9 @@ import com.example.bookingmanagementapi.dto.request.TicketRequest;
 import com.example.bookingmanagementapi.dto.response.FlightBookingResponse;
 import com.example.bookingmanagementapi.dto.response.flight.TicketResponse;
 import com.example.bookingmanagementapi.service.TicketService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,13 +26,13 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping
-    public void bookTicket(@RequestBody TicketRequest ticketRequest,
+    public void bookTicket(@Valid @RequestBody TicketRequest ticketRequest,
                            @AuthenticationPrincipal UserDetails userDetails) {
-        ticketService.book(ticketRequest, userDetails.getUsername());
+        ticketService.bookTicket(ticketRequest, userDetails.getUsername());
     }
 
     @GetMapping("/{id}")
-    public TicketResponse getTicketById(@PathVariable Long id) {
+    public TicketResponse getTicketById(@PathVariable @Positive Long id) {
         return ticketService.findById(id);
     }
 
@@ -39,14 +42,14 @@ public class TicketController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTicketById(@PathVariable Long id) {
+    public void deleteTicketById(@PathVariable @Positive Long id) {
         ticketService.deleteTicketById(id);
     }
 
     @PostMapping("/flight-bookings/{flightBookingId}/pay")
     public void payFlightBooking(@AuthenticationPrincipal UserDetails userDetails,
-                                 @PathVariable Long flightBookingId,
-                                 @RequestBody PaymentRequest request) {
+                                 @PathVariable @Positive Long flightBookingId,
+                                 @Valid @RequestBody PaymentRequest request) {
         ticketService.payTicket(
                 userDetails.getUsername(),
                 flightBookingId,
@@ -55,13 +58,12 @@ public class TicketController {
 
     @PostMapping("/cancel/{flightBookingId}")
     public void cancel(@AuthenticationPrincipal UserDetails userDetails,
-                       @PathVariable Long flightBookingId) {
-        ticketService.cancel(userDetails.getUsername(), flightBookingId);
+                       @PathVariable @Positive Long flightBookingId) {
+        ticketService.refundTicket(userDetails.getUsername(), flightBookingId);
     }
 
     @GetMapping("/my-history")
-    public Page<FlightBookingResponse> getMyBookings(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
-        // Pass the username/email to the service to fetch only their bookings
+    public Page<@NonNull FlightBookingResponse> getMyBookings(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
         return ticketService.getUserTickets(userDetails.getUsername(), pageable);
     }
 

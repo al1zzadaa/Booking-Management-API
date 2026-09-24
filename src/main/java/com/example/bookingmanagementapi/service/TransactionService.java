@@ -6,6 +6,7 @@ import com.example.bookingmanagementapi.entity.BookingEntity;
 import com.example.bookingmanagementapi.entity.FlightBookingEntity;
 import com.example.bookingmanagementapi.entity.SubscriptionPlanEntity;
 import com.example.bookingmanagementapi.entity.TicketEntity;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,13 +15,11 @@ import java.util.List;
 
 public interface TransactionService {
 
-
-
     void deleteTransaction(Long transactionId);
 
     TransactionResponse getTransactionById(Long transactionId);
 
-    Page<TransactionResponse> getTransactionsByUserId(Long accountId, Pageable  pageable);
+    Page<@NonNull TransactionResponse> getTransactionsByUserId(String email, Pageable  pageable);
 
     void payForTickets(Long flightBookingId, PaymentRequest paymentRequest);
 
@@ -38,9 +37,4 @@ public interface TransactionService {
                             Long subscriptionId,
                             SubscriptionPlanEntity subscriptionPlanEntity,
                             String description);
-
-//    void subscriptionRenew(SubscriptionRequest subscriptionRequest,
-//                           Long subscriptionId,
-//                           SubscriptionPlanEntity subscriptionPlanEntity,
-//                           String description);
 }

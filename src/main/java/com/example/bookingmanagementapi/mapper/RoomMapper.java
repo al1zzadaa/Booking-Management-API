@@ -14,6 +14,4 @@ public interface RoomMapper {
     RoomResponse toDto(RoomEntity roomEntity);
 
     RoomEntity toEntity(RoomRequest roomRequest);
-
-    List<RoomResponse> toDto(List<RoomEntity> roomEntities);
 }

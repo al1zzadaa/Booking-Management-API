@@ -9,12 +9,10 @@ import com.example.bookingmanagementapi.mapper.HotelMapper;
 import com.example.bookingmanagementapi.repository.HotelRepository;
 import com.example.bookingmanagementapi.service.HotelService;
 import com.example.bookingmanagementapi.service.specifications.HotelSpecification;
-import com.example.bookingmanagementapi.util.ValidationUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,8 +21,6 @@ public class HotelServiceImpl implements HotelService {
 
     private final HotelRepository hotelRepository;
     private final HotelMapper hotelMapper;
-    private final ValidationUtil validationUtil;
-
 
     @Override
     public void createHotel(HotelRequest hotelRequest) {
@@ -37,7 +33,7 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public void deleteHotel(Long hotelId) {
 
-        if(!hotelRepository.existsById(hotelId)){
+        if (!hotelRepository.existsById(hotelId)) {
             throw new NotFoundException("Hotel with id " + hotelId + " not found");
         }
 
@@ -49,7 +45,7 @@ public class HotelServiceImpl implements HotelService {
 
         var specification = new HotelSpecification(hotelFilter);
 
-        Page<@NonNull HotelEntity> hotelEntities = hotelRepository.findAll(specification,  pageable);
+        Page<@NonNull HotelEntity> hotelEntities = hotelRepository.findAll(specification, pageable);
 
         return hotelEntities.map(hotelMapper::toDto);
     }
@@ -59,7 +55,7 @@ public class HotelServiceImpl implements HotelService {
     public HotelResponse findById(Long id) {
 
         HotelEntity hotelEntity = hotelRepository.findById(id)
-                .orElseThrow(()  -> new NotFoundException("Hotel with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Hotel with id " + id + " not found"));
 
         return hotelMapper.toDto(hotelEntity);
     }
