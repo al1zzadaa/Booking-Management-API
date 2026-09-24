@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for HotelEntity
   - changeSet:
       id: create-hotels
       author: sadigalizada
@@ -62,7 +61,6 @@ databaseChangeLog:
         - dropTable:
             tableName: hotels
 
-  # ChangeSet for RoomEntity
   - changeSet:
       id: create-rooms
       author: sadigalizada

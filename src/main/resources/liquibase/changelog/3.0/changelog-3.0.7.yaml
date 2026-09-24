@@ -1,17 +1,3 @@
-#databaseChangeLog:
-#  - changeSet:
-#      id: add-unique-payment-reference
-#      author: sadigalizada
-#      changes:
-#        - addUniqueConstraint:
-#            tableName: transactions
-#            columnNames: reference_id, reference_type, type
-#            constraintName: uk_transaction_payment_reference
-#
-#      rollback:
-#        - dropUniqueConstraint:
-#            tableName: transactions
-#            constraintName: uk_transaction_payment_reference
 databaseChangeLog:
   - changeSet:
       id: add-unique-payment-reference

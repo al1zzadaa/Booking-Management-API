@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for PromoCodeEntity
   - changeSet:
       id: create-promo-codes
       author: sadigalizada
@@ -68,7 +67,6 @@ databaseChangeLog:
         - dropTable:
             tableName: promo_codes
 
-  # ChangeSet for UserPromoCodeEntity
   - changeSet:
       id: create-user-promo-codes
       author: sadigalizada

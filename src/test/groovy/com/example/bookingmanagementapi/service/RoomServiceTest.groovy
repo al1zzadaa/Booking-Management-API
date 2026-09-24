@@ -18,12 +18,10 @@ class RoomServiceTest extends Specification {
 
     def roomRepository = Mock(RoomRepository)
     def roomMapper = Mock(RoomMapper)
-    def validationUtil = Mock(ValidationUtil)
 
     def roomService = new RoomServiceImpl(
             roomRepository,
-            roomMapper,
-            validationUtil
+            roomMapper
     )
 
 

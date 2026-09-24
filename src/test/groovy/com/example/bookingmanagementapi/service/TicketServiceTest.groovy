@@ -64,11 +64,6 @@ class TicketServiceTest extends Specification {
             calculationService
     )
 
-
-    // =========================================================
-    // book
-    // =========================================================
-
     def "book should create reserved booking successfully"() {
         given:
         def user = new UserEntity()
@@ -424,11 +419,6 @@ class TicketServiceTest extends Specification {
         0 * flightBookingRepository.save(_)
     }
 
-
-    // =========================================================
-    // payTicket
-    // =========================================================
-
     def "payTicket should pay and confirm booking successfully"() {
         given:
         def user = new UserEntity(id: 1L)
@@ -551,11 +541,6 @@ class TicketServiceTest extends Specification {
         0 * loyaltyPointService._
         0 * eventPublisher._
     }
-
-
-    // =========================================================
-    // cancel
-    // =========================================================
 
     def "cancel should refund and cancel confirmed booking"() {
         given:
@@ -680,11 +665,6 @@ class TicketServiceTest extends Specification {
         0 * transactionService._
     }
 
-
-    // =========================================================
-    // findAll
-    // =========================================================
-
     def "findAll should return mapped tickets"() {
         given:
         def filter = new TicketFilter()
@@ -722,11 +702,6 @@ class TicketServiceTest extends Specification {
 
         result == []
     }
-
-
-    // =========================================================
-    // findById
-    // =========================================================
 
     def "findById should return ticket response"() {
         given:

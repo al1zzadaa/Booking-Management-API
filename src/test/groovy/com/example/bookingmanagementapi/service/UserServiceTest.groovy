@@ -520,11 +520,6 @@ class UserServiceTest extends Specification {
         thrown(NotFoundException)
     }
 
-
-    // =========================
-    // deleteProfilePhoto
-    // =========================
-
     def "deleteProfilePhoto should delete existing photo"() {
         given:
         def user = new UserEntity()

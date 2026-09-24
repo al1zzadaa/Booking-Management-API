@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for FavoriteFlightEntity
   - changeSet:
       id: create-favorite-flights
       author: sadigalizada
@@ -37,7 +36,6 @@ databaseChangeLog:
         - dropTable:
             tableName: favorite_flights
 
-  # ChangeSet for FavoriteHotelEntity
   - changeSet:
       id: create-favorite-hotels
       author: sadigalizada

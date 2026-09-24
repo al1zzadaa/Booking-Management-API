@@ -26,15 +26,15 @@ class SubscriptionAutoRenewServiceTest extends Specification {
     def "should auto renew subscriptions successfully"() {
         given:
         def account = new AccountEntity()
-        account.id = 20L
+        account.setId(20L)
 
         def plan = new SubscriptionPlanEntity()
-        plan.id = 10L
+        plan.setId(10L)
 
         def subscription = new SubscriptionEntity()
-        subscription.id = 100L
-        subscription.autoRenewAccount = account
-        subscription.subscriptionPlan = plan
+        subscription.setId(100L)
+        subscription.setAutoRenewAccount(account)
+        subscription.setSubscriptionPlan(plan)
 
         def pageable = PageRequest.of(0, 20)
 
@@ -45,7 +45,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
         )
 
         def user = new UserEntity()
-        user.id = 1L
+        user.setId(1L)
 
         when:
         service.autoRenew()
@@ -63,7 +63,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
                 }
         )
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 
     def "should fail auto renewal when user is not found"() {
@@ -97,7 +97,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
 
         0 * subscriptionService.renew(_, _)
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 
     def "should continue when subscription renewal fails"() {
@@ -140,7 +140,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
                 }
         ) >> { throw new RuntimeException("Payment failed") }
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 
     def "should do nothing when there are no subscriptions due for renewal"() {
@@ -151,7 +151,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
         service.autoRenew()
 
         then:
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
 
         0 * userRepository._
         0 * subscriptionService._
@@ -220,7 +220,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
                 }
         )
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 
     def "should continue processing other subscriptions when one renewal fails"() {
@@ -286,7 +286,7 @@ class SubscriptionAutoRenewServiceTest extends Specification {
                 }
         )
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 
     def "should process another page of subscriptions"() {
@@ -358,6 +358,6 @@ class SubscriptionAutoRenewServiceTest extends Specification {
                 }
         )
 
-        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>()
+        1 * subscriptionRepository.findDueForRenewal(pageable) >> new PageImpl<>([])
     }
 }

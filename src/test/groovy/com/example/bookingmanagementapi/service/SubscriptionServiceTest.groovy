@@ -86,7 +86,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof SubscribeEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 
@@ -190,7 +190,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof SubscriptionCancelledEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
 
         0 * subscriptionRepository.save(_)
@@ -259,7 +259,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof SubscriptionRenewedEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 
@@ -297,7 +297,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof SubscriptionRenewedEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 
@@ -338,7 +338,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof SubscriptionRenewedEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 
@@ -377,7 +377,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof AutoRenewEnabledEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 
@@ -396,7 +396,7 @@ class SubscriptionServiceTest extends Specification {
 
         1 * eventPublisher.publishEvent({
             it instanceof AutoRenewDisableEvent &&
-                    it.userId == 1L
+                    it.userId() == 1L
         })
     }
 

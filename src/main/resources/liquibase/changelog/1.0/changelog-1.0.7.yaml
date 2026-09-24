@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for HotelReviewEntity
   - changeSet:
       id: 013-create-hotel-reviews
       author: sadigalizada
@@ -48,7 +47,6 @@ databaseChangeLog:
         - dropTable:
             tableName: hotel_review
 
-  # ChangeSet for FlightReviewEntity
   - changeSet:
       id: create-flight-reviews
       author: sadigalizada

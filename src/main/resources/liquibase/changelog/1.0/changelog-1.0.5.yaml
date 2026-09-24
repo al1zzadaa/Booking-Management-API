@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for BookingEntity
   - changeSet:
       id: create-bookings
       author: sadigalizada
@@ -68,7 +67,6 @@ databaseChangeLog:
         - dropTable:
             tableName: bookings
 
-  # ChangeSet for TicketEntity
   - changeSet:
       id: create-tickets
       author: sadigalizada

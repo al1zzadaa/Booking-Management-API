@@ -1,5 +1,4 @@
 databaseChangeLog:
-  # ChangeSet for SubscriptionPlanEntity
   - changeSet:
       id: create-subscription-plans
       author: sadigalizada
@@ -38,7 +37,6 @@ databaseChangeLog:
         - dropTable:
             tableName: subscription_plans
 
-  # ChangeSet for SubscriptionEntity
   - changeSet:
       id: create-subscriptions
       author: sadigalizada
