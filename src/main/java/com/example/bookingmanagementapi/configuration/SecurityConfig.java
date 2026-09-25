@@ -73,10 +73,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/fare-baggage").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/fare-baggage/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/fare-baggage/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,
-                                "/fare-baggage/*",
-                                "/fare-baggage"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/fare-baggage/*",
+                                "/fare-baggage").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/favorite-flights").authenticated()
                         .requestMatchers(HttpMethod.GET, "/favorite-flights/*").authenticated()

@@ -133,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
 
 
         BookingEntity booking = bookingRepository.findById(bookingId)
-                .orElseThrow(null);
+                .orElseThrow(() -> new NotFoundException("Booking not found!"));
 
 
         if (!booking.getUser().getId().equals(user.getId())) {
@@ -163,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
     public void refundBooking(String username, Long bookingId) {
 
         UserEntity userEntity = userRepository
-                .findByEmail(username).orElseThrow(null);
+                .findByEmail(username).orElseThrow(() -> new NotFoundException("User not found"));
 
 
         BookingEntity booking = bookingRepository.findById(bookingId)
@@ -222,7 +222,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponse getBookingById(Long id) {
 
-        BookingEntity booking = bookingRepository.findById(id).orElse(null);
+        BookingEntity booking = bookingRepository.findById(id).orElseThrow(() -> new NotFoundException("Booking not found"));
 
         return bookingMapper.toDto(booking);
     }

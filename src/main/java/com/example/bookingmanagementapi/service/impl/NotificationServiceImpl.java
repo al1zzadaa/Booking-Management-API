@@ -126,9 +126,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<NotificationResponse> getUnreadNotifications(Long userId, Pageable pageable) {
+    public Page<@NonNull NotificationResponse> getUnreadNotifications(Long userId, Pageable pageable) {
 
-        Page<NotificationEntity> notificationEntities = notificationRepository.findUnreadByUserId(userId, pageable);
+        Page<@NonNull NotificationEntity> notificationEntities = notificationRepository.findUnreadByUserId(userId, pageable);
 
         return notificationEntities.map(notificationMapper::toDto);
     }
